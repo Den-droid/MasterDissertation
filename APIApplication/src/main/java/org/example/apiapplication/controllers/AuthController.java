@@ -15,38 +15,38 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @PostMapping("/sign-in")
+    @PostMapping("/signIn")
     public ResponseEntity<?> signIn(@RequestBody SignInDto signInDto) {
         TokensDto jwtDto = authService.signIn(signInDto);
         return ResponseEntity.ok(jwtDto);
     }
 
-    @PutMapping("/refresh-token")
+    @PutMapping("/refreshToken")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenDto refreshTokenDto) {
         TokensDto tokensDto =
                 authService.refreshToken(refreshTokenDto);
         return ResponseEntity.ok(tokensDto);
     }
 
-    @PostMapping("/sign-up")
+    @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@RequestBody SignUpDto signUpDto) {
         authService.signUp(signUpDto);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/forgot-password/token-exists")
+    @GetMapping("/forgotPassword/tokenExists")
     public ResponseEntity<?> existsForgotPasswordToken(@RequestParam String token) {
         boolean tokenExists = authService.existsForgotPasswordToken(token);
         return ResponseEntity.ok(tokenExists);
     }
 
-    @PostMapping("/forgot-password/create")
+    @PostMapping("/forgotPassword/create")
     public ResponseEntity<?> createForgotPassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
         authService.createForgotPassword(forgotPasswordDto);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/forgot-password/change/{token}")
+    @PostMapping("/forgotPassword/change/{token}")
     public ResponseEntity<?> changeForgotPassword(@PathVariable String token,
                                                   @RequestBody ChangePasswordDto changePasswordDto) {
         authService.changeForgotPassword(token, changePasswordDto);

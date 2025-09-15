@@ -3,8 +3,8 @@ package org.example.apiapplication.services.implementations;
 import jakarta.transaction.Transactional;
 import org.example.apiapplication.constants.EntityName;
 import org.example.apiapplication.dto.assignment.AssignmentAnswerDto;
+import org.example.apiapplication.dto.assignment.AssignmentDto;
 import org.example.apiapplication.dto.assignment.AssignmentResponseDto;
-import org.example.apiapplication.dto.assignment.StartAssignmentDto;
 import org.example.apiapplication.dto.assignment.UserAssignmentsDto;
 import org.example.apiapplication.entities.Answer;
 import org.example.apiapplication.entities.Assignment;
@@ -44,6 +44,19 @@ public class AssignmentServiceImpl implements AssignmentService {
         this.functionRepository = functionRepository;
         this.markRepository = markRepository;
         this.userRepository = userRepository;
+    }
+
+    @Override
+    public AssignmentDto getById(int assignmentId) {
+        Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, assignmentId)
+        );
+
+        return new AssignmentDto(
+                assignment.getFunction().getHint(),
+                assignment.getAttemptsRemaining(),
+                assignment.getFunction().getVariablesCount()
+        );
     }
 
     @Override
@@ -92,16 +105,13 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public StartAssignmentDto start(int assignmentId) {
+    public void start(int assignmentId) {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(
                 () -> new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, assignmentId)
         );
 
         assignment.setStatus(AssignmentStatus.ACTIVE);
         assignmentRepository.save(assignment);
-
-        return new StartAssignmentDto(assignment.getFunction().getHint(), assignment.getAttemptsRemaining(),
-                assignment.getFunction().getVariablesCount());
     }
 
     @Override

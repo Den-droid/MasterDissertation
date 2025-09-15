@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface MarkService {
     void markAssignment(int assignmentId, MarkAssignmentDto markAssignmentDto);
-    List<AssignmentsToMarkDto> getAssignmentsForMark(int userId);
+    List<AssignmentsToMarkDto> getAssignmentsToMark(int userId);
 }

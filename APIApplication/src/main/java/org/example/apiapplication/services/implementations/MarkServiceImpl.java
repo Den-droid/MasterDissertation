@@ -1,5 +1,6 @@
 package org.example.apiapplication.services.implementations;
 
+import jakarta.transaction.Transactional;
 import org.example.apiapplication.constants.EntityName;
 import org.example.apiapplication.dto.mark.AssignmentsToMarkDto;
 import org.example.apiapplication.dto.mark.MarkAssignmentDto;
@@ -9,9 +10,12 @@ import org.example.apiapplication.exceptions.entity.EntityWithIdNotFoundExceptio
 import org.example.apiapplication.repositories.AssignmentRepository;
 import org.example.apiapplication.repositories.MarkRepository;
 import org.example.apiapplication.services.interfaces.MarkService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
+@Transactional
 public class MarkServiceImpl implements MarkService {
     MarkRepository markRepository;
     AssignmentRepository assignmentRepository;
@@ -47,7 +51,7 @@ public class MarkServiceImpl implements MarkService {
     }
 
     @Override
-    public List<AssignmentsToMarkDto> getAssignmentsForMark(int userId) {
+    public List<AssignmentsToMarkDto> getAssignmentsToMark(int userId) {
         return List.of();
     }
 }
