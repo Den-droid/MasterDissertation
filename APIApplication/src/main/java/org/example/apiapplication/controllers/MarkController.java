@@ -18,7 +18,7 @@ public class MarkController {
         this.markService = markService;
     }
 
-    @PostMapping("/assignments/{assignmentId}/mark")
+    @PutMapping("/assignments/{assignmentId}/mark")
     public ResponseEntity<?> mark(@PathVariable int assignmentId, @RequestBody MarkAssignmentDto markAssignmentDto) {
         markService.markAssignment(assignmentId, markAssignmentDto);
         return ResponseEntity.ok().build();
