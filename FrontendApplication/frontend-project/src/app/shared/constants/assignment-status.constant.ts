@@ -1,0 +1,3 @@
+export enum AssignmentStatus {
+  ASSIGNED, ACTIVE, STOPPED, CORRECT_ANSWER_STOPPED, FINISHED
+}
