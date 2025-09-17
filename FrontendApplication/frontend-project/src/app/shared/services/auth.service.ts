@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { ChangePasswordDto, ForgotPasswordDto, RefreshTokenDto, SignInDto, SignUpByInviteDto, SignUpDto, TokensDto } from "../models/auth.model";
+import { ChangePasswordDto, ForgotPasswordDto, RefreshTokenDto, SignInDto, SignUpDto, TokensDto } from "../models/auth.model";
 import { Observable } from "rxjs";
 import { JWTTokenService } from "./jwt-token.service";
 import { RoleName } from "../constants/roles.constant";
@@ -16,15 +16,15 @@ export class AuthService {
   }
 
   signIn(signInDto: SignInDto): Observable<TokensDto> {
-    return this.httpClient.post<TokensDto>(this.url + "/sign-in", signInDto);
+    return this.httpClient.post<TokensDto>(this.url + "/signIn", signInDto);
   }
 
   signUp(signUpDto: SignUpDto): Observable<any> {
-    return this.httpClient.post(this.url + "/sign-up", signUpDto);
+    return this.httpClient.post(this.url + "/signUp", signUpDto);
   }
 
   forgotPassword(forgotPasswordDto: ForgotPasswordDto): Observable<any> {
-    return this.httpClient.post(this.url + "/forgot-password/create", forgotPasswordDto);
+    return this.httpClient.post(this.url + "/forgotPassword/create", forgotPasswordDto);
   }
 
   existsByForgotPasswordToken(token: string): Observable<boolean> {
@@ -33,49 +33,32 @@ export class AuthService {
         params: new HttpParams().set('token', token)
       } : {};
 
-    return this.httpClient.get<boolean>(this.url + "/forgot-password/token-exists", options);
-  }
-
-  existsByInviteCode(inviteCode: string): Observable<boolean> {
-    const options = inviteCode ?
-      {
-        params: new HttpParams().set('inviteCode', inviteCode)
-      } : {};
-
-    return this.httpClient.get<boolean>(this.url + "/sign-up/invite-code-exists", options);
+    return this.httpClient.get<boolean>(this.url + "/forgotPassword/tokenExists", options);
   }
 
   changePassword(token: string, changePasswordDto: ChangePasswordDto): Observable<any> {
-    return this.httpClient.post(this.url + "/forgot-password/change/" + token, changePasswordDto);
-  }
-
-  signUpByInviteCode(inviteCode: string, signUpByInviteCode: SignUpByInviteDto): Observable<any> {
-    return this.httpClient.put(this.url + "/sign-up/" + inviteCode, signUpByInviteCode);
+    return this.httpClient.post(this.url + "/forgotPassword/change/" + token, changePasswordDto);
   }
 
   refreshToken(refreshTokenDto: RefreshTokenDto): Observable<TokensDto> {
-    return this.httpClient.put<TokensDto>(this.url + "/refresh-token", refreshTokenDto);
+    return this.httpClient.put<TokensDto>(this.url + "/refreshToken", refreshTokenDto);
   }
 
   isAuthenticated(): boolean {
     return this.jwtService.getToken() != null;
   }
 
-  isUser(): boolean {
-    return this.jwtService.getRoles()?.includes(RoleName.USER) ?? false;
+  isStudent(): boolean {
+    return this.jwtService.getRoles()?.includes(RoleName.STUDENT) ?? false;
   }
 
-  isChairAdmin(): boolean {
-    return this.jwtService.getRoles()?.includes(RoleName.CHAIR_ADMIN) ?? false;
-  }
-
-  isFacultyAdmin(): boolean {
-    return this.jwtService.getRoles()?.includes(RoleName.FACULTY_ADMIN)
-      ?? false;
+  isTeacher(): boolean {
+    return this.jwtService.getRoles()?.includes(RoleName.TEACHER) ?? false;
   }
 
   isAdmin(): boolean {
-    return this.jwtService.getRoles()?.includes(RoleName.MAIN_ADMIN) ?? false;
+    return this.jwtService.getRoles()?.includes(RoleName.ADMIN)
+      ?? false;
   }
 
   logout() {

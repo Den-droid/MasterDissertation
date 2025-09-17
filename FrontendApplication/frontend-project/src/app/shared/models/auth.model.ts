@@ -9,7 +9,7 @@ export class TokensDto {
 }
 
 export class SignUpDto {
-  constructor(public email: string, public password: string, public scientistId: number) { }
+  constructor(public email: string, public password: string) { }
 }
 
 export class ForgotPasswordDto {
@@ -18,10 +18,6 @@ export class ForgotPasswordDto {
 
 export class ChangePasswordDto {
   constructor(public newPassword: string) { }
-}
-
-export class SignUpByInviteDto {
-  constructor(public fullName: string, public password: string) { }
 }
 
 export class RefreshTokenDto {

@@ -5,7 +5,7 @@ import org.example.apiapplication.constants.EntityName;
 import org.example.apiapplication.dto.assignment.AssignmentAnswerDto;
 import org.example.apiapplication.dto.assignment.AssignmentDto;
 import org.example.apiapplication.dto.assignment.AssignmentResponseDto;
-import org.example.apiapplication.dto.assignment.UserAssignmentsDto;
+import org.example.apiapplication.dto.assignment.UserAssignmentDto;
 import org.example.apiapplication.entities.Answer;
 import org.example.apiapplication.entities.Assignment;
 import org.example.apiapplication.entities.Function;
@@ -60,8 +60,17 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public List<UserAssignmentsDto> getByUser(int userId) {
-        return List.of();
+    public List<UserAssignmentDto> getByUser(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.USER, userId)
+        );
+
+        List<Assignment> assignments = assignmentRepository.findByUserAssigned(user);
+
+        List<AssignmentDto> assignmentDtos = assignments.stream()
+                .map(assignment -> new UserAssignmentDto(assignment.getStatus(),
+                        assignment.getFunction().getResultType()))
+                .toList();
     }
 
     @Override

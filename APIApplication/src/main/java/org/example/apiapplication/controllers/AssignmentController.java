@@ -3,7 +3,7 @@ package org.example.apiapplication.controllers;
 import org.example.apiapplication.dto.assignment.AssignmentAnswerDto;
 import org.example.apiapplication.dto.assignment.AssignmentDto;
 import org.example.apiapplication.dto.assignment.AssignmentResponseDto;
-import org.example.apiapplication.dto.assignment.UserAssignmentsDto;
+import org.example.apiapplication.dto.assignment.UserAssignmentDto;
 import org.example.apiapplication.services.interfaces.AssignmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +21,8 @@ public class AssignmentController {
     }
 
     @GetMapping("/getByUserId")
-    public ResponseEntity<List<UserAssignmentsDto>> getByUserId(@RequestParam Integer userId) {
-        List<UserAssignmentsDto> userAssignmentsDto = assignmentService.getByUser(userId);
+    public ResponseEntity<List<UserAssignmentDto>> getByUserId(@RequestParam Integer userId) {
+        List<UserAssignmentDto> userAssignmentsDto = assignmentService.getByUser(userId);
         return ResponseEntity.ok(userAssignmentsDto);
     }
 
