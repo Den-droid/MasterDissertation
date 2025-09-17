@@ -9,6 +9,7 @@ import org.example.apiapplication.dto.assignment.UserAssignmentDto;
 import org.example.apiapplication.entities.Answer;
 import org.example.apiapplication.entities.Assignment;
 import org.example.apiapplication.entities.Function;
+import org.example.apiapplication.entities.Mark;
 import org.example.apiapplication.entities.user.User;
 import org.example.apiapplication.enums.AssignmentStatus;
 import org.example.apiapplication.enums.FunctionResultType;
@@ -19,10 +20,7 @@ import org.example.apiapplication.utils.AnswerParser;
 import org.example.apiapplication.utils.ExpressionParser;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,13 +62,34 @@ public class AssignmentServiceImpl implements AssignmentService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new EntityWithIdNotFoundException(EntityName.USER, userId)
         );
+        List<Assignment> assignments = user.getAssignments();
 
-        List<Assignment> assignments = assignmentRepository.findByUserAssigned(user);
+        List<UserAssignmentDto> userAssignmentDtos = assignments.stream()
+                .map(assignment -> {
+                    List<Answer> answers = assignment.getAnswers();
+                    Answer lastAnswer = null;
 
-        List<AssignmentDto> assignmentDtos = assignments.stream()
-                .map(assignment -> new UserAssignmentDto(assignment.getStatus(),
-                        assignment.getFunction().getResultType()))
+                    if (!answers.isEmpty()) {
+                        Comparator<Answer> comparator = Comparator.comparingInt(Answer::getAnswerNumber).reversed();
+                        lastAnswer = answers.stream().min(comparator).orElse(null);
+                    }
+
+                    List<Mark> marks = assignment.getMarks();
+                    Mark mark = null;
+                    if (marks != null && !marks.isEmpty()) {
+                        mark = marks.get(0);
+                    }
+
+                    return new UserAssignmentDto(assignment.getStatus().ordinal(),
+                            assignment.getFunction().getResultType().ordinal(),
+                            lastAnswer != null ? lastAnswer.getAnswer() : "",
+                            mark != null ? mark.getMark() : -1,
+                            mark != null ? mark.getComment() : "",
+                            assignment.hasCorrectAnswer());
+                })
                 .toList();
+
+        return userAssignmentDtos;
     }
 
     @Override
@@ -107,7 +126,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         assignment.setUserAssigned(user);
         assignment.setFunction(possibleFunctions.get(possibleFunctionIndex));
         assignment.setAttemptsRemaining(25);
-        assignment.setAnswerCorrect(false);
+        assignment.setHasCorrectAnswer(false);
         assignment.setStatus(AssignmentStatus.ACTIVE);
 
         assignmentRepository.save(assignment);
@@ -129,7 +148,8 @@ public class AssignmentServiceImpl implements AssignmentService {
                 () -> new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, assignmentId)
         );
 
-        if (assignment.isAnswerCorrect())
+
+        if (assignment.hasCorrectAnswer())
             assignment.setStatus(AssignmentStatus.CORRECT_ANSWER_STOPPED);
         else
             assignment.setStatus(AssignmentStatus.STOPPED);
@@ -160,25 +180,28 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .equals(FunctionResultType.MIN)
                 ? assignment.getFunction().getMinValue()
                 : assignment.getFunction().getMaxValue();
-        if (Double.parseDouble(correctResult) == result) {
-            assignment.setAnswerCorrect(true);
-        } else {
-            assignment.setAnswerCorrect(false);
-            assignment.setAttemptsRemaining(assignment.getAttemptsRemaining() - 1);
-        }
-
-        assignmentRepository.save(assignment);
 
         Answer answer = new Answer();
+
+        if (Double.parseDouble(correctResult) == result) {
+            answer.setCorrect(true);
+            assignment.setHasCorrectAnswer(true);
+        } else {
+            answer.setCorrect(false);
+            assignment.setAttemptsRemaining(assignment.getAttemptsRemaining() - 1);
+            assignment.setHasCorrectAnswer(false);
+        }
+
         answer.setAssignment(assignment);
         answer.setAnswer(assignmentAnswerDto.answer());
 
-        List<Answer> answers = answerRepository.findByAssignment(assignment);
+        List<Answer> answers = assignment.getAnswers();
         answer.setAnswerNumber(answers.size() + 1);
 
+        assignmentRepository.save(assignment);
         answerRepository.save(answer);
 
         return new AssignmentResponseDto(result, assignment.getAttemptsRemaining(),
-                assignment.isAnswerCorrect());
+                answer.isCorrect());
     }
 }

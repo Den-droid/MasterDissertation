@@ -17,4 +17,5 @@ public class Answer {
 
     private String answer;
     private int answerNumber;
+    private boolean isCorrect;
 }

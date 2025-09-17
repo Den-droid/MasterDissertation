@@ -16,7 +16,7 @@ export class AssignmentResponseDto {
   constructor(
     public result: number,
     public attemptsRemaining: number,
-    public isCorrect: boolean
+    public hasCorrectAnswer: boolean
   ) {}
 }
 
@@ -27,6 +27,6 @@ export class UserAssignmentDto {
     public lastAnswer: string,
     public mark: number,
     public comment: string,
-    public lastAnswerCorrect: number
+    public lastAnswerCorrect: boolean
   ) {}
 }
