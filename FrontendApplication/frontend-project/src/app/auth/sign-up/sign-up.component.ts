@@ -3,11 +3,10 @@ import { Router } from '@angular/router';
 import { ValidateEmails } from '../../shared/validators/emails.validator';
 import { v4 as uuidv4 } from 'uuid';
 import { SignUpDto } from '../../shared/models/auth.model';
-import { ScientistPreview } from '../../shared/models/scientist.model';
 import { AuthService } from '../../shared/services/auth.service';
-import { ScientistService } from '../../shared/services/scientist.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { authTranslationMap } from '../../shared/translations/auth.translation';
 
 @Component({
   selector: 'app-auth-signUp',
@@ -20,40 +19,21 @@ export class SignUpComponent implements OnInit {
   password = '';
   confirmPassword = '';
 
-  scientists: ScientistPreview[] = [];
-  displayedScientists: ScientistPreview[] = [];
-
   selectedScientist = 0;
 
   error = '';
   uuid = '';
 
   public set searchQuery(searchQuery: string) {
-    this.selectedScientist = 0;
-    this.displayedScientists = this.scientists.filter(x => x.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    if (this.displayedScientists.length > 0) {
-      this.selectedScientist = this.displayedScientists[0].id;
-    }
   }
 
-  constructor(private readonly router: Router, private readonly authService: AuthService,
-    private readonly scientistService: ScientistService
+  constructor(private readonly router: Router, private readonly authService: AuthService
   ) {
   }
 
   ngOnInit(): void {
     this.uuid = uuidv4();
-    this.scientistService.getNotRegisteredScientists().subscribe({
-      next: (result: ScientistPreview[]) => {
-        this.scientists = result;
-        this.displayedScientists = this.scientists;
-
-        if (this.displayedScientists.length > 0) {
-          this.selectedScientist = this.displayedScientists[0].id;
-        }
-      }
-    });
   }
 
   signUp() {
@@ -65,7 +45,7 @@ export class SignUpComponent implements OnInit {
       this.error = '';
     }
 
-    let signUpDto = new SignUpDto(this.email, this.password, this.selectedScientist);
+    let signUpDto = new SignUpDto(this.email, this.password);
 
     this.authService.signUp(signUpDto).subscribe({
       error: (error: any) => {
@@ -79,20 +59,17 @@ export class SignUpComponent implements OnInit {
 
   validate(): string {
     if (this.email.length === 0) {
-      return "Введіть елетронну адресу!";
+      return authTranslationMap['email-address-required'];
     } if (!ValidateEmails(this.email)) {
-      return "Введіть правильну електронну адресу";
+      return authTranslationMap['email-address-incorrect'];
     }
     if (this.password.length < 8) {
-      return "Пароль має містити хоча б 8 символів!!";
+      return authTranslationMap['password-incorrect'];
     } if (this.confirmPassword.length === 0) {
-      return "Введіть підтвердження пароля!";
+      return authTranslationMap['confirm-password-required'];
     }
     if (this.confirmPassword !== this.password) {
-      return "Пароль та підтвердження пароля мають збігатись!";
-    }
-    if (this.selectedScientist === 0) {
-      return "Виберіть науковця!";
+      return authTranslationMap['password-not-match-confirm'];
     }
     return '';
   }

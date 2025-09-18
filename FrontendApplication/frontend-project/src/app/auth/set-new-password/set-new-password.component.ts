@@ -4,6 +4,7 @@ import { AuthService } from '../../shared/services/auth.service';
 import { ChangePasswordDto } from '../../shared/models/auth.model';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { authTranslationMap } from '../../shared/translations/auth.translation';
 
 @Component({
   selector: 'app-auth-set-new-password',
@@ -25,7 +26,6 @@ export class SetNewPasswordComponent implements OnInit {
       this.token = data['token'];
       this.authService.existsByForgotPasswordToken(this.token).subscribe({
         next: (result: boolean) => {
-          console.log(result);
           if (!result) {
             this.router.navigateByUrl("/error/404");
           }
@@ -57,12 +57,12 @@ export class SetNewPasswordComponent implements OnInit {
 
   validate(): string {
     if (this.password.length < 8) {
-      return "Пароль має містити хоча б 8 символів!";
+      return authTranslationMap['password-incorrect'];
     } if (this.confirmPassword.length === 0) {
-      return "Введіть підтвердження паролю!";
+      return authTranslationMap['confirm-password-required'];
     }
     if (this.confirmPassword !== this.password) {
-      return "Пароль та підтвердження паролю мають збігатися!";
+      return authTranslationMap['password-not-match-confirm'];
     }
     return '';
   }

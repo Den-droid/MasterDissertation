@@ -6,6 +6,7 @@ import { AuthService } from '../../shared/services/auth.service';
 import { ForgotPasswordDto } from '../../shared/models/auth.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { authTranslationMap } from '../../shared/translations/auth.translation';
 
 @Component({
   selector: 'app-auth-forgot-password',
@@ -48,10 +49,10 @@ export class ForgotPasswordComponent implements OnInit {
 
   validate(): string {
     if (this.email.length === 0) {
-      return 'Введіть електронну адресу!';
+      return authTranslationMap['email-address-required'];
     }
     if (!ValidateEmails(this.email)) {
-      return 'Введіть правильну електронну адресу!'
+      return authTranslationMap['email-address-incorrect'];
     }
     return '';
   }

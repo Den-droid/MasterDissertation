@@ -6,6 +6,7 @@ import { AuthService } from '../../shared/services/auth.service';
 import { SignInDto, TokensDto } from '../../shared/models/auth.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { authTranslationMap } from '../../shared/translations/auth.translation';
 
 @Component({
   selector: 'app-auth-signIn',
@@ -37,7 +38,7 @@ export class SignInComponent {
         this.jwtService.setRefreshToken(result.refreshToken);
       },
       error: (error: any) => {
-        this.error = "Неправильна електронна адреса чи пароль! Спробуйте знову!";
+        this.error = authTranslationMap['user-not-exists-by-email-password'];
       },
       complete: () => {
         this.router.navigateByUrl("/user/profiles");
@@ -47,13 +48,13 @@ export class SignInComponent {
 
   validate(): string {
     if (this.email.length === 0) {
-      return "Введіть електронну адресу!";
+      return authTranslationMap['email-address-required'];
     }
     if (!ValidateEmails(this.email)) {
-      return "Введіть правильну електронну адресу!";
+      return authTranslationMap['email-address-incorrect'];
     }
     if (this.password.length < 8) {
-      return "Пароль має містити хоча б 8 символів!";
+      return authTranslationMap['password-incorrect'];
     }
     return '';
   }
