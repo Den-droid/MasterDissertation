@@ -4,6 +4,7 @@ import { provideRouter, Routes } from '@angular/router';
 import { AuthComponent } from './auth/auth.component';
 import { ErrorComponent } from './error/error.component';
 import { provideHttpClient } from '@angular/common/http';
+import { StudentComponent } from './student/student.component';
 
 const routes: Routes = [
   { path: "", redirectTo: "/auth/signin", pathMatch: "full" },
@@ -14,6 +15,10 @@ const routes: Routes = [
   {
     path: "error", component: ErrorComponent,
     loadChildren: () => import('./error/error.module').then(m => m.ErrorModule)
+  },
+  {
+    path: "student", component: StudentComponent,
+    loadChildren: () => import('./student/student.module').then(m => m.StudentModule)
   },
   { path: '**', redirectTo: '/error/404', pathMatch: 'full' }
 ]

@@ -6,7 +6,7 @@ import { SignUpDto } from '../../shared/models/auth.model';
 import { AuthService } from '../../shared/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { authTranslationMap } from '../../shared/translations/auth.translation';
+import { authLabels } from '../../shared/translations/auth.translation';
 
 @Component({
   selector: 'app-auth-signUp',
@@ -59,17 +59,17 @@ export class SignUpComponent implements OnInit {
 
   validate(): string {
     if (this.email.length === 0) {
-      return authTranslationMap['email-address-required'];
+      return authLabels['email-address-required'];
     } if (!ValidateEmails(this.email)) {
-      return authTranslationMap['email-address-incorrect'];
+      return authLabels['email-address-incorrect'];
     }
     if (this.password.length < 8) {
-      return authTranslationMap['password-incorrect'];
+      return authLabels['password-incorrect'];
     } if (this.confirmPassword.length === 0) {
-      return authTranslationMap['confirm-password-required'];
+      return authLabels['confirm-password-required'];
     }
     if (this.confirmPassword !== this.password) {
-      return authTranslationMap['password-not-match-confirm'];
+      return authLabels['password-not-match-confirm'];
     }
     return '';
   }

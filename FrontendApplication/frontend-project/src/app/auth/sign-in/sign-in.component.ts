@@ -6,7 +6,7 @@ import { AuthService } from '../../shared/services/auth.service';
 import { SignInDto, TokensDto } from '../../shared/models/auth.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { authTranslationMap } from '../../shared/translations/auth.translation';
+import { authLabels } from '../../shared/translations/auth.translation';
 
 @Component({
   selector: 'app-auth-signIn',
@@ -38,7 +38,7 @@ export class SignInComponent {
         this.jwtService.setRefreshToken(result.refreshToken);
       },
       error: (error: any) => {
-        this.error = authTranslationMap['user-not-exists-by-email-password'];
+        this.error = authLabels['user-not-exists-by-email-password'];
       },
       complete: () => {
         this.router.navigateByUrl("/user/profiles");
@@ -48,13 +48,13 @@ export class SignInComponent {
 
   validate(): string {
     if (this.email.length === 0) {
-      return authTranslationMap['email-address-required'];
+      return authLabels['email-address-required'];
     }
     if (!ValidateEmails(this.email)) {
-      return authTranslationMap['email-address-incorrect'];
+      return authLabels['email-address-incorrect'];
     }
     if (this.password.length < 8) {
-      return authTranslationMap['password-incorrect'];
+      return authLabels['password-incorrect'];
     }
     return '';
   }

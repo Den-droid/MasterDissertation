@@ -1,0 +1,81 @@
+<div class="main-content">
+
+  <!-- Main title -->
+  <h1 class="mb-4">
+    <i class="fa-solid fa-tasks me-2"></i> Завдання
+  </h1>
+
+  <!-- Active section -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0">Активні</h2>
+    <button class="btn btn-primary" (onclick)="assign()">
+      <i class="fa-solid fa-plus me-2"></i> Отримати завдання
+    </button>
+  </div>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th>Завдання</th>
+          <th>Тип завдання</th>
+          <th>Спроб залишилось</th>
+          <th>Статус</th>
+          <th>Дія</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td></td>
+          <td></td>
+          <td><span class="badge bg-success"></span></td>
+          <td>
+            <button class="btn btn-sm btn-outline-info">
+              <i class="fa-solid fa-forward"></i>
+              <i class="fa-solid fa-play"></i>
+            </button>
+          </td>
+        </tr>
+        @for (activeAssignment of activeAssignments; track activeAssignment.id) {
+        <tr>
+          <td>{{activeAssignment.hint}}</td>
+          <td>{{activeAssignment.functionResultType}}</td>
+          <td>{{activeAssignment.attemptsRemaining}}</td>
+          <td><span class="badge bg-success">{{activeAssignment.status}}</span></td>
+          <td>
+            <button class="btn btn-sm btn-outline-info">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="h5 mb-3">Завершені</h2>
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th>Завдання</th>
+          <th>Тип завдання</th>
+          <th>Оцінка</th>
+          <th>Коментар</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (finishedAssignment of finishedAssignments; track finishedAssignment.id) {
+        <tr>
+          <td>{{finishedAssignment.hint}}</td>
+          <td>{{finishedAssignment.functionResultType}}</td>
+          <td>{{finishedAssignment.mark}}</td>
+          <td>{{finishedAssignment.comment}}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+</div>

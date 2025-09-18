@@ -60,6 +60,10 @@ export class JWTTokenService {
     return this.decodedToken['roles'];
   }
 
+  getId(){
+    return this.decodedToken['userId'];
+  }
+
   getExpiryTime() {
     return this.decodedToken['exp'];
   }

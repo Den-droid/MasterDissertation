@@ -36,16 +36,6 @@
     </div>
   </div>
 
-  <div class="mb-3 row justify-content-center">
-    <label class="col-sm-4 col-form-label" for="scientists">Виберіть науковця: </label>
-    <div class="col-sm-8">
-      <select id="scientists" name="scientist" [(ngModel)]="selectedScientist" class="form-control">
-        <option *ngFor="let scientist of displayedScientists" [value]="scientist.id">
-          {{scientist.name}}</option>
-      </select>
-    </div>
-  </div>
-
 
   <div *ngIf="error.length > 0" class="row mb-4" style="color: red">
     <div class="col d-flex justify-content-center">

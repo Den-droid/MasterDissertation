@@ -66,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
                 .map(x -> x.getName().name())
                 .toList();
 
-        String accessToken = jwtUtils.generateAccessToken(signInDto.email(), roles);
+        String accessToken = jwtUtils.generateAccessToken(signInDto.email(), roles, user.getId());
         String refreshToken = jwtUtils.generateRefreshToken(signInDto.email());
 
         user.setRefreshToken(refreshToken);
@@ -93,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
                 .map(x -> x.getName().name())
                 .toList();
 
-        String accessToken = jwtUtils.generateAccessToken(user.getEmail(), roles);
+        String accessToken = jwtUtils.generateAccessToken(user.getEmail(), roles, user.getId());
         String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
 
         user.setRefreshToken(refreshToken);

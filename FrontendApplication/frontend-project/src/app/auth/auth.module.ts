@@ -6,14 +6,15 @@ import { SignUpSuccessComponent } from './sign-up-success/sign-up-success.compon
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ForgotPasswordSuccessComponent } from './forgot-password-success/forgot-password-success.component';
 import { SetNewPasswordComponent } from './set-new-password/set-new-password.component';
+import { authTitles } from '../shared/translations/auth.translation';
 
 const authRoutes: Routes = [
-  { path: "signin", component: SignInComponent, title: 'Вхід' },
-  { path: "signup", component: SignUpComponent, title: 'Реєстрація' },
-  { path: "signup/success/:dummy", component: SignUpSuccessComponent, title: 'Реєстрація' },
-  { path: "forgotpassword", component: ForgotPasswordComponent, title: 'Забули пароль?' },
-  { path: "forgotpassword/success/:dummy", component: ForgotPasswordSuccessComponent, title: 'Забули пароль?' },
-  { path: "forgotpassword/:token", component: SetNewPasswordComponent, title: 'Відновлення пароля' },
+  { path: "signin", component: SignInComponent, title: authTitles.login },
+  { path: "signup", component: SignUpComponent, title: authTitles['sign-up'] },
+  { path: "signup/success/:dummy", component: SignUpSuccessComponent, title: authTitles['sign-up'] },
+  { path: "forgotpassword", component: ForgotPasswordComponent, title: authTitles['forgot-password'] },
+  { path: "forgotpassword/success/:dummy", component: ForgotPasswordSuccessComponent, title: authTitles['forgot-password'] },
+  { path: "forgotpassword/:token", component: SetNewPasswordComponent, title: authTitles['restore-password'] },
   { path: "**", redirectTo: "/error/404" }
 ]
 

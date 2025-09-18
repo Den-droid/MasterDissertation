@@ -1,5 +1,6 @@
 package org.example.apiapplication.dto.assignment;
 
-public record UserAssignmentDto(int statusId, int functionResultTypeId, String lastAnswer,
-                                int mark, String comment, boolean lastAnswerCorrect) {
+public record UserAssignmentDto(int assignmentId, String hint, int attemptsRemaining,
+                                int statusId, int functionResultTypeId,
+                                int mark, String comment) {
 }

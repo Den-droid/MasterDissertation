@@ -4,7 +4,7 @@ import { AuthService } from '../../shared/services/auth.service';
 import { ChangePasswordDto } from '../../shared/models/auth.model';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { authTranslationMap } from '../../shared/translations/auth.translation';
+import { authLabels } from '../../shared/translations/auth.translation';
 
 @Component({
   selector: 'app-auth-set-new-password',
@@ -57,12 +57,12 @@ export class SetNewPasswordComponent implements OnInit {
 
   validate(): string {
     if (this.password.length < 8) {
-      return authTranslationMap['password-incorrect'];
+      return authLabels['password-incorrect'];
     } if (this.confirmPassword.length === 0) {
-      return authTranslationMap['confirm-password-required'];
+      return authLabels['confirm-password-required'];
     }
     if (this.confirmPassword !== this.password) {
-      return authTranslationMap['password-not-match-confirm'];
+      return authLabels['password-not-match-confirm'];
     }
     return '';
   }

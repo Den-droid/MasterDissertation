@@ -66,26 +66,21 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         List<UserAssignmentDto> userAssignmentDtos = assignments.stream()
                 .map(assignment -> {
-                    List<Answer> answers = assignment.getAnswers();
-                    Answer lastAnswer = null;
-
-                    if (!answers.isEmpty()) {
-                        Comparator<Answer> comparator = Comparator.comparingInt(Answer::getAnswerNumber).reversed();
-                        lastAnswer = answers.stream().min(comparator).orElse(null);
-                    }
-
                     List<Mark> marks = assignment.getMarks();
                     Mark mark = null;
                     if (marks != null && !marks.isEmpty()) {
                         mark = marks.get(0);
                     }
 
-                    return new UserAssignmentDto(assignment.getStatus().ordinal(),
+                    Function function = assignment.getFunction();
+
+                    return new UserAssignmentDto(assignment.getId(),
+                            function.getHint(),
+                            function.getVariablesCount(),
+                            assignment.getStatus().ordinal(),
                             assignment.getFunction().getResultType().ordinal(),
-                            lastAnswer != null ? lastAnswer.getAnswer() : "",
                             mark != null ? mark.getMark() : -1,
-                            mark != null ? mark.getComment() : "",
-                            assignment.hasCorrectAnswer());
+                            mark != null ? mark.getComment() : "");
                 })
                 .toList();
 
