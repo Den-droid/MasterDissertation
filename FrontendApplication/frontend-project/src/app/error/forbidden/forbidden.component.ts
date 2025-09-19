@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-error-forbidden',
-  templateUrl: './forbidden.component.html',
-  styleUrls: ['./forbidden.component.css']
+  templateUrl: './forbidden.component.html'
 })
 export class ForbiddenComponent {
 }

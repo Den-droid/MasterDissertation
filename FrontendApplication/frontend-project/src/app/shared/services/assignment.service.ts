@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { baseUrl } from "../constants/url.constant";
 import { UserAssignmentDto, AssignmentDto, AssignmentAnswerDto, AssignmentResponseDto } from "../models/assignment.model";
+import { AnswerDto } from "../models/answer.model";
 
 @Injectable({
   providedIn: 'root'
@@ -38,8 +39,8 @@ export class AssignmentService {
     return this.httpClient.post(this.url + '/assign', null, options);
   }
 
-  start(assignmentId: number): Observable<any> {
-    return this.httpClient.put(`${this.url}/${assignmentId}/start`, {});
+  startContinue(assignmentId: number): Observable<any> {
+    return this.httpClient.put(`${this.url}/${assignmentId}/startContinue`, {});
   }
 
   stop(assignmentId: number): Observable<any> {
@@ -55,5 +56,9 @@ export class AssignmentService {
       `${this.url}/${assignmentId}/answer`,
       assignmentAnswerDto
     );
+  }
+
+  getAnswers(assignmentId: number): Observable<AnswerDto[]> {
+    return this.httpClient.get<AnswerDto[]>(`${this.url}/${assignmentId}/answers`);
   }
 }

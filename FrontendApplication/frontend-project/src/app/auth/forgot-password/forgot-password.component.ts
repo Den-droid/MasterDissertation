@@ -11,7 +11,6 @@ import { authLabels } from '../../shared/translations/auth.translation';
 @Component({
   selector: 'app-auth-forgot-password',
   templateUrl: './forgot-password.component.html',
-  styleUrls: ['./forgot-password.component.css'],
   imports: [CommonModule, FormsModule]
 })
 export class ForgotPasswordComponent implements OnInit {

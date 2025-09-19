@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AssignmentsComponent } from './assignment-list/assignment-list.component';
 import { studentTitles } from '../shared/translations/student.translation';
+import { AssignmentsComponent } from './assignment-list/assignment-list.component';
 
 const studentRoutes: Routes = [
-  { path: "assignments", component: AssignmentsComponent, title: studentTitles.assignments },
-  { path: "assignments/:id", redirectTo: "", title: studentTitles.assignment }
+  { path: "assignments", component: AssignmentsComponent, title: studentTitles.assignments }
 ]
 
 @NgModule({

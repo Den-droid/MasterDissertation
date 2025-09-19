@@ -9,7 +9,6 @@ import { authLabels } from '../../shared/translations/auth.translation';
 @Component({
   selector: 'app-auth-set-new-password',
   templateUrl: './set-new-password.component.html',
-  styleUrls: ['./set-new-password.component.css'],
   imports: [FormsModule, CommonModule]
 })
 export class SetNewPasswordComponent implements OnInit {

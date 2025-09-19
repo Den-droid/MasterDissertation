@@ -1,5 +1,6 @@
 package org.example.apiapplication.controllers;
 
+import org.example.apiapplication.dto.answer.AnswerDto;
 import org.example.apiapplication.dto.assignment.AssignmentAnswerDto;
 import org.example.apiapplication.dto.assignment.AssignmentDto;
 import org.example.apiapplication.dto.assignment.AssignmentResponseDto;
@@ -43,9 +44,9 @@ public class AssignmentController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{assignmentId}/start")
-    public ResponseEntity<?> start(@PathVariable Integer assignmentId) {
-        assignmentService.start(assignmentId);
+    @PutMapping("/{assignmentId}/startContinue")
+    public ResponseEntity<?> startContinue(@PathVariable Integer assignmentId) {
+        assignmentService.startContinue(assignmentId);
         return ResponseEntity.ok().build();
     }
 
@@ -67,5 +68,11 @@ public class AssignmentController {
         AssignmentResponseDto assignmentResponseDto = assignmentService.answerAssignment(assignmentId,
                 assignmentAnswerDto);
         return ResponseEntity.ok(assignmentResponseDto);
+    }
+
+    @GetMapping("/{assignmentId}/answers")
+    public ResponseEntity<List<AnswerDto>> getAnswers(@PathVariable Integer assignmentId) {
+        List<AnswerDto> answerDtos = assignmentService.getAnswersForAssignment(assignmentId);
+        return ResponseEntity.ok(answerDtos);
     }
 }

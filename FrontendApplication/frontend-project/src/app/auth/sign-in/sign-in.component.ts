@@ -11,7 +11,6 @@ import { authLabels } from '../../shared/translations/auth.translation';
 @Component({
   selector: 'app-auth-signIn',
   templateUrl: './sign-in.component.html',
-  styleUrls: ['./sign-in.component.css'],
   imports: [CommonModule, FormsModule, RouterLink]
 })
 export class SignInComponent {

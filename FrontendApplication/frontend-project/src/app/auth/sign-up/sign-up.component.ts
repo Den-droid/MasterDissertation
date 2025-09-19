@@ -11,7 +11,6 @@ import { authLabels } from '../../shared/translations/auth.translation';
 @Component({
   selector: 'app-auth-signUp',
   templateUrl: './sign-up.component.html',
-  styleUrls: ['./sign-up.component.css'],
   imports: [CommonModule, FormsModule]
 })
 export class SignUpComponent implements OnInit {

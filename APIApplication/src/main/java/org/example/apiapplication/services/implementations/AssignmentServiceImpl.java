@@ -2,6 +2,7 @@ package org.example.apiapplication.services.implementations;
 
 import jakarta.transaction.Transactional;
 import org.example.apiapplication.constants.EntityName;
+import org.example.apiapplication.dto.answer.AnswerDto;
 import org.example.apiapplication.dto.assignment.AssignmentAnswerDto;
 import org.example.apiapplication.dto.assignment.AssignmentDto;
 import org.example.apiapplication.dto.assignment.AssignmentResponseDto;
@@ -128,7 +129,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public void start(int assignmentId) {
+    public void startContinue(int assignmentId) {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(
                 () -> new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, assignmentId)
         );
@@ -142,7 +143,6 @@ public class AssignmentServiceImpl implements AssignmentService {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(
                 () -> new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, assignmentId)
         );
-
 
         if (assignment.hasCorrectAnswer())
             assignment.setStatus(AssignmentStatus.CORRECT_ANSWER_STOPPED);
@@ -198,5 +198,20 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         return new AssignmentResponseDto(result, assignment.getAttemptsRemaining(),
                 answer.isCorrect());
+    }
+
+    @Override
+    public List<AnswerDto> getAnswersForAssignment(int assignmentId) {
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.ASSIGNMENT,
+                        assignmentId));
+
+        List<Answer> answers = assignment.getAnswers();
+        List<AnswerDto> answerDtos = answers.stream()
+                .sorted(Comparator.comparingInt(Answer::getAnswerNumber))
+                .map(a1 -> new AnswerDto(a1.getAnswerNumber(), a1.getAnswer()))
+                .toList();
+
+        return answerDtos;
     }
 }
