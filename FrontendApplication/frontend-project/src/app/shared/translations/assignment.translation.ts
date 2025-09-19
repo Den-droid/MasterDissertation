@@ -1,0 +1,7 @@
+export const assignmentTitles = {
+  "assignment": "Завдання"
+}
+
+export const assignmentLabels = {
+  "variable-empty": "Введіть значення для всіх змінних!"
+}

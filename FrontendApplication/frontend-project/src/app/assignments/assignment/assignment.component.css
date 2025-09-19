@@ -1,0 +1,11 @@
+.card {
+  border-radius: 1rem;
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+.btn {
+  min-width: 120px;
+}

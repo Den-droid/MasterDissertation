@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { studentTitles } from '../shared/translations/student.translation';
-import { AssignmentsComponent } from './assignment-list/assignment-list.component';
+import { StudentAssignmentsComponent } from './assignments/student-assignments.component';
 
 const studentRoutes: Routes = [
-  { path: "assignments", component: AssignmentsComponent, title: studentTitles.assignments }
+  { path: "assignments", component: StudentAssignmentsComponent, title: studentTitles.assignments }
 ]
 
 @NgModule({

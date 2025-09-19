@@ -5,6 +5,7 @@ import { AuthComponent } from './auth/auth.component';
 import { ErrorComponent } from './error/error.component';
 import { provideHttpClient } from '@angular/common/http';
 import { StudentComponent } from './student/student.component';
+import { AssignmentsComponent } from './assignments/assignments.component';
 
 const routes: Routes = [
   { path: "", redirectTo: "/auth/signin", pathMatch: "full" },
@@ -19,6 +20,10 @@ const routes: Routes = [
   {
     path: "student", component: StudentComponent,
     loadChildren: () => import('./student/student.module').then(m => m.StudentModule)
+  },
+  {
+    path: "assignments", component: AssignmentsComponent,
+    loadChildren: () => import('./assignments/assignments.module').then(m => m.AssignmentsModule)
   },
   { path: '**', redirectTo: '/error/404', pathMatch: 'full' }
 ]

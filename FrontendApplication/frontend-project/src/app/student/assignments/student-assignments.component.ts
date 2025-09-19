@@ -11,10 +11,10 @@ import { FunctionResultType, FunctionResultTypeLabel } from '../../shared/consta
 
 @Component({
   selector: 'app-student-assignments',
-  templateUrl: './assignment-list.component.html',
+  templateUrl: './student-assignments.component.html',
   imports: [FormsModule, CommonModule]
 })
-export class AssignmentsComponent {
+export class StudentAssignmentsComponent {
   constructor(public assignmentService: AssignmentService, public jwtService: JWTTokenService,
     public router: Router
   ) {
