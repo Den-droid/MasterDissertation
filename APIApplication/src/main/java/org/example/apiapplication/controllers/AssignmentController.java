@@ -75,4 +75,11 @@ public class AssignmentController {
         List<AnswerDto> answerDtos = assignmentService.getAnswersForAssignment(assignmentId);
         return ResponseEntity.ok(answerDtos);
     }
+
+    @GetMapping("/answers")
+    public ResponseEntity<List<List<AnswerDto>>> getAnswersForAssignments(
+            @RequestParam List<Integer> assignmentIds) {
+        List<List<AnswerDto>> answerDtos = assignmentService.getAnswersForAssignments(assignmentIds);
+        return ResponseEntity.ok(answerDtos);
+    }
 }

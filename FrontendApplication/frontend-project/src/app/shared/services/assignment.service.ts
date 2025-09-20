@@ -61,4 +61,13 @@ export class AssignmentService {
   getAnswers(assignmentId: number): Observable<AnswerDto[]> {
     return this.httpClient.get<AnswerDto[]>(`${this.url}/${assignmentId}/answers`);
   }
+
+  getAnswersForAssignments(assignmentIds: number[]): Observable<AnswerDto[][]> {
+    let params = new HttpParams();
+
+    assignmentIds.forEach(id => {
+      params = params.append('assignmentIds', id.toString());
+    });
+    return this.httpClient.get<AnswerDto[][]>(`${this.url}/answers`, { params });
+  }
 }

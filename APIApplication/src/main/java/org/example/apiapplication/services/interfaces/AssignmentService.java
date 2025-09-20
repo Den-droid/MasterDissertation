@@ -26,4 +26,6 @@ public interface AssignmentService {
     AssignmentResponseDto answerAssignment(int assignmentId, AssignmentAnswerDto assignmentAnswerDto);
 
     List<AnswerDto> getAnswersForAssignment(int assignmentId);
+
+    List<List<AnswerDto>> getAnswersForAssignments(List<Integer> assignmentIds);
 }

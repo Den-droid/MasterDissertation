@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AssignmentService } from '../../shared/services/assignment.service';
 import { JWTTokenService } from '../../shared/services/jwt-token.service';
@@ -8,16 +8,21 @@ import { Assignment, parseUserAssignmentDtoToAssignment, UserAssignmentDto } fro
 import { AssignmentStatus, AssignmentStatusLabel } from '../../shared/constants/assignment-status.constant';
 import { Router } from '@angular/router';
 import { FunctionResultType, FunctionResultTypeLabel } from '../../shared/constants/function-result-type.constant';
+import { AnswerDto } from '../../shared/models/answer.model';
 
 @Component({
   selector: 'app-student-assignments',
   templateUrl: './student-assignments.component.html',
   imports: [FormsModule, CommonModule]
 })
-export class StudentAssignmentsComponent {
+export class StudentAssignmentsComponent implements OnInit {
   constructor(public assignmentService: AssignmentService, public jwtService: JWTTokenService,
     public router: Router
   ) {
+  }
+
+  ngOnInit(): void {
+    this.getAssignmentsByUserId();
   }
 
   @Input()
@@ -25,6 +30,8 @@ export class StudentAssignmentsComponent {
 
   activeAssignments: Assignment[] = [];
   finishedAssignments: Assignment[] = [];
+
+  answersToAssignments: Map<number, AnswerDto[]> = new Map<number, AnswerDto[]>();
 
   ngOnChanges() {
     this.updateActiveAssignments()
@@ -38,6 +45,20 @@ export class StudentAssignmentsComponent {
         this.assignments = [];
         for (const userAssignmentDto of userAssignmentDtos) {
           this.assignments.push(parseUserAssignmentDtoToAssignment(userAssignmentDto))
+        }
+
+        this.getAnswersForAssignments();
+      }
+    })
+  }
+
+  getAnswersForAssignments() {
+    let ids = this.assignments.map(a => a.id);
+
+    this.assignmentService.getAnswersForAssignments(ids).subscribe({
+      next: (answersDto: AnswerDto[][]) => {
+        for (let i = 0; i < this.assignments.length; i++) {
+          this.answersToAssignments.set(this.assignments[i].id, answersDto[i]);
         }
       }
     })

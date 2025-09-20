@@ -215,4 +215,21 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         return answerDtos;
     }
+
+    @Override
+    public List<List<AnswerDto>> getAnswersForAssignments(List<Integer> assignmentIds) {
+        Iterable<Assignment> assignments = assignmentRepository.findAllById(assignmentIds);
+        List<List<AnswerDto>> answersForAssignments = new ArrayList<>();
+
+        assignments.forEach(assignment -> {
+            List<Answer> answers = assignment.getAnswers();
+            List<AnswerDto> answerDtos = answers.stream()
+                    .sorted(Comparator.comparingInt(Answer::getAnswerNumber).reversed())
+                    .map(a1 -> new AnswerDto(a1.getAnswerNumber(), a1.getAnswer(), a1.getResult()))
+                    .toList();
+            answersForAssignments.add(answerDtos);
+        });
+
+        return answersForAssignments;
+    }
 }
