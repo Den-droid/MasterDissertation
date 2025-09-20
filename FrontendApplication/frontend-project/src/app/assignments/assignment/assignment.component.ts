@@ -20,10 +20,11 @@ export class AssignmentComponent {
   }
 
   form!: FormGroup;
-  error = false;
 
   assignmentId!: number;
-  assignmentDto!: AssignmentDto;
+  assignmentDto: AssignmentDto = new AssignmentDto('String', 25, 3);
+  // assignmentDto!: AssignmentDto;
+  assignmentResponseDto!: AssignmentResponseDto;
   variablesErrorRequired = assignmentLabels['variable-empty'];
   variablesErrorNotNumber = assignmentLabels['variable-not-number'];
 
@@ -47,7 +48,7 @@ export class AssignmentComponent {
   }
 
   getById() {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < this.assignmentDto.variablesCount; i++) {
       this.variables.push(this.fb.control('', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]))
     }
     this.assignmentService.getById(this.assignmentId).subscribe({
@@ -77,10 +78,14 @@ export class AssignmentComponent {
     }
     let answer = joinVariables(variableNames, variableValues);
 
+    this.assignmentResponseDto = new AssignmentResponseDto(4.5, 24, false);
+    this.assignmentDto.attemptRemaining = this.assignmentResponseDto.attemptsRemaining;
+
     this.assignmentService.answer(this.assignmentId, new AssignmentAnswerDto(answer))
       .subscribe({
         next: (assignmentResponseDto: AssignmentResponseDto) => {
-
+          this.assignmentDto.attemptRemaining = assignmentResponseDto.attemptsRemaining;
+          this.assignmentResponseDto = assignmentResponseDto;
         }
       })
   }
@@ -93,17 +98,17 @@ export class AssignmentComponent {
     })
   }
 
-  onValidate() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-    }
-  }
-
   finish() {
     this.assignmentService.finish(this.assignmentId).subscribe({
       next: () => {
         this.router.navigate([`/student/assignments`]);
       }
     })
+  }
+
+  onValidate() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+    }
   }
 }

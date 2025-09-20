@@ -189,6 +189,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         answer.setAssignment(assignment);
         answer.setAnswer(assignmentAnswerDto.answer());
+        answer.setResult(result);
 
         List<Answer> answers = assignment.getAnswers();
         answer.setAnswerNumber(answers.size() + 1);
