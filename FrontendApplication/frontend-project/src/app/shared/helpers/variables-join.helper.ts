@@ -1,4 +1,4 @@
-export function joinVariables(variablesValues: string[], variablesNames: string[]): string {
+export function joinVariables(variablesNames: string[], variablesValues: string[]): string {
   let res = '';
   for (let i = 0; i < variablesNames.length; i++) {
     res += variablesNames[i];

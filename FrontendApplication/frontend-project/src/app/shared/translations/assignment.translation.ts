@@ -3,5 +3,6 @@ export const assignmentTitles = {
 }
 
 export const assignmentLabels = {
-  "variable-empty": "Введіть значення для всіх змінних!"
+  "variable-empty": "Введіть значення змінної!",
+  "variable-not-number": "Значення змінної має бути числом!"
 }

@@ -8,38 +8,45 @@
 
       <h5 class="card-title mb-3">Завдання</h5>
       <p class="card-text">
-        {{assignmentDto.hint}}
+        <!-- {{assignmentDto.hint}} -->
       </p>
 
       <p class="text-muted">
         <i class="fa-solid fa-hourglass-half me-2"></i>
-        Залишилось спроб: <span class="fw-bold">{{assignmentDto.attemptRemaining}}</span>
+        <!-- Залишилось спроб: <span class="fw-bold">{{assignmentDto.attemptRemaining}}</span> -->
       </p>
 
-      <form>
-        <div class="row g-3 mb-3">
-          @for (i of [].constructor(assignmentDto.variablesCount); track i) {
+      <form [formGroup]="form">
+        <div class="row g-3 mb-3" formArrayName="variables">
+          @for (i of variablesIndices; track i) {
           <div class="col-md-4">
-            <label [for]="'inputVariable' + (i + 1)" class="form-label">{{'x' + (i + 1)}}</label>
+            <label [for]="'inputVariable' + (i + 1)" class="form-label">
+              {{ 'x' + (i + 1) }}
+            </label>
+
             <input type="text" class="form-control" [id]="'inputVariable' + (i + 1)"
-              [placeholder]="'Введіть x' + (i + 1)" [(ngModel)]="answers[i]">
+              [placeholder]="'Введіть x' + (i + 1)" [formControlName]="i" />
+
+            @if (variables.at(i).errors?.['required'] && (variables.at(i).touched || variables.at(i).dirty)) {
+            <div class="text-danger mt-1">{{variablesErrorRequired}}</div>
+            }
+            @if (variables.at(i).errors?.['pattern'] && (variables.at(i).touched || variables.at(i).dirty)) {
+            <div class="text-danger mt-1">{{variablesErrorNotNumber}}</div>
+            }
           </div>
           }
-          <div class="invalid-feedback">
-            Коментар не може бути порожнім
-          </div>
-          <div class="form-text">Попередній коментар: "Добре виконано"</div>
+
         </div>
       </form>
 
       <div class="d-flex justify-content-end gap-2 mt-3">
-        <button class="btn btn-primary" (onclick)="answer()">
+        <button class="btn btn-primary" (click)="answer()">
           <i class="fa-solid fa-paper-plane me-1"></i> Дати відповідь
         </button>
-        <button class="btn btn-danger" (onclick)="stop()">
+        <button class="btn btn-danger" (click)="stop()">
           <i class="fa-solid fa-stop me-1"></i> Зупинити
         </button>
-        <button class="btn btn-success" (onclick)="finish()">
+        <button class="btn btn-success" (click)="finish()">
           <i class="fa-solid fa-check me-1"></i> Завершити
         </button>
       </div>
