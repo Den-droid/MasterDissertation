@@ -209,8 +209,8 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         List<Answer> answers = assignment.getAnswers();
         List<AnswerDto> answerDtos = answers.stream()
-                .sorted(Comparator.comparingInt(Answer::getAnswerNumber))
-                .map(a1 -> new AnswerDto(a1.getAnswerNumber(), a1.getAnswer()))
+                .sorted(Comparator.comparingInt(Answer::getAnswerNumber).reversed())
+                .map(a1 -> new AnswerDto(a1.getAnswerNumber(), a1.getAnswer(), a1.getResult()))
                 .toList();
 
         return answerDtos;

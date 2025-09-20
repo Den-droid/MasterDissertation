@@ -7,6 +7,7 @@ import { JWTTokenService } from '../../shared/services/jwt-token.service';
 import { AssignmentAnswerDto, AssignmentDto, AssignmentResponseDto } from '../../shared/models/assignment.model';
 import { assignmentLabels } from '../../shared/translations/assignment.translation';
 import { joinVariables } from '../../shared/helpers/variables-join.helper';
+import { AnswerDto } from '../../shared/models/answer.model';
 
 @Component({
   selector: 'app-assignment',
@@ -22,9 +23,9 @@ export class AssignmentComponent {
   form!: FormGroup;
 
   assignmentId!: number;
-  assignmentDto: AssignmentDto = new AssignmentDto('String', 25, 3);
-  // assignmentDto!: AssignmentDto;
+  assignmentDto!: AssignmentDto;
   assignmentResponseDto!: AssignmentResponseDto;
+  previousAnswersDto: AnswerDto[] = [];
   variablesErrorRequired = assignmentLabels['variable-empty'];
   variablesErrorNotNumber = assignmentLabels['variable-not-number'];
 
@@ -36,6 +37,7 @@ export class AssignmentComponent {
     this.route.paramMap.subscribe(params => {
       this.assignmentId = Number(params.get('id'));
       this.getById();
+      this.getPreviousAnswers();
     });
   }
 
@@ -54,12 +56,20 @@ export class AssignmentComponent {
     this.assignmentService.getById(this.assignmentId).subscribe({
       next: (assignmentDto: AssignmentDto) => {
         this.assignmentDto = assignmentDto;
-        // for (let i = 0; i < this.assignmentDto.variablesCount; i++) {
-        //   this.variables.push(this.fb.control('', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)])]))
-        // }
+        for (let i = 0; i < this.assignmentDto.variablesCount; i++) {
+          this.variables.push(this.fb.control('', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]));
+        }
       },
       error: (error: any) => {
-        // this.router.navigate([`/error/404`]);
+        this.router.navigate([`/error/404`]);
+      }
+    })
+  }
+
+  getPreviousAnswers() {
+    this.assignmentService.getAnswers(this.assignmentId).subscribe({
+      next: (answerDtos: AnswerDto[]) => {
+        this.previousAnswersDto = answerDtos;
       }
     })
   }
@@ -78,14 +88,14 @@ export class AssignmentComponent {
     }
     let answer = joinVariables(variableNames, variableValues);
 
-    this.assignmentResponseDto = new AssignmentResponseDto(4.5, 24, false);
-    this.assignmentDto.attemptRemaining = this.assignmentResponseDto.attemptsRemaining;
-
     this.assignmentService.answer(this.assignmentId, new AssignmentAnswerDto(answer))
       .subscribe({
         next: (assignmentResponseDto: AssignmentResponseDto) => {
-          this.assignmentDto.attemptRemaining = assignmentResponseDto.attemptsRemaining;
           this.assignmentResponseDto = assignmentResponseDto;
+          this.assignmentDto.attemptRemaining = this.assignmentResponseDto.attemptsRemaining;
+
+          this.previousAnswersDto.unshift(new AnswerDto(this.previousAnswersDto.length + 1,
+            answer.slice(0, answer.length - 1), this.assignmentResponseDto.result));
         }
       })
   }

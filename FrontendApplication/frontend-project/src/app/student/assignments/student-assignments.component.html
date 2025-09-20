@@ -22,6 +22,11 @@
         </tr>
       </thead>
       <tbody>
+        @if (activeAssignments.length === 0) {
+        <td colspan="5" class="text-center">
+          <strong>Активних завдань не знайдено</strong>
+        </td>
+        }
         @for (activeAssignment of activeAssignments; track activeAssignment.id) {
         <tr>
           <td>{{activeAssignment.hint}}</td>
@@ -55,6 +60,10 @@
         </tr>
       </thead>
       <tbody>
+        @if (finishedAssignments.length === 0) {
+        <td colspan="5" class="text-center">
+          <strong>Завершених завдань не знайдено</strong>
+        </td>        }
         @for (finishedAssignment of finishedAssignments; track finishedAssignment.id) {
         <tr>
           <td>{{finishedAssignment.hint}}</td>
