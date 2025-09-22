@@ -51,6 +51,12 @@
         Натисніть кнопку Завершити, щоб завершити виконання завдання.
       </div>
       }
+      @if(assignmentDto.attemptRemaining === 0){
+      <div class="alert alert-danger">
+        Ваші спроби завершилися. Ви більше не можете відправити відповідь.
+        Натисніть кнопку Завершити, щоб завершити виконання завдання.
+      </div>
+      }
 
       <div class="d-flex justify-content-end gap-2 mt-3">
         <button class="btn btn-primary" (click)="answer()"
@@ -85,7 +91,7 @@
               </div>
               }
               @if(previousAnswersDto.length === 0) {
-                <strong>Попередніх відповідей не знайдено!</strong>
+              <strong>Попередніх відповідей не знайдено!</strong>
               }
             </div>
           </div>

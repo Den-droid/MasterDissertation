@@ -1,10 +1,14 @@
 export const authLabels = {
-  "email-address-required": "Введіть електронну адресу!",
-  "email-address-incorrect": "Введіть правильну електронну адресу!",
-  "password-incorrect": "Пароль має містити хоча б 8 символів!",
-  "confirm-password-required": "Введіть підтвердження паролю!",
-  "password-not-match-confirm": "Пароль та підтвердження паролю мають збігатися!",
-  "user-not-exists-by-email-password": "Неправильна електронна адреса чи пароль! Спробуйте знову!"
+  "first-name-required": "Ім’я є обов’язковим",
+  "last-name-required": "Прізвище є обов’язковим",
+  "email-address-required": "Електронна пошта є обов’язковою",
+  "email-address-incorrect": "Невірний формат елекронної пошти",
+  "password-required": "Пароль є обов’язковим",
+  "password-less-than-8-chars": "Пароль має містити щонайменше 8 символів",
+  "password-format-incoorect": "Пароль має містити 1 велику літеру, 1 малу літеру, 1 цифру та 1 спецсимвол",
+  "confirm-password-required": "Підтвердження пароля є обов’язковим",
+  "password-not-match-confirm": "Паролі не співпадають",
+  "user-not-exists-by-email-password": "Неправильна електронна адреса чи пароль! Спробуйте знову"
 };
 
 export const authTitles = {

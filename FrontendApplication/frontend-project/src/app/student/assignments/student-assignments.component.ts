@@ -72,10 +72,6 @@ export class StudentAssignmentsComponent implements OnInit {
     })
   }
 
-  goToAnswersPage(assignment: Assignment) {
-    this.router.navigate([`assignments/${assignment.id}/answers`]);
-  }
-
   assign() {
     let userId = parseToNumber(this.jwtService.getId());
     this.assignmentService.assign(userId).subscribe({

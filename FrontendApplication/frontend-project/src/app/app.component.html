@@ -9,27 +9,6 @@
       </div>
     </div>
     <ul class="sidebar-nav">
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#home"
-          aria-expanded="false" aria-controls="auth">
-          <i class="fa-solid fa-house"></i>
-          <span>Головна сторінка</span>
-        </a>
-        <ul id="home" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-          <li class="sidebar-item">
-            <a routerLink="/home/faculties" class="sidebar-link">Порівняння по факультетам</a>
-          </li>
-          <li class="sidebar-item">
-            <a routerLink="/home/faculties/chairs" class="sidebar-link">Порівняння по кафедрам</a>
-          </li>
-          <li class="sidebar-item">
-            <a routerLink="/home/commonlabels" class="sidebar-link">Спільні ключові слова</a>
-          </li>
-          <li class="sidebar-item">
-            <a routerLink="/home/profiles" class="sidebar-link">Профілі</a>
-          </li>
-        </ul>
-      </li>
       <li class="sidebar-item" *ngIf="!isAuthenticated">
         <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#auth"
           aria-expanded="false" aria-controls="auth">
@@ -44,43 +23,6 @@
             <a routerLink="/auth/signup" class="sidebar-link">Реєстрація</a>
           </li>
         </ul>
-      </li>
-      <li class="sidebar-item" *ngIf="isAuthenticated">
-        <a routerLink="/user/profiles" class="sidebar-link">
-          <i class="fa-solid fa-id-card"></i>
-          <span>Профілі</span>
-        </a>
-      </li>
-      <li class="sidebar-item" *ngIf="isAuthenticated && (role === 'MAIN_ADMIN' ||
-      role === 'CHAIR_ADMIN' || role === 'FACULTY_ADMIN')">
-        <a routerLink="/user/users" class="sidebar-link">
-          <i class="fa-solid fa-user"></i>
-          <span>Користувачі</span>
-        </a>
-      </li>
-      <li class="sidebar-item" *ngIf="isAuthenticated && role === 'MAIN_ADMIN'">
-        <a routerLink="/user/labels" class="sidebar-link">
-          <i class="fa-solid fa-tag"></i>
-          <span>Ключові слова</span>
-        </a>
-      </li>
-      <li class="sidebar-item" *ngIf="isAuthenticated && role === 'MAIN_ADMIN'">
-        <a routerLink="/user/fields" class="sidebar-link">
-          <i class="fa-solid fa-pen"></i>
-          <span>Поля</span>
-        </a>
-      </li>
-      <li class="sidebar-item" *ngIf="isAuthenticated && role === 'MAIN_ADMIN'">
-        <a routerLink="/user/extraction" class="sidebar-link">
-          <i class="fa-solid fa-magnet"></i>
-          <span>Витягнення даних</span>
-        </a>
-      </li>
-      <li class="sidebar-item" *ngIf="isAuthenticated">
-        <a routerLink="/user/settings" class="sidebar-link">
-          <i class="fa-solid fa-gear"></i>
-          <span>Профіль та налаштування</span>
-        </a>
       </li>
     </ul>
     <div class="sidebar-footer" *ngIf="isAuthenticated">

@@ -26,12 +26,30 @@ public class WebSecurityConfig {
     private final JwtUtils jwtUtils;
 
     private final String[] authUrl = {
-            "/api/auth/sign-in",
-            "/api/auth/refresh-token",
-            "/api/auth/sign-up",
-            "/api/auth/forgot-password/token-exists",
-            "/api/auth/forgot-password/create",
-            "/api/auth/forgot-password/change/{token}"
+            "/api/auth/signIn",
+            "/api/auth/refreshToken",
+            "/api/auth/signUp",
+            "/api/auth/forgotPassword/tokenExists",
+            "/api/auth/forgotPassword/create",
+            "/api/auth/forgotPassword/change/{token}"
+    };
+
+    private final String[] assignmentUrls = {
+            "/getByUserId",
+            "/{assignmentId}",
+            "/isAvailable",
+            "/assign",
+            "/{assignmentId}/startContinue",
+            "/{assignmentId}/stop",
+            "/{assignmentId}/finish",
+            "/{assignmentId}/answer",
+            "/{assignmentId}/answers",
+            "/answers"
+    };
+
+    private final String[] markUrls = {
+            "/assignments/{assignmentId}/mark",
+            "/assignments/toMark"
     };
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,
@@ -74,6 +92,8 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(authUrl).permitAll()
+                                .requestMatchers(assignmentUrls).permitAll()
+                                .requestMatchers(markUrls).permitAll()
                                 .anyRequest().authenticated()
                 );
 

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ValidateEmails } from '../../shared/validators/emails.validator';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthService } from '../../shared/services/auth.service';
 import { ForgotPasswordDto } from '../../shared/models/auth.model';
@@ -50,9 +49,9 @@ export class ForgotPasswordComponent implements OnInit {
     if (this.email.length === 0) {
       return authLabels['email-address-required'];
     }
-    if (!ValidateEmails(this.email)) {
-      return authLabels['email-address-incorrect'];
-    }
+    // if (!ValidateEmails(this.email)) {
+    //   return authLabels['email-address-incorrect'];
+    // }
     return '';
   }
 }

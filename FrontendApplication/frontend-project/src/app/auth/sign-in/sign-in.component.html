@@ -1,44 +1,46 @@
-<!-- Page Content -->
-<form (ngSubmit)="signIn()" class="main-content">
-  <div class="text-center mb-4">
-    <h2>Вхід</h2>
-  </div>
+<div class="container d-flex justify-content-center">
+  <div class="card p-4 shadow-sm" style="max-width: 800px; width: 100%;">
+    <h2 class="text-center mb-4">
+      <i class="fa-solid fa-right-to-bracket me-2"></i> Вхід
+    </h2>
 
-  <!-- Email input -->
-  <div class="mb-3 row justify-content-center">
-    <label class="col-sm-3 col-form-label" for="username">Електронна адреса: </label>
-    <div class="col-sm-9">
-      <input [(ngModel)]="email" name="username" type="email" id="username" class="form-control" />
-    </div>
-  </div>
+    <form [formGroup]="form">
+      <div class="mb-3">
+        <label for="email" class="form-label">Електронна пошта</label>
+        <input type="email" id="email" class="form-control" formControlName="email" />
+        @if (f['email'].errors?.['required'] && (f['email'].touched || f['email'].dirty)) {
+        <div class="text-danger mt-1">{{ emailRequired }}</div>
+        }
+        @if (f['email'].errors?.['email'] && (f['email'].touched || f['email'].dirty)) {
+        <div class="text-danger mt-1">{{ emailIncorrect }}</div>
+        }
+      </div>
 
-  <!-- Password input -->
-  <div class="mb-3 row justify-content-center">
-    <label class="col-sm-3 col-form-label" for="password">Пароль: </label>
-    <div class="col-sm-9">
-      <input [(ngModel)]="password" name="password" type="password" id="password" class="form-control" />
-    </div>
-  </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Пароль</label>
+        <input type="password" id="password" class="form-control" formControlName="password" />
+        @if (f['password'].errors?.['required'] && (f['password'].touched || f['password'].dirty)) {
+        <div class="text-danger mt-1">{{ passwordRequired }}</div>
+        }
+        @if (f['password'].errors?.['minlength'] && (f['password'].touched || f['password'].dirty)) {
+        <div class="text-danger mt-1">{{ passwordTooShort }}</div>
+        }
+      </div>
 
-  <div *ngIf="error.length > 0" class="row mb-4" style="color: red">
-    <div class="col d-flex justify-content-center">
-      <p>{{error}}</p>
-    </div>
-  </div>
+      <div class="d-flex justify-content-between mt-1 mb-3">
+        <a routerLink="/auth/forgotpassword" class="medium">Забули пароль?</a>
+        <a routerLink="/auth/signup" class="medium">Реєстрація</a>
+      </div>
 
-  <div class="row mb-4">
-    <div class="col d-flex justify-content-center">
-      <a routerLink="/auth/forgotpassword">Забули пароль?</a>
-    </div>
-  </div>
+      <div class="d-flex justify-content-between mt-4">
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+          <i class="fa-solid fa-arrow-left me-1"></i> Назад
+        </button>
 
-  <div class="row mb-4">
-    <div class="col d-flex justify-content-center">
-      <button type="submit" class="btn btn-primary btn-block text-center">Увійти</button>
-    </div>
+        <button type="button" class="btn btn-primary" (click)="signIn()">
+          <i class="fa-solid fa-right-to-bracket me-1"></i> Увійти
+        </button>
+      </div>
+    </form>
   </div>
-
-  <div class="text-center">
-    <p>Ще не зареєстровані? <a routerLink="/auth/signup">Зареєструватись</a></p>
-  </div>
-</form>
+</div>

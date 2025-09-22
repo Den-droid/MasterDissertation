@@ -1,54 +1,78 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ValidateEmails } from '../../shared/validators/emails.validator';
 import { v4 as uuidv4 } from 'uuid';
 import { SignUpDto } from '../../shared/models/auth.model';
 import { AuthService } from '../../shared/services/auth.service';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { CommonModule, Location } from '@angular/common';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RoleLabel } from '../../shared/constants/roles.constant';
 import { authLabels } from '../../shared/translations/auth.translation';
 
 @Component({
   selector: 'app-auth-signUp',
   templateUrl: './sign-up.component.html',
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class SignUpComponent implements OnInit {
-  email = '';
-  password = '';
-  confirmPassword = '';
-
-  selectedScientist = 0;
-
-  error = '';
   uuid = '';
+  form!: FormGroup;
+  error = false;
+  errorMessage = '';
 
-  public set searchQuery(searchQuery: string) {
+  firstNameRequired = authLabels['first-name-required'];
+  lastNameRequired = authLabels['last-name-required'];
+  emailRequired = authLabels['email-address-required'];
+  emailIncorrect = authLabels['email-address-incorrect'];
+  passwordRequired = authLabels['password-required'];
+  passwordTooShort = authLabels['password-less-than-8-chars'];
+  passwordFormatIncorrect = authLabels['password-format-incoorect'];
+  confirmPasswordRequired = authLabels['confirm-password-required'];
+  passwordNotMatchConfirm = authLabels['password-not-match-confirm'];
 
-  }
-
-  constructor(private readonly router: Router, private readonly authService: AuthService
+  constructor(private readonly router: Router, private readonly authService: AuthService,
+    private fb: FormBuilder, private location: Location
   ) {
+
   }
 
   ngOnInit(): void {
     this.uuid = uuidv4();
+
+    this.form = this.fb.group(
+      {
+        firstName: ['', [Validators.required]],
+        lastName: ['', [Validators.required]],
+        email: ['', [Validators.required, Validators.email]],
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(8),
+            Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/),
+          ],
+        ],
+        confirmPassword: ['', [Validators.required]],
+      },
+      { validators: this.passwordMatchValidator }
+    );
   }
 
   signUp() {
-    let validationResult = this.validate();
-    if (validationResult.length > 0) {
-      this.error = validationResult;
+    this.validate();
+
+    if (this.form.invalid) {
       return;
-    } else {
-      this.error = '';
     }
 
-    let signUpDto = new SignUpDto(this.email, this.password);
+    let signUpDto = new SignUpDto(this.form.value.email, this.form.value.password,
+      this.form.value.firstName, this.form.value.lastName, RoleLabel.STUDENT);
+
+    console.log(signUpDto);
 
     this.authService.signUp(signUpDto).subscribe({
       error: (error: any) => {
-        this.error = error?.error?.error;
+        this.error = true;
+        this.errorMessage = error?.error?.error;
       },
       complete: () => {
         this.router.navigateByUrl("/auth/signup/success/" + this.uuid);
@@ -56,20 +80,24 @@ export class SignUpComponent implements OnInit {
     });
   }
 
-  validate(): string {
-    if (this.email.length === 0) {
-      return authLabels['email-address-required'];
-    } if (!ValidateEmails(this.email)) {
-      return authLabels['email-address-incorrect'];
+  get f(): { [key: string]: AbstractControl } {
+    return this.form.controls;
+  }
+
+  passwordMatchValidator(group: FormGroup) {
+    const password = group.get('password')?.value;
+    const confirmPassword = group.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { passwordMismatch: true };
+  }
+
+  validate() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
     }
-    if (this.password.length < 8) {
-      return authLabels['password-incorrect'];
-    } if (this.confirmPassword.length === 0) {
-      return authLabels['confirm-password-required'];
-    }
-    if (this.confirmPassword !== this.password) {
-      return authLabels['password-not-match-confirm'];
-    }
-    return '';
+  }
+
+  goBack() {
+    this.location.back();
   }
 }

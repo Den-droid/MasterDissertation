@@ -56,7 +56,7 @@ export class SetNewPasswordComponent implements OnInit {
 
   validate(): string {
     if (this.password.length < 8) {
-      return authLabels['password-incorrect'];
+      return authLabels['password-required'];
     } if (this.confirmPassword.length === 0) {
       return authLabels['confirm-password-required'];
     }

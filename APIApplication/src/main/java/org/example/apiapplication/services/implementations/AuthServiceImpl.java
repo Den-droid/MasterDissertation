@@ -5,12 +5,13 @@ import org.example.apiapplication.constants.EntityName;
 import org.example.apiapplication.dto.auth.*;
 import org.example.apiapplication.entities.user.Role;
 import org.example.apiapplication.entities.user.User;
-import org.example.apiapplication.exceptions.auth.TokenRefreshException;
-import org.example.apiapplication.exceptions.auth.UserNotApprovedException;
-import org.example.apiapplication.exceptions.auth.UserWithEmailNotFoundException;
-import org.example.apiapplication.exceptions.auth.UserWithTokenNotFoundException;
+import org.example.apiapplication.entities.user.UserInfo;
+import org.example.apiapplication.enums.UserRole;
+import org.example.apiapplication.exceptions.auth.*;
 import org.example.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
+import org.example.apiapplication.exceptions.entity.EntityWithNameNotFoundException;
 import org.example.apiapplication.repositories.RoleRepository;
+import org.example.apiapplication.repositories.UserInfoRepository;
 import org.example.apiapplication.repositories.UserRepository;
 import org.example.apiapplication.security.jwt.JwtUtils;
 import org.example.apiapplication.services.interfaces.AuthService;
@@ -31,6 +32,7 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserInfoRepository userInfoRepository;
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
@@ -38,11 +40,13 @@ public class AuthServiceImpl implements AuthService {
 
     public AuthServiceImpl(UserRepository userRepository,
                            RoleRepository roleRepository,
+                           UserInfoRepository userInfoRepository,
                            AuthenticationManager authenticationManager,
                            JwtUtils jwtUtils,
                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.userInfoRepository = userInfoRepository;
 
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
@@ -106,7 +110,7 @@ public class AuthServiceImpl implements AuthService {
     public void signUp(SignUpDto signUpDto) {
         Optional<User> optionalUser = userRepository.findByEmail(signUpDto.email());
         if (optionalUser.isPresent()) {
-            throw new UserWithEmailNotFoundException(signUpDto.email());
+            throw new UserWithEmailExistsException(signUpDto.email());
         }
 
         User user = new User();
@@ -114,13 +118,19 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(signUpDto.password()));
         user.setApproved(false);
 
+        UserInfo userInfo = new UserInfo();
+        userInfo.setFirstName(signUpDto.firstName());
+        userInfo.setLastName(signUpDto.lastName());
+        userInfo.setUser(user);
+
         List<Role> roles = new ArrayList<>();
-        Role userRole = roleRepository.findById(signUpDto.roleId())
-                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.ROLE, signUpDto.roleId()));
+        Role userRole = roleRepository.findByName(UserRole.valueOf(signUpDto.role()))
+                .orElseThrow(() -> new EntityWithNameNotFoundException(EntityName.ROLE, signUpDto.role()));
         roles.add(userRole);
         user.setRoles(roles);
 
         userRepository.save(user);
+        userInfoRepository.save(userInfo);
     }
 
     @Override

@@ -1,4 +1,5 @@
 package org.example.apiapplication.dto.auth;
 
-public record SignUpDto(String email, String password, Integer scientistId, int roleId) {
+public record SignUpDto(String email, String password,
+                        String firstName, String lastName, String role) {
 }
