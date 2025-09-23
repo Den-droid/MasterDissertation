@@ -33,7 +33,7 @@ export class StudentAssignmentsComponent implements OnInit {
 
   answersToAssignments: Map<number, AnswerDto[]> = new Map<number, AnswerDto[]>();
 
-  ngOnChanges() {
+  updateActiveFinishedAssignments() {
     this.updateActiveAssignments()
     this.updateFinishedAssignments();
   }
@@ -47,7 +47,10 @@ export class StudentAssignmentsComponent implements OnInit {
           this.assignments.push(parseUserAssignmentDtoToAssignment(userAssignmentDto))
         }
 
-        this.getAnswersForAssignments();
+        if (this.assignments.length > 0)
+          this.getAnswersForAssignments();
+
+        this.updateActiveFinishedAssignments();
       }
     })
   }
@@ -60,6 +63,8 @@ export class StudentAssignmentsComponent implements OnInit {
         for (let i = 0; i < this.assignments.length; i++) {
           this.answersToAssignments.set(this.assignments[i].id, answersDto[i]);
         }
+
+        this.updateActiveFinishedAssignments();
       }
     })
   }
@@ -101,10 +106,10 @@ export class StudentAssignmentsComponent implements OnInit {
   }
 
   updateActiveAssignments() {
-    this.activeAssignments = this.assignments.filter(a => a.status != AssignmentStatus.FINISHED);
+    this.activeAssignments = this.assignments.filter(a => a.status !== AssignmentStatus.FINISHED);
   }
 
   updateFinishedAssignments() {
-    this.finishedAssignments = this.assignments.filter(a => a.status = AssignmentStatus.FINISHED);
+    this.finishedAssignments = this.assignments.filter(a => a.status === AssignmentStatus.FINISHED);
   }
 }

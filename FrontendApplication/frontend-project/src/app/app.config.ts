@@ -3,9 +3,10 @@ import { provideRouter, Routes } from '@angular/router';
 
 import { AuthComponent } from './auth/auth.component';
 import { ErrorComponent } from './error/error.component';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { StudentComponent } from './student/student.component';
 import { AssignmentsComponent } from './assignments/assignments.component';
+import { authorizeInterceptor } from './shared/interceptors/authorize.interceptor';
 
 const routes: Routes = [
   { path: "", redirectTo: "/auth/signin", pathMatch: "full" },
@@ -33,6 +34,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient()
+    provideHttpClient(withInterceptors([authorizeInterceptor])),
   ]
 };

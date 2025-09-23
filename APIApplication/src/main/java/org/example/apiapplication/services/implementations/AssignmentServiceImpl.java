@@ -31,9 +31,9 @@ public class AssignmentServiceImpl implements AssignmentService {
     FunctionRepository functionRepository;
     AssignmentRepository assignmentRepository;
     MarkRepository markRepository;
-    AnswerRepository answerRepository;
+    AnswerRepository1 answerRepository;
 
-    public AssignmentServiceImpl(AnswerRepository answerRepository,
+    public AssignmentServiceImpl(AnswerRepository1 answerRepository,
                                  AssignmentRepository assignmentRepository,
                                  FunctionRepository functionRepository,
                                  MarkRepository markRepository,
@@ -77,7 +77,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
                     return new UserAssignmentDto(assignment.getId(),
                             function.getHint(),
-                            function.getVariablesCount(),
+                            assignment.getAttemptsRemaining(),
                             assignment.getStatus().ordinal(),
                             assignment.getFunction().getResultType().ordinal(),
                             mark != null ? mark.getMark() : -1,
@@ -121,9 +121,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         Assignment assignment = new Assignment();
         assignment.setUserAssigned(user);
         assignment.setFunction(possibleFunctions.get(possibleFunctionIndex));
-        assignment.setAttemptsRemaining(25);
+        assignment.setAttemptsRemaining(5);
         assignment.setHasCorrectAnswer(false);
-        assignment.setStatus(AssignmentStatus.ACTIVE);
+        assignment.setStatus(AssignmentStatus.ASSIGNED);
 
         assignmentRepository.save(assignment);
     }

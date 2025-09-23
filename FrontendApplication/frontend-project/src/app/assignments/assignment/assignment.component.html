@@ -26,7 +26,7 @@
 
             <input type="text" class="form-control" [id]="'inputVariable' + (i + 1)"
               [placeholder]="'Введіть x' + (i + 1)" [formControlName]="i"
-              [readonly]="assignmentResponseDto != null && assignmentResponseDto.hasCorrectAnswer" />
+              [readonly]="disableInputsAndButtons()" />
 
             @if (variables.at(i).errors?.['required'] && (variables.at(i).touched || variables.at(i).dirty)) {
             <div class="text-danger mt-1">{{variablesErrorRequired}}</div>
@@ -60,11 +60,11 @@
 
       <div class="d-flex justify-content-end gap-2 mt-3">
         <button class="btn btn-primary" (click)="answer()"
-          [disabled]="assignmentResponseDto != null && assignmentResponseDto.hasCorrectAnswer">
+          [disabled]="disableInputsAndButtons()">
           <i class="fa-solid fa-paper-plane me-1"></i> Дати відповідь
         </button>
         <button class="btn btn-danger" (click)="stop()"
-          [disabled]="assignmentResponseDto != null && assignmentResponseDto.hasCorrectAnswer">
+          [disabled]="disableInputsAndButtons()">
           <i class="fa-solid fa-stop me-1"></i> Зупинити
         </button>
         <button class="btn btn-success" (click)="finish()">

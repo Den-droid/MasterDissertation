@@ -5,7 +5,7 @@ import { SignUpDto } from '../../shared/models/auth.model';
 import { AuthService } from '../../shared/services/auth.service';
 import { CommonModule, Location } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RoleLabel } from '../../shared/constants/roles.constant';
+import { RoleLabel, RoleName } from '../../shared/constants/roles.constant';
 import { authLabels } from '../../shared/translations/auth.translation';
 
 @Component({
@@ -65,7 +65,7 @@ export class SignUpComponent implements OnInit {
     }
 
     let signUpDto = new SignUpDto(this.form.value.email, this.form.value.password,
-      this.form.value.firstName, this.form.value.lastName, RoleLabel.STUDENT);
+      this.form.value.firstName, this.form.value.lastName, RoleName.STUDENT);
 
     console.log(signUpDto);
 

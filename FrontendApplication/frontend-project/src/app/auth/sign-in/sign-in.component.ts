@@ -45,8 +45,6 @@ export class SignInComponent {
 
     let signInDto = new SignInDto(this.form.value.email, this.form.value.password);
 
-    console.log(signInDto)
-
     this.authService.signIn(signInDto).subscribe({
       next: (result: TokensDto) => {
         this.jwtService.setToken(result.accessToken);
@@ -54,7 +52,7 @@ export class SignInComponent {
       },
       error: (error: any) => {
         this.error = true;
-        this.errorMessage = authLabels['user-not-exists-by-email-password'];
+        this.errorMessage = error.error.error;
       },
       complete: () => {
         if (this.authService.isStudent())

@@ -1,75 +1,66 @@
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, catchError, concatMap, filter, finalize, take, throwError } from "rxjs";
-import { JWTTokenService } from "../services/jwt-token.service";
-import { AuthService } from "../services/auth.service";
-import { RefreshTokenDto, TokensDto } from "../models/auth.model";
-import { Router } from "@angular/router";
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { catchError, concatMap, filter, finalize, take } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { RefreshTokenDto, TokensDto } from '../models/auth.model';
+import { AuthService } from '../services/auth.service';
+import { JWTTokenService } from '../services/jwt-token.service';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class AuthorizeInterceptor implements HttpInterceptor {
-  constructor(private readonly jwtService: JWTTokenService, private readonly authService: AuthService,
-    private readonly router: Router
-  ) { }
-  isRefreshingToken = false;
+export const authorizeInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn):
+  Observable<HttpEvent<any>> => {
+  const jwtService = inject(JWTTokenService);
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-  tokenRefreshed$ = new BehaviorSubject<boolean>(false);
+  let isRefreshingToken = false;
+  const tokenRefreshed$ = new BehaviorSubject<boolean>(false);
 
-  setHeader(req: HttpRequest<any>): HttpRequest<any> {
-    const token = this.jwtService.getToken();
-    return token ? req.clone({ setHeaders: { Authorization: 'Bearer ' + token } }) : req;
-  }
+  const setHeader = (request: HttpRequest<any>) => {
+    const token = jwtService.getToken();
+    return token ? request.clone({ setHeaders: { Authorization: 'Bearer ' + token } }) : request;
+  };
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(this.setHeader(req)).pipe(
-      catchError(err => {
-        if (err.status === 401) {
-          return this.handle401Error(req, next);
-        }
-
-        return throwError(err);
-      })
-    );
-  }
-
-  private handle401Error(req: HttpRequest<any>, next: HttpHandler): Observable<any> {
-    if (req.url.endsWith('/api/auth/signin')) {
-      return next.handle(this.setHeader(req));
+  const handle401Error = (request: HttpRequest<any>, nextFn: HttpHandlerFn): Observable<any> => {
+    if (request.url.endsWith('/api/auth/signin')) {
+      return nextFn(setHeader(request));
     }
 
-    if (this.isRefreshingToken) {
-      return this.tokenRefreshed$.pipe(
+    if (isRefreshingToken) {
+      return tokenRefreshed$.pipe(
         filter(Boolean),
         take(1),
-        concatMap(() => next.handle(this.setHeader(req)))
+        concatMap(() => nextFn(setHeader(request)))
       );
     }
 
-    this.isRefreshingToken = true;
+    isRefreshingToken = true;
+    tokenRefreshed$.next(false);
 
-    // Reset here so that the following requests wait until the token
-    // comes back from the refreshToken call.
-    this.tokenRefreshed$.next(false);
-
-    return this.authService.refreshToken(new RefreshTokenDto(this.jwtService.getRefreshToken())).pipe(
+    return authService.refreshToken(new RefreshTokenDto(jwtService.getRefreshToken())).pipe(
       concatMap((res: TokensDto) => {
-        this.jwtService.setToken(res.accessToken);
-        this.jwtService.setRefreshToken(res.refreshToken);
-
-        this.tokenRefreshed$.next(true);
-        return next.handle(this.setHeader(req));
+        jwtService.setToken(res.accessToken);
+        jwtService.setRefreshToken(res.refreshToken);
+        tokenRefreshed$.next(true);
+        return nextFn(setHeader(request));
       }),
-      catchError((err) => {
-        this.authService.logout();
-        this.router.navigateByUrl("/auth/signin");
-        return throwError(err);
+      catchError(err => {
+        authService.logout();
+        router.navigateByUrl('/auth/signin');
+        return throwError(() => err);
       }),
       finalize(() => {
-        this.isRefreshingToken = false;
+        isRefreshingToken = false;
       })
     );
-  }
-}
+  };
 
+  return next(setHeader(req)).pipe(
+    catchError(err => {
+      if (err.status === 401) {
+        return handle401Error(req, next);
+      }
+      return throwError(() => err);
+    })
+  );
+};

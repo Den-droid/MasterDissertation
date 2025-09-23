@@ -8,7 +8,6 @@ import org.example.apiapplication.entities.user.User;
 import org.example.apiapplication.entities.user.UserInfo;
 import org.example.apiapplication.enums.UserRole;
 import org.example.apiapplication.exceptions.auth.*;
-import org.example.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.example.apiapplication.exceptions.entity.EntityWithNameNotFoundException;
 import org.example.apiapplication.repositories.RoleRepository;
 import org.example.apiapplication.repositories.UserInfoRepository;
@@ -55,15 +54,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokensDto signIn(SignInDto signInDto) {
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(signInDto.email(), signInDto.password()));
-
-        User user = userRepository.findByEmail(signInDto.email()).get();
+        User user = userRepository.findByEmail(signInDto.email()).orElseThrow(
+                () -> new UserWithEmailNotFoundException(signInDto.email())
+        );
 
         if (!user.isApproved()) {
             throw new UserNotApprovedException();
         }
 
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(signInDto.email(), signInDto.password()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         List<String> roles = user.getRoles().stream()

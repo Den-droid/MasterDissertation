@@ -16,5 +16,5 @@ public class Group {
     private String name;
 
     @OneToMany(mappedBy = "group")
-    private List<User> users;
+    private List<UserInfo> userInfo;
 }

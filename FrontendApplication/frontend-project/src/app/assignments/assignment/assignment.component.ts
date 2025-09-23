@@ -36,6 +36,7 @@ export class AssignmentComponent {
 
     this.route.paramMap.subscribe(params => {
       this.assignmentId = Number(params.get('id'));
+
       this.getById();
       this.getPreviousAnswers();
     });
@@ -50,9 +51,7 @@ export class AssignmentComponent {
   }
 
   getById() {
-    for (let i = 0; i < this.assignmentDto.variablesCount; i++) {
-      this.variables.push(this.fb.control('', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]))
-    }
+    console.log();
     this.assignmentService.getById(this.assignmentId).subscribe({
       next: (assignmentDto: AssignmentDto) => {
         this.assignmentDto = assignmentDto;
@@ -120,5 +119,10 @@ export class AssignmentComponent {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
     }
+  }
+
+  disableInputsAndButtons() {
+    return (this.assignmentResponseDto != null && this.assignmentResponseDto.hasCorrectAnswer)
+      || this.assignmentDto.attemptRemaining === 0;
   }
 }
