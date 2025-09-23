@@ -21,8 +21,4 @@ public class UserInfo {
     @MapsId
     @JoinColumn(name = "id")
     private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "group_id", referencedColumnName = "id")
-    private Group group;
 }

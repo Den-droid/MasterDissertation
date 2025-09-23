@@ -19,8 +19,8 @@ public class Function {
     private int variablesCount;
 
     @ManyToOne
-    @JoinColumn(name = "topic_id", referencedColumnName = "id")
-    private Topic topic;
+    @JoinColumn(name = "subject_id", referencedColumnName = "id")
+    private Subject subject;
 
     private String minValue;
     private String maxValue;

@@ -7,15 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "topics")
+@Table(name = "subjects")
 @Data
-public class Topic {
+public class Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;
 
-    @OneToMany(mappedBy = "topic")
+    @OneToMany(mappedBy = "subject")
     private List<Function> functions = new ArrayList<>();
 }
