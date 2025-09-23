@@ -43,10 +43,6 @@ export class AssignmentService {
     return this.httpClient.put(`${this.url}/${assignmentId}/startContinue`, {});
   }
 
-  stop(assignmentId: number): Observable<any> {
-    return this.httpClient.put(`${this.url}/${assignmentId}/stop`, {});
-  }
-
   finish(assignmentId: number): Observable<any> {
     return this.httpClient.put(`${this.url}/${assignmentId}/finish`, {});
   }
@@ -60,14 +56,5 @@ export class AssignmentService {
 
   getAnswers(assignmentId: number): Observable<AnswerDto[]> {
     return this.httpClient.get<AnswerDto[]>(`${this.url}/${assignmentId}/answers`);
-  }
-
-  getAnswersForAssignments(assignmentIds: number[]): Observable<AnswerDto[][]> {
-    let params = new HttpParams();
-
-    assignmentIds.forEach(id => {
-      params = params.append('assignmentIds', id.toString());
-    });
-    return this.httpClient.get<AnswerDto[][]>(`${this.url}/answers`, { params });
   }
 }

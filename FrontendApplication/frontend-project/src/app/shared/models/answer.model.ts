@@ -1,3 +1,3 @@
 export class AnswerDto {
-  constructor(public numberOfAnswer : number, public answer : string, public result : number) { }
+  constructor(public numberOfAnswer: number, public answer: string, public result: number, public isCorrect: boolean) { }
 }

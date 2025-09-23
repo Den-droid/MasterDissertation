@@ -54,7 +54,8 @@ public class AssignmentServiceImpl implements AssignmentService {
         return new AssignmentDto(
                 assignment.getFunction().getHint(),
                 assignment.getAttemptsRemaining(),
-                assignment.getFunction().getVariablesCount()
+                assignment.getFunction().getVariablesCount(),
+                assignment.getStatus().ordinal()
         );
     }
 
@@ -139,20 +140,6 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public void stop(int assignmentId) {
-        Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, assignmentId)
-        );
-
-        if (assignment.hasCorrectAnswer())
-            assignment.setStatus(AssignmentStatus.CORRECT_ANSWER_STOPPED);
-        else
-            assignment.setStatus(AssignmentStatus.STOPPED);
-
-        assignmentRepository.save(assignment);
-    }
-
-    @Override
     public void finish(int assignmentId) {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(
                 () -> new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, assignmentId)
@@ -181,6 +168,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         if (Double.parseDouble(correctResult) == result) {
             answer.setCorrect(true);
             assignment.setHasCorrectAnswer(true);
+            assignment.setAttemptsRemaining(assignment.getAttemptsRemaining() - 1);
         } else {
             answer.setCorrect(false);
             assignment.setAttemptsRemaining(assignment.getAttemptsRemaining() - 1);
@@ -210,26 +198,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         List<Answer> answers = assignment.getAnswers();
         List<AnswerDto> answerDtos = answers.stream()
                 .sorted(Comparator.comparingInt(Answer::getAnswerNumber).reversed())
-                .map(a1 -> new AnswerDto(a1.getAnswerNumber(), a1.getAnswer(), a1.getResult()))
+                .map(a1 -> new AnswerDto(a1.getAnswerNumber(), a1.getAnswer(), a1.getResult(), a1.isCorrect()))
                 .toList();
 
         return answerDtos;
-    }
-
-    @Override
-    public List<List<AnswerDto>> getAnswersForAssignments(List<Integer> assignmentIds) {
-        Iterable<Assignment> assignments = assignmentRepository.findAllById(assignmentIds);
-        List<List<AnswerDto>> answersForAssignments = new ArrayList<>();
-
-        assignments.forEach(assignment -> {
-            List<Answer> answers = assignment.getAnswers();
-            List<AnswerDto> answerDtos = answers.stream()
-                    .sorted(Comparator.comparingInt(Answer::getAnswerNumber).reversed())
-                    .map(a1 -> new AnswerDto(a1.getAnswerNumber(), a1.getAnswer(), a1.getResult()))
-                    .toList();
-            answersForAssignments.add(answerDtos);
-        });
-
-        return answersForAssignments;
     }
 }

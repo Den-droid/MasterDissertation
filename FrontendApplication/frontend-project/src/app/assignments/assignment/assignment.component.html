@@ -8,12 +8,14 @@
 
       <h5 class="card-title mb-3">Завдання</h5>
       <p class="card-text">
-        {{assignmentDto.hint}}
+        {{assignmentDto?.hint}}
       </p>
 
       <p class="text-muted">
         <i class="fa-solid fa-hourglass-half me-2"></i>
-        Залишилось спроб: <span class="fw-bold">{{assignmentDto.attemptRemaining}}</span>
+        Залишилось спроб: <span class="fw-bold">
+          {{assignmentDto?.attemptRemaining}}
+        </span>
       </p>
 
       <form [formGroup]="form">
@@ -26,12 +28,14 @@
 
             <input type="text" class="form-control" [id]="'inputVariable' + (i + 1)"
               [placeholder]="'Введіть x' + (i + 1)" [formControlName]="i"
-              [readonly]="disableInputsAndButtons()" />
+              [readonly]="disableInputsAndButtons() || isAnswersMode" />
 
-            @if (variables.at(i).errors?.['required'] && (variables.at(i).touched || variables.at(i).dirty)) {
+            @if (variables.at(i).errors?.['required'] && (variables.at(i).touched || variables.at(i).dirty) &&
+            !(disableInputsAndButtons() || isAnswersMode)) {
             <div class="text-danger mt-1">{{variablesErrorRequired}}</div>
             }
-            @if (variables.at(i).errors?.['pattern'] && (variables.at(i).touched || variables.at(i).dirty)) {
+            @if (variables.at(i).errors?.['pattern'] && (variables.at(i).touched || variables.at(i).dirty) &&
+            !(disableInputsAndButtons() || isAnswersMode)) {
             <div class="text-danger mt-1">{{variablesErrorNotNumber}}</div>
             }
           </div>
@@ -40,36 +44,36 @@
         </div>
       </form>
 
-      @if(assignmentResponseDto != null && !assignmentResponseDto.hasCorrectAnswer){
+      @if(assignmentResponseDto && !assignmentResponseDto.hasCorrectAnswer && !isAnswersMode){
       <div class="alert alert-danger">
         Ваша відповідь неправильна. Значення функції для ваших змінних: {{assignmentResponseDto.result}}
       </div>
       }
-      @if(assignmentResponseDto != null && assignmentResponseDto.hasCorrectAnswer){
+      @if(assignmentResponseDto && assignmentResponseDto.hasCorrectAnswer && !isAnswersMode){
       <div class="alert alert-success">
         Ваша відповідь правильна. Значення функції для ваших змінних: {{assignmentResponseDto.result}}.
         Натисніть кнопку Завершити, щоб завершити виконання завдання.
       </div>
       }
-      @if(assignmentDto.attemptRemaining === 0){
+      @if(assignmentDto && assignmentDto.attemptRemaining === 0){
       <div class="alert alert-danger">
         Ваші спроби завершилися. Ви більше не можете відправити відповідь.
         Натисніть кнопку Завершити, щоб завершити виконання завдання.
       </div>
       }
 
-      <div class="d-flex justify-content-end gap-2 mt-3">
-        <button class="btn btn-primary" (click)="answer()"
-          [disabled]="disableInputsAndButtons()">
-          <i class="fa-solid fa-paper-plane me-1"></i> Дати відповідь
+      <div class="d-flex justify-content-between gap-2 mt-3">
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+          <i class="fa-solid fa-arrow-left me-1"></i> Назад
         </button>
-        <button class="btn btn-danger" (click)="stop()"
-          [disabled]="disableInputsAndButtons()">
-          <i class="fa-solid fa-stop me-1"></i> Зупинити
-        </button>
-        <button class="btn btn-success" (click)="finish()">
-          <i class="fa-solid fa-check me-1"></i> Завершити
-        </button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary" (click)="answer()" [disabled]="disableInputsAndButtons() || isAnswersMode">
+            <i class="fa-solid fa-paper-plane me-1"></i> Дати відповідь
+          </button>
+          <button class="btn btn-success" (click)="finish()" [disabled]="isAnswersMode">
+            <i class="fa-solid fa-check me-1"></i> Завершити
+          </button>
+        </div>
       </div>
 
       <div class="accordion mt-4" id="assignmentAccordion">

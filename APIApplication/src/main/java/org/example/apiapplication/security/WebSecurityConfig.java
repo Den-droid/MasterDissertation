@@ -41,11 +41,9 @@ public class WebSecurityConfig {
             "/isAvailable",
             "/assign",
             "/{assignmentId}/startContinue",
-            "/{assignmentId}/stop",
             "/{assignmentId}/finish",
             "/{assignmentId}/answer",
-            "/{assignmentId}/answers",
-            "/answers"
+            "/{assignmentId}/answers"
     };
 
     private final String[] markUrls = {

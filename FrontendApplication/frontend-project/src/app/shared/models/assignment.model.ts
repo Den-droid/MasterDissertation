@@ -10,7 +10,8 @@ export class AssignmentDto {
   constructor(
     public hint: string,
     public attemptRemaining: number,
-    public variablesCount: number
+    public variablesCount: number,
+    public statusId: AssignmentStatus
   ) { }
 }
 

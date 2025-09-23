@@ -34,6 +34,9 @@
           <td>{{activeAssignment.attemptsRemaining}}</td>
           <td><span class="badge bg-success">{{getAssignmentStatusString(activeAssignment)}}</span></td>
           <td>
+            <button class="btn btn-sm btn-outline-info me-2" (click)="goToAnswersPage(activeAssignment)">
+              <i class="fa-solid fa-eye"></i>
+            </button>
             <button class="btn btn-sm btn-outline-info" (click)="startContinueAssignment(activeAssignment)">
               <i class="fa-solid" [ngClass]="{
                 'fa-play': isAssignedStatus(activeAssignment),
@@ -42,34 +45,6 @@
             </button>
           </td>
         </tr>
-        <td colspan="5">
-          <div class="accordion mt-4" id="assignmentAccordion">
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="headingOne">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                  Відповіді
-                </button>
-              </h2>
-              <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
-                data-bs-parent="#assignmentAccordion">
-                <div class="accordion-body">
-                  @for (answer of answersToAssignments.get(activeAssignment.id); track answer) {
-                  <div>
-                    <strong>{{answer.numberOfAnswer + '. '}}</strong>
-                    Введена відповідь: <strong>{{answer.answer}}</strong>.
-                    Значення функції для цих значень: <strong>{{answer.result}}</strong>
-                  </div>
-                  }
-                  @if(answersToAssignments.has(activeAssignment.id) &&
-                  answersToAssignments.get(activeAssignment.id)?.length === 0) {
-                  <strong>Відповідей не знайдено!</strong>
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-        </td>
         }
       </tbody>
     </table>
@@ -84,6 +59,7 @@
           <th>Тип завдання</th>
           <th>Оцінка</th>
           <th>Коментар</th>
+          <th>Дія</th>
         </tr>
       </thead>
       <tbody>
@@ -95,35 +71,12 @@
         <tr>
           <td>{{finishedAssignment.hint}}</td>
           <td>{{getFunctionResultTypeString(finishedAssignment)}}</td>
-          <td>{{finishedAssignment.mark}}</td>
-          <td>{{finishedAssignment.comment}}</td>
-          <td colspan="4">
-            <div class="accordion mt-4" id="assignmentAccordion">
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="headingOne">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                    Відповіді
-                  </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
-                  data-bs-parent="#assignmentAccordion">
-                  <div class="accordion-body">
-                    @for (answer of answersToAssignments.get(finishedAssignment.id); track answer) {
-                    <div>
-                      <strong>{{answer.numberOfAnswer + '. '}}</strong>
-                      Введена відповідь: <strong>{{answer.answer}}</strong>.
-                      Значення функції для цих значень: <strong>{{answer.result}}</strong>
-                    </div>
-                    }
-                    @if(answersToAssignments.has(finishedAssignment.id) &&
-                    answersToAssignments.get(finishedAssignment.id)?.length === 0) {
-                    <strong>Відповідей не знайдено!</strong>
-                    }
-                  </div>
-                </div>
-              </div>
-            </div>
+          <td>{{finishedAssignment.mark == -1 ? 'Немає' : finishedAssignment.mark}}</td>
+          <td>{{finishedAssignment.comment.length == 0 ? 'Немає' : finishedAssignment.comment}}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-info" (click)="goToAnswersPage(finishedAssignment)">
+              <i class="fa-solid fa-eye"></i>
+            </button>
           </td>
         </tr>
         }

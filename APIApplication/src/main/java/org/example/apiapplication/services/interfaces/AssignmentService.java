@@ -19,13 +19,9 @@ public interface AssignmentService {
 
     void startContinue(int assignmentId);
 
-    void stop(int assignmentId);
-
     void finish(int assignmentId);
 
     AssignmentResponseDto answerAssignment(int assignmentId, AssignmentAnswerDto assignmentAnswerDto);
 
     List<AnswerDto> getAnswersForAssignment(int assignmentId);
-
-    List<List<AnswerDto>> getAnswersForAssignments(List<Integer> assignmentIds);
 }

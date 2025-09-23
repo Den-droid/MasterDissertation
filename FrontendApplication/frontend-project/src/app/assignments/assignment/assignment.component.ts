@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,6 +8,7 @@ import { AssignmentAnswerDto, AssignmentDto, AssignmentResponseDto } from '../..
 import { assignmentLabels } from '../../shared/translations/assignment.translation';
 import { joinVariables } from '../../shared/helpers/variables-join.helper';
 import { AnswerDto } from '../../shared/models/answer.model';
+import { AssignmentStatus } from '../../shared/constants/assignment-status.constant';
 
 @Component({
   selector: 'app-assignment',
@@ -17,7 +18,7 @@ import { AnswerDto } from '../../shared/models/answer.model';
 })
 export class AssignmentComponent {
   constructor(public assignmentService: AssignmentService, public jwtService: JWTTokenService,
-    public router: Router, private route: ActivatedRoute, private fb: FormBuilder) {
+    public router: Router, private route: ActivatedRoute, private fb: FormBuilder, private location: Location) {
   }
 
   form!: FormGroup;
@@ -28,10 +29,15 @@ export class AssignmentComponent {
   previousAnswersDto: AnswerDto[] = [];
   variablesErrorRequired = assignmentLabels['variable-empty'];
   variablesErrorNotNumber = assignmentLabels['variable-not-number'];
+  isAnswersMode = false;
 
   ngOnInit() {
     this.form = this.fb.group({
       variables: this.fb.array([])
+    });
+
+    this.route.queryParamMap.subscribe(params => {
+      this.isAnswersMode = params.get('answerMode')?.toLowerCase() === "true";
     });
 
     this.route.paramMap.subscribe(params => {
@@ -51,12 +57,15 @@ export class AssignmentComponent {
   }
 
   getById() {
-    console.log();
     this.assignmentService.getById(this.assignmentId).subscribe({
       next: (assignmentDto: AssignmentDto) => {
         this.assignmentDto = assignmentDto;
         for (let i = 0; i < this.assignmentDto.variablesCount; i++) {
           this.variables.push(this.fb.control('', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]));
+        }
+
+        if (this.assignmentDto.statusId === AssignmentStatus.FINISHED) {
+          this.isAnswersMode = true;
         }
       },
       error: (error: any) => {
@@ -69,6 +78,10 @@ export class AssignmentComponent {
     this.assignmentService.getAnswers(this.assignmentId).subscribe({
       next: (answerDtos: AnswerDto[]) => {
         this.previousAnswersDto = answerDtos;
+        if (this.previousAnswersDto.length > 0) {
+          this.assignmentResponseDto = new AssignmentResponseDto(this.previousAnswersDto[0].result,
+            this.assignmentDto.attemptRemaining, this.previousAnswersDto[0].isCorrect)
+        }
       }
     })
   }
@@ -93,18 +106,10 @@ export class AssignmentComponent {
           this.assignmentResponseDto = assignmentResponseDto;
           this.assignmentDto.attemptRemaining = this.assignmentResponseDto.attemptsRemaining;
 
-          this.previousAnswersDto.unshift(new AnswerDto(this.previousAnswersDto.length + 1,
-            answer.slice(0, answer.length - 1), this.assignmentResponseDto.result));
+          this.getPreviousAnswers();
         }
       })
-  }
 
-  stop() {
-    this.assignmentService.stop(this.assignmentId).subscribe({
-      next: () => {
-        this.router.navigate([`/student/assignments`]);
-      }
-    })
   }
 
   finish() {
@@ -122,7 +127,11 @@ export class AssignmentComponent {
   }
 
   disableInputsAndButtons() {
-    return (this.assignmentResponseDto != null && this.assignmentResponseDto.hasCorrectAnswer)
-      || this.assignmentDto.attemptRemaining === 0;
+    return (this.assignmentResponseDto && this.assignmentResponseDto.hasCorrectAnswer)
+      || (this.assignmentDto && this.assignmentDto.attemptRemaining === 0);
+  }
+
+  goBack() {
+    this.location.back();
   }
 }

@@ -8,14 +8,13 @@ import { Assignment, parseUserAssignmentDtoToAssignment, UserAssignmentDto } fro
 import { AssignmentStatus, AssignmentStatusLabel } from '../../shared/constants/assignment-status.constant';
 import { Router } from '@angular/router';
 import { FunctionResultType, FunctionResultTypeLabel } from '../../shared/constants/function-result-type.constant';
-import { AnswerDto } from '../../shared/models/answer.model';
 
 @Component({
   selector: 'app-student-assignments',
   templateUrl: './student-assignments.component.html',
   imports: [FormsModule, CommonModule]
 })
-export class StudentAssignmentsComponent implements OnInit {
+export class StudentAssignmentsComponent {
   constructor(public assignmentService: AssignmentService, public jwtService: JWTTokenService,
     public router: Router
   ) {
@@ -25,13 +24,10 @@ export class StudentAssignmentsComponent implements OnInit {
     this.getAssignmentsByUserId();
   }
 
-  @Input()
   assignments: Assignment[] = [];
 
   activeAssignments: Assignment[] = [];
   finishedAssignments: Assignment[] = [];
-
-  answersToAssignments: Map<number, AnswerDto[]> = new Map<number, AnswerDto[]>();
 
   updateActiveFinishedAssignments() {
     this.updateActiveAssignments()
@@ -47,23 +43,6 @@ export class StudentAssignmentsComponent implements OnInit {
           this.assignments.push(parseUserAssignmentDtoToAssignment(userAssignmentDto))
         }
 
-        if (this.assignments.length > 0)
-          this.getAnswersForAssignments();
-
-        this.updateActiveFinishedAssignments();
-      }
-    })
-  }
-
-  getAnswersForAssignments() {
-    let ids = this.assignments.map(a => a.id);
-
-    this.assignmentService.getAnswersForAssignments(ids).subscribe({
-      next: (answersDto: AnswerDto[][]) => {
-        for (let i = 0; i < this.assignments.length; i++) {
-          this.answersToAssignments.set(this.assignments[i].id, answersDto[i]);
-        }
-
         this.updateActiveFinishedAssignments();
       }
     })
@@ -72,7 +51,7 @@ export class StudentAssignmentsComponent implements OnInit {
   startContinueAssignment(assignment: Assignment) {
     this.assignmentService.startContinue(assignment.id).subscribe({
       next: () => {
-        this.router.navigate([`assignments/${assignment.id}`]);
+        this.router.navigate([`assignments/${assignment.id}`], { queryParams: { answerMode: 'false' } });
       }
     })
   }
@@ -86,13 +65,16 @@ export class StudentAssignmentsComponent implements OnInit {
     })
   }
 
+  goToAnswersPage(assignment: Assignment) {
+    this.router.navigate([`assignments/${assignment.id}`], { queryParams: { answerMode: 'true' } });
+  }
+
   isAssignedStatus(assignment: Assignment) {
     return assignment.status === AssignmentStatus.ASSIGNED;
   }
 
   isInProgressStatus(assignment: Assignment) {
-    return assignment.status === AssignmentStatus.ACTIVE || assignment.status === AssignmentStatus.STOPPED
-      || assignment.status === AssignmentStatus.CORRECT_ANSWER_STOPPED;
+    return assignment.status === AssignmentStatus.ACTIVE
   }
 
   getAssignmentStatusString(assignment: Assignment) {

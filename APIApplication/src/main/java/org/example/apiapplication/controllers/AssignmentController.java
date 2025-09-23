@@ -50,12 +50,6 @@ public class AssignmentController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{assignmentId}/stop")
-    public ResponseEntity<?> stop(@PathVariable Integer assignmentId) {
-        assignmentService.stop(assignmentId);
-        return ResponseEntity.ok().build();
-    }
-
     @PutMapping("/{assignmentId}/finish")
     public ResponseEntity<?> finish(@PathVariable Integer assignmentId) {
         assignmentService.finish(assignmentId);
@@ -73,13 +67,6 @@ public class AssignmentController {
     @GetMapping("/{assignmentId}/answers")
     public ResponseEntity<List<AnswerDto>> getAnswers(@PathVariable Integer assignmentId) {
         List<AnswerDto> answerDtos = assignmentService.getAnswersForAssignment(assignmentId);
-        return ResponseEntity.ok(answerDtos);
-    }
-
-    @GetMapping("/answers")
-    public ResponseEntity<List<List<AnswerDto>>> getAnswersForAssignments(
-            @RequestParam List<Integer> assignmentIds) {
-        List<List<AnswerDto>> answerDtos = assignmentService.getAnswersForAssignments(assignmentIds);
         return ResponseEntity.ok(answerDtos);
     }
 }
