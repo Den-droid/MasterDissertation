@@ -1,0 +1,27 @@
+package org.apiapplication.services.interfaces;
+
+import org.apiapplication.dto.answer.AnswerDto;
+import org.apiapplication.dto.assignment.AssignmentAnswerDto;
+import org.apiapplication.dto.assignment.AssignmentDto;
+import org.apiapplication.dto.assignment.AssignmentResponseDto;
+import org.apiapplication.dto.assignment.UserAssignmentDto;
+
+import java.util.List;
+
+public interface AssignmentService {
+    AssignmentDto getById(int assignmentId);
+
+    List<UserAssignmentDto> getByUser(int userId);
+
+    boolean isAvailable(int userId);
+
+    void assign(int userId);
+
+    void startContinue(int assignmentId);
+
+    void finish(int assignmentId);
+
+    AssignmentResponseDto answerAssignment(int assignmentId, AssignmentAnswerDto assignmentAnswerDto);
+
+    List<AnswerDto> getAnswersForAssignment(int assignmentId);
+}
