@@ -1,7 +1,7 @@
 package org.apiapplication.controllers;
 
 import org.apiapplication.dto.auth.*;
-import org.example.apiapplication.dto.auth.*;
+import org.apiapplication.dto.auth.*;
 import org.apiapplication.services.interfaces.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -15,7 +15,7 @@ import org.apiapplication.entities.user.User;
 import org.apiapplication.enums.AssignmentStatus;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.repositories.*;
-import org.example.apiapplication.repositories.*;
+import org.apiapplication.repositories.*;
 import org.apiapplication.services.interfaces.AssignmentService;
 import org.apiapplication.utils.AnswerParser;
 import org.apiapplication.utils.ExpressionParser;
