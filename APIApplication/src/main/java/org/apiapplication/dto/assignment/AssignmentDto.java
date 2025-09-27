@@ -1,7 +1,9 @@
 package org.apiapplication.dto.assignment;
 
-import org.apiapplication.enums.AssignmentStatus;
+import java.time.LocalDateTime;
 
-public record AssignmentDto(String hint, int attemptRemaining,
-                            int variablesCount, AssignmentStatus status) {
+public record AssignmentDto(String hint, int variablesCount, int status,
+                            int restrictionType,
+                            int attemptsRemaining, LocalDateTime deadline,
+                            LocalDateTime nextAttemptTime) {
 }

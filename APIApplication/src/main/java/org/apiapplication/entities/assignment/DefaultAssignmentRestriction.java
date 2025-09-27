@@ -1,20 +1,18 @@
-package org.apiapplication.entities;
+package org.apiapplication.entities.assignment;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.apiapplication.entities.user.User;
+import org.apiapplication.entities.Subject;
+import org.apiapplication.entities.University;
+import org.apiapplication.enums.AssignmentRestrictionType;
 
-@Data
 @Entity
-@Table(name = "permissions")
-public class Permission {
+@Data
+@Table(name = "default_assignment_restrictions")
+public class DefaultAssignmentRestriction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
 
     @ManyToOne
     @JoinColumn(name = "university_id", referencedColumnName = "id")
@@ -28,7 +26,8 @@ public class Permission {
     @JoinColumn(name = "function_id", referencedColumnName = "id")
     private Function function;
 
-    @ManyToOne
-    @JoinColumn(name = "assignment_id", referencedColumnName = "id")
-    private Assignment assignment;
+    private AssignmentRestrictionType assignmentRestrictionType;
+    private int attemptsRemaining;
+    private int minutesForAttempt;
+    private int minutesToDeadline;
 }

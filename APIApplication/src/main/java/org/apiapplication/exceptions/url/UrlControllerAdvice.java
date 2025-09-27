@@ -11,7 +11,7 @@ import org.springframework.web.context.request.WebRequest;
 public class UrlControllerAdvice {
     @ExceptionHandler(value = UrlWithNameNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public BaseExceptionDto handleEntityException(UrlWithNameNotFoundException ex, WebRequest request) {
+    public BaseExceptionDto handleUrlException(UrlWithNameNotFoundException ex, WebRequest request) {
         return new BaseExceptionDto(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage());

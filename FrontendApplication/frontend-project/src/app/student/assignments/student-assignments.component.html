@@ -16,8 +16,8 @@
         <tr>
           <th>Завдання</th>
           <th>Тип завдання</th>
-          <th>Спроб залишилось</th>
-          <th>Статус</th>
+          <th>Статус відповідей</th>
+          <th>Статус завдання</th>
           <th>Дія</th>
         </tr>
       </thead>
@@ -31,7 +31,31 @@
         <tr>
           <td>{{activeAssignment.hint}}</td>
           <td>{{getFunctionResultTypeString(activeAssignment)}}</td>
-          <td>{{activeAssignment.attemptsRemaining}}</td>
+          <td>
+            @if(isRestrictionNAttempts(activeAssignment)){
+            Залишилось спроб:
+            <span class="fw-bold">
+              {{activeAssignment.attemptsRemaining}}
+            </span>
+            }
+            @if(isRestrictionDeadline(activeAssignment)){
+            Дедлайн надсилання відповідей:
+            <span class="fw-bold">
+              {{activeAssignment.deadline}}
+            </span>
+            }
+            @if(isRestrictionAttemptInNMinutes(activeAssignment)){
+            Наступна відповідь може бути надіслана:
+            <span class="fw-bold">
+              @if(isNextAttemptTimeAfterNow(activeAssignment)){
+              {{activeAssignment.nextAttemptTime}}
+              }
+              @else {
+              зараз
+              }
+            </span>
+            }
+          </td>
           <td><span class="badge bg-success">{{getAssignmentStatusString(activeAssignment)}}</span></td>
           <td>
             <button class="btn btn-sm btn-outline-info me-2" (click)="goToAnswersPage(activeAssignment)">

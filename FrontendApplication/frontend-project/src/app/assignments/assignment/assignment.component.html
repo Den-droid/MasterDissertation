@@ -12,10 +12,32 @@
       </p>
 
       <p class="text-muted">
+        @if(assignmentDto && isRestrictionNAttempts()){
         <i class="fa-solid fa-hourglass-half me-2"></i>
-        Залишилось спроб: <span class="fw-bold">
-          {{assignmentDto?.attemptRemaining}}
+        Залишилось спроб:
+        <span class="fw-bold">
+          {{assignmentDto.attemptsRemaining}}
         </span>
+        }
+        @if(assignmentDto && isRestrictionDeadline()){
+        <i class="fa-solid fa-calendar-alt me-2"></i>
+        Дедлайн надсилання відповідей:
+        <span class="fw-bold">
+          {{assignmentDto.deadline}}
+        </span>
+        }
+        @if(assignmentDto && isRestrictionAttemptInNMinutes()){
+        <i class="fa-solid fa-redo me-2"></i>
+        Наступна відповідь може бути надіслана:
+        <span class="fw-bold">
+          @if(isNextAttemptTimeAfterNow()){
+          {{assignmentDto.nextAttemptTime}}
+          }
+          @else {
+          зараз
+          }
+        </span>
+        }
       </p>
 
       <form [formGroup]="form">
@@ -44,20 +66,29 @@
         </div>
       </form>
 
-      @if(assignmentResponseDto && !assignmentResponseDto.hasCorrectAnswer && !isAnswersMode){
+      @if(showAnswerNotCorrect()){
       <div class="alert alert-danger">
         Ваша відповідь неправильна. Значення функції для ваших змінних: {{assignmentResponseDto.result}}
       </div>
       }
-      @if(assignmentResponseDto && assignmentResponseDto.hasCorrectAnswer && !isAnswersMode){
+      @if(showAnswerCorrect()){
       <div class="alert alert-success">
         Ваша відповідь правильна. Значення функції для ваших змінних: {{assignmentResponseDto.result}}.
         Натисніть кнопку Завершити, щоб завершити виконання завдання.
       </div>
       }
-      @if(assignmentDto && assignmentDto.attemptRemaining === 0){
+      @if(showErrorMessage()){
       <div class="alert alert-danger">
-        Ваші спроби завершилися. Ви більше не можете відправити відповідь.
+        Ви більше не можете відправити відповідь. <br>
+        Причина:
+        @if(isRestrictionNAttempts()){
+        <span class="fw-bold">У вас залишилось 0 спроб</span>
+        <br>
+        }
+        @if(isRestrictionDeadline()){
+        <span class="fw-bold">Минув дедлайн надання відповідей</span>
+        <br>
+        }
         Натисніть кнопку Завершити, щоб завершити виконання завдання.
       </div>
       }

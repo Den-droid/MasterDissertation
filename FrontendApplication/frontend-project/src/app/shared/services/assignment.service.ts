@@ -18,43 +18,43 @@ export class AssignmentService {
     const options = {
       params: new HttpParams().set('userId', userId.toString())
     };
-    return this.httpClient.get<UserAssignmentDto[]>(this.url + '/getByUserId', options);
+    return this.httpClient.get<UserAssignmentDto[]>(`${this.url}/getByUserId`, options);
   }
 
-  getById(assignmentId: number): Observable<AssignmentDto> {
-    return this.httpClient.get<AssignmentDto>(`${this.url}/${assignmentId}`);
+  getById(userAssignmentId: number): Observable<AssignmentDto> {
+    return this.httpClient.get<AssignmentDto>(`${this.url}/${userAssignmentId}`);
   }
 
   isAvailable(userId: number): Observable<boolean> {
     const options = {
       params: new HttpParams().set('userId', userId.toString())
     };
-    return this.httpClient.get<boolean>(this.url + '/isAvailable', options);
+    return this.httpClient.get<boolean>(`${this.url}/isAvailable`, options);
   }
 
   assign(userId: number): Observable<any> {
     const options = {
       params: new HttpParams().set('userId', userId.toString())
     };
-    return this.httpClient.post(this.url + '/assign', null, options);
+    return this.httpClient.post(`${this.url}/assign`, null, options);
   }
 
-  startContinue(assignmentId: number): Observable<any> {
-    return this.httpClient.put(`${this.url}/${assignmentId}/startContinue`, {});
+  startContinue(userAssignmentId: number): Observable<any> {
+    return this.httpClient.put(`${this.url}/${userAssignmentId}/startContinue`, {});
   }
 
-  finish(assignmentId: number): Observable<any> {
-    return this.httpClient.put(`${this.url}/${assignmentId}/finish`, {});
+  finish(userAssignmentId: number): Observable<any> {
+    return this.httpClient.put(`${this.url}/${userAssignmentId}/finish`, {});
   }
 
-  answer(assignmentId: number, assignmentAnswerDto: AssignmentAnswerDto): Observable<AssignmentResponseDto> {
+  answer(userAssignmentId: number, assignmentAnswerDto: AssignmentAnswerDto): Observable<AssignmentResponseDto> {
     return this.httpClient.post<AssignmentResponseDto>(
-      `${this.url}/${assignmentId}/answer`,
+      `${this.url}/${userAssignmentId}/answer`,
       assignmentAnswerDto
     );
   }
 
-  getAnswers(assignmentId: number): Observable<AnswerDto[]> {
-    return this.httpClient.get<AnswerDto[]>(`${this.url}/${assignmentId}/answers`);
+  getAnswers(userAssignmentId: number): Observable<AnswerDto[]> {
+    return this.httpClient.get<AnswerDto[]>(`${this.url}/${userAssignmentId}/answers`);
   }
 }

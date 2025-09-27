@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { AssignmentService } from '../../shared/services/assignment.service';
 import { JWTTokenService } from '../../shared/services/jwt-token.service';
 import { parseToNumber } from '../../shared/helpers/parse-to-number.helper';
-import { Assignment, parseUserAssignmentDtoToAssignment, UserAssignmentDto } from '../../shared/models/assignment.model';
+import { UserAssignment, parseUserAssignmentDtoToAssignment, UserAssignmentDto } from '../../shared/models/assignment.model';
 import { AssignmentStatus, AssignmentStatusLabel } from '../../shared/constants/assignment-status.constant';
 import { Router } from '@angular/router';
 import { FunctionResultType, FunctionResultTypeLabel } from '../../shared/constants/function-result-type.constant';
+import { AssignmentRestrictionType } from '../../shared/constants/assignment-restriction-type';
 
 @Component({
   selector: 'app-student-assignments',
@@ -24,10 +25,10 @@ export class StudentAssignmentsComponent {
     this.getAssignmentsByUserId();
   }
 
-  assignments: Assignment[] = [];
+  assignments: UserAssignment[] = [];
 
-  activeAssignments: Assignment[] = [];
-  finishedAssignments: Assignment[] = [];
+  activeAssignments: UserAssignment[] = [];
+  finishedAssignments: UserAssignment[] = [];
 
   updateActiveFinishedAssignments() {
     this.updateActiveAssignments()
@@ -48,7 +49,7 @@ export class StudentAssignmentsComponent {
     })
   }
 
-  startContinueAssignment(assignment: Assignment) {
+  startContinueAssignment(assignment: UserAssignment) {
     this.assignmentService.startContinue(assignment.id).subscribe({
       next: () => {
         this.router.navigate([`assignments/${assignment.id}`], { queryParams: { answerMode: 'false' } });
@@ -65,24 +66,24 @@ export class StudentAssignmentsComponent {
     })
   }
 
-  goToAnswersPage(assignment: Assignment) {
+  goToAnswersPage(assignment: UserAssignment) {
     this.router.navigate([`assignments/${assignment.id}`], { queryParams: { answerMode: 'true' } });
   }
 
-  isAssignedStatus(assignment: Assignment) {
+  isAssignedStatus(assignment: UserAssignment) {
     return assignment.status === AssignmentStatus.ASSIGNED;
   }
 
-  isInProgressStatus(assignment: Assignment) {
+  isInProgressStatus(assignment: UserAssignment) {
     return assignment.status === AssignmentStatus.ACTIVE
   }
 
-  getAssignmentStatusString(assignment: Assignment) {
+  getAssignmentStatusString(assignment: UserAssignment) {
     let key = AssignmentStatus[assignment.status] as keyof typeof AssignmentStatusLabel;
     return AssignmentStatusLabel[key];
   }
 
-  getFunctionResultTypeString(assignment: Assignment) {
+  getFunctionResultTypeString(assignment: UserAssignment) {
     let key = FunctionResultType[assignment.functionResultType] as keyof typeof FunctionResultTypeLabel;
     return FunctionResultTypeLabel[key];
   }
@@ -93,5 +94,21 @@ export class StudentAssignmentsComponent {
 
   updateFinishedAssignments() {
     this.finishedAssignments = this.assignments.filter(a => a.status === AssignmentStatus.FINISHED);
+  }
+
+  isRestrictionNAttempts(assignment: UserAssignment) {
+    return assignment.restrictionType === AssignmentRestrictionType.N_ATTEMPTS
+  }
+
+  isRestrictionDeadline(assignment: UserAssignment) {
+    return assignment.restrictionType === AssignmentRestrictionType.DEADLINE
+  }
+
+  isRestrictionAttemptInNMinutes(assignment: UserAssignment) {
+    return assignment.restrictionType === AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES
+  }
+
+  isNextAttemptTimeAfterNow(assignment: UserAssignment) {
+    return new Date(assignment.nextAttemptTime).getTime() >= new Date().getTime()
   }
 }

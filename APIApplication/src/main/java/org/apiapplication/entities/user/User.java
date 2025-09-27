@@ -2,7 +2,7 @@ package org.apiapplication.entities.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.apiapplication.entities.Assignment;
+import org.apiapplication.entities.assignment.UserAssignment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +36,18 @@ public class User {
     @OneToOne(mappedBy = "user")
     private UserInfo userInfo;
 
-    @OneToMany(mappedBy = "userAssigned")
-    private List<Assignment> assignments = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<UserAssignment> userAssignments = new ArrayList<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User that)) return false;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

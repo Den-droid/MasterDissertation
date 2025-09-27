@@ -27,7 +27,9 @@ public class WebSecurityConfig {
     private final JwtUtils jwtUtils;
 
     private final String[] authUrl = {
-            "/api/auth/signIn",
+            "/api/auth/signIn/password",
+            "/api/auth/signIn/apiKey",
+            "/api/auth/apiKey",
             "/api/auth/refreshToken",
             "/api/auth/signUp",
             "/api/auth/forgotPassword/tokenExists",

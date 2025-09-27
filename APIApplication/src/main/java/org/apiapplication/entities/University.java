@@ -2,7 +2,9 @@ package org.apiapplication.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,4 +19,7 @@ public class University {
 
     @OneToMany(mappedBy = "university")
     private List<Subject> subjects;
+
+    @OneToMany(mappedBy = "university")
+    private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions = new ArrayList<>();
 }

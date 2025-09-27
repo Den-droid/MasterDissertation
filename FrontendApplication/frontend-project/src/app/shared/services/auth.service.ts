@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { ChangePasswordDto, ForgotPasswordDto, RefreshTokenDto, SignInDto, SignUpDto, TokensDto } from "../models/auth.model";
+import { ApiKeyDto, ChangePasswordDto, ForgotPasswordDto, RefreshTokenDto, SignInDto, SignUpDto, TokensDto } from "../models/auth.model";
 import { Observable } from "rxjs";
 import { JWTTokenService } from "./jwt-token.service";
 import { RoleName } from "../constants/roles.constant";
@@ -15,16 +15,24 @@ export class AuthService {
   constructor(private readonly httpClient: HttpClient, private readonly jwtService: JWTTokenService) {
   }
 
+  getApiKey(userId: number): Observable<ApiKeyDto> {
+    const options = userId ?
+      {
+        params: new HttpParams().set('userId', userId)
+      } : {};
+    return this.httpClient.get<ApiKeyDto>(`${this.url}/apiKey`, options)
+  }
+
   signIn(signInDto: SignInDto): Observable<TokensDto> {
-    return this.httpClient.post<TokensDto>(this.url + "/signIn", signInDto);
+    return this.httpClient.post<TokensDto>(`${this.url}/signIn/password`, signInDto);
   }
 
   signUp(signUpDto: SignUpDto): Observable<any> {
-    return this.httpClient.post(this.url + "/signUp", signUpDto);
+    return this.httpClient.post(`${this.url}/signUp`, signUpDto);
   }
 
   forgotPassword(forgotPasswordDto: ForgotPasswordDto): Observable<any> {
-    return this.httpClient.post(this.url + "/forgotPassword/create", forgotPasswordDto);
+    return this.httpClient.post(`${this.url}/forgotPassword/create`, forgotPasswordDto);
   }
 
   existsByForgotPasswordToken(token: string): Observable<boolean> {
@@ -33,15 +41,15 @@ export class AuthService {
         params: new HttpParams().set('token', token)
       } : {};
 
-    return this.httpClient.get<boolean>(this.url + "/forgotPassword/tokenExists", options);
+    return this.httpClient.get<boolean>(`${this.url}/forgotPassword/tokenExists`, options);
   }
 
   changePassword(token: string, changePasswordDto: ChangePasswordDto): Observable<any> {
-    return this.httpClient.post(this.url + "/forgotPassword/change/" + token, changePasswordDto);
+    return this.httpClient.post(`${this.url}/forgotPassword/change/${token}`, changePasswordDto);
   }
 
   refreshToken(refreshTokenDto: RefreshTokenDto): Observable<TokensDto> {
-    return this.httpClient.put<TokensDto>(this.url + "/refreshToken", refreshTokenDto);
+    return this.httpClient.put<TokensDto>(`${this.url}/refreshToken`, refreshTokenDto);
   }
 
   isAuthenticated(): boolean {

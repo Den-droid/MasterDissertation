@@ -52,7 +52,7 @@ export class SignInComponent {
       },
       error: (error: any) => {
         this.error = true;
-        this.errorMessage = error.error.error;
+        this.errorMessage = error.error.message;
       },
       complete: () => {
         if (this.authService.isStudent())

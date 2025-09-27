@@ -7,6 +7,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { StudentComponent } from './student/student.component';
 import { AssignmentsComponent } from './assignments/assignments.component';
 import { authorizeInterceptor } from './shared/interceptors/authorize.interceptor';
+import { UserComponent } from './user/user.component';
 
 const routes: Routes = [
   { path: "", redirectTo: "/auth/signin", pathMatch: "full" },
@@ -25,6 +26,10 @@ const routes: Routes = [
   {
     path: "assignments", component: AssignmentsComponent,
     loadChildren: () => import('./assignments/assignments.module').then(m => m.AssignmentsModule)
+  },
+  {
+    path: "user", component: UserComponent,
+    loadChildren: () => import('./user/user.module').then(m => m.UserModule)
   },
   { path: '**', redirectTo: '/error/404', pathMatch: 'full' }
 ]

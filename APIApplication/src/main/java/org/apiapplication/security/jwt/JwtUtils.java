@@ -55,8 +55,7 @@ public class JwtUtils {
         try {
             return getEmailFromToken(token, refreshTokenSecret);
         } catch (Exception e) {
-            throw new TokenRefreshException(token, "Refresh token is invalid! " +
-                    "Please sign in again to get new!");
+            throw new TokenRefreshException();
         }
     }
 

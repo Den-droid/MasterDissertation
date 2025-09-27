@@ -22,7 +22,7 @@ export const authorizeInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, n
   };
 
   const handle401Error = (request: HttpRequest<any>, nextFn: HttpHandlerFn): Observable<any> => {
-    if (request.url.endsWith('/api/auth/signin')) {
+    if (request.url.indexOf('/api/auth') > -1) {
       return nextFn(setHeader(request));
     }
 

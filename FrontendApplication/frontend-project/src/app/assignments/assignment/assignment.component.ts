@@ -9,6 +9,9 @@ import { assignmentLabels } from '../../shared/translations/assignment.translati
 import { joinVariables } from '../../shared/helpers/variables-join.helper';
 import { AnswerDto } from '../../shared/models/answer.model';
 import { AssignmentStatus } from '../../shared/constants/assignment-status.constant';
+import { AssignmentRestrictionType } from '../../shared/constants/assignment-restriction-type';
+import { Subscription } from 'rxjs/internal/Subscription';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'app-assignment',
@@ -30,6 +33,9 @@ export class AssignmentComponent {
   variablesErrorRequired = assignmentLabels['variable-empty'];
   variablesErrorNotNumber = assignmentLabels['variable-not-number'];
   isAnswersMode = false;
+
+  nextAttemptTimer!: Subscription;
+  canAttempt: boolean = false;
 
   ngOnInit() {
     this.form = this.fb.group({
@@ -61,11 +67,20 @@ export class AssignmentComponent {
       next: (assignmentDto: AssignmentDto) => {
         this.assignmentDto = assignmentDto;
         for (let i = 0; i < this.assignmentDto.variablesCount; i++) {
-          this.variables.push(this.fb.control('', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]));
+          this.variables.push(this.fb.control('', [Validators.required, Validators.pattern(/^-?\d+(\.\d+)?$/)]));
         }
 
-        if (this.assignmentDto.statusId === AssignmentStatus.FINISHED) {
+        if (this.assignmentDto.status === AssignmentStatus.FINISHED) {
           this.isAnswersMode = true;
+        } else {
+          if (this.isRestrictionAttemptInNMinutes()) {
+            this.nextAttemptTimer = interval(1000).subscribe(() => {
+              this.canAttempt = !this.isNextAttemptTimeAfterNow();
+
+              if (this.canAttempt)
+                this.nextAttemptTimer.unsubscribe();
+            })
+          }
         }
       },
       error: (error: any) => {
@@ -80,7 +95,8 @@ export class AssignmentComponent {
         this.previousAnswersDto = answerDtos;
         if (this.previousAnswersDto.length > 0) {
           this.assignmentResponseDto = new AssignmentResponseDto(this.previousAnswersDto[0].result,
-            this.assignmentDto.attemptRemaining, this.previousAnswersDto[0].isCorrect)
+            this.previousAnswersDto[0].isCorrect, this.assignmentDto.restrictionType,
+            this.assignmentDto.attemptsRemaining, this.assignmentDto.deadline, this.assignmentDto.nextAttemptTime);
         }
       }
     })
@@ -104,12 +120,23 @@ export class AssignmentComponent {
       .subscribe({
         next: (assignmentResponseDto: AssignmentResponseDto) => {
           this.assignmentResponseDto = assignmentResponseDto;
-          this.assignmentDto.attemptRemaining = this.assignmentResponseDto.attemptsRemaining;
+          this.assignmentDto.attemptsRemaining = this.assignmentResponseDto.attemptsRemaining;
+          this.assignmentDto.deadline = this.assignmentResponseDto.deadline;
+          this.assignmentDto.nextAttemptTime = this.assignmentResponseDto.nextAttemptTime;
+          this.assignmentDto.restrictionType = this.assignmentResponseDto.restrictionType;
 
           this.getPreviousAnswers();
+
+          if (this.isRestrictionAttemptInNMinutes()) {
+            this.nextAttemptTimer = interval(1000).subscribe(() => {
+              this.canAttempt = !this.isNextAttemptTimeAfterNow();
+
+              if (this.canAttempt)
+                this.nextAttemptTimer.unsubscribe();
+            })
+          }
         }
       })
-
   }
 
   finish() {
@@ -128,7 +155,53 @@ export class AssignmentComponent {
 
   disableInputsAndButtons() {
     return (this.assignmentResponseDto && this.assignmentResponseDto.hasCorrectAnswer)
-      || (this.assignmentDto && this.assignmentDto.attemptRemaining === 0);
+      || (this.assignmentDto && this.isRestrictionNAttempts() && this.isNoAttemptsLeft())
+      || (this.assignmentDto && this.isRestrictionDeadline() && this.isDeadlineBeforeNow())
+      || (this.assignmentDto && this.isRestrictionAttemptInNMinutes() && !this.canAttempt
+      );
+  }
+
+  showAnswerNotCorrect() {
+    return this.assignmentResponseDto && !this.assignmentResponseDto.hasCorrectAnswer && !this.isAnswersMode;
+  }
+
+  showAnswerCorrect() {
+    return this.assignmentResponseDto && this.assignmentResponseDto.hasCorrectAnswer && !this.isAnswersMode;
+  }
+
+  showErrorMessage() {
+    return this.assignmentDto &&
+      ((this.isRestrictionNAttempts() && this.isNoAttemptsLeft()
+        && (this.assignmentResponseDto && !this.assignmentResponseDto.hasCorrectAnswer))
+        ||
+        (this.isRestrictionDeadline() && this.isDeadlineBeforeNow())
+      );
+  }
+
+  isRestrictionNAttempts() {
+    return this.assignmentDto.restrictionType === AssignmentRestrictionType.N_ATTEMPTS
+  }
+
+  isRestrictionDeadline() {
+    return this.assignmentDto.restrictionType === AssignmentRestrictionType.DEADLINE
+  }
+
+  isRestrictionAttemptInNMinutes() {
+    return this.assignmentDto.restrictionType === AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES
+  }
+
+  isNoAttemptsLeft() {
+    return this.assignmentDto.attemptsRemaining === 0;
+  }
+
+  isNextAttemptTimeAfterNow() {
+    return new Date(this.assignmentDto.nextAttemptTime).getTime() >=
+      new Date().getTime()
+  }
+
+  isDeadlineBeforeNow() {
+    return new Date(this.assignmentDto.deadline).getTime() <
+      new Date().getTime()
   }
 
   goBack() {

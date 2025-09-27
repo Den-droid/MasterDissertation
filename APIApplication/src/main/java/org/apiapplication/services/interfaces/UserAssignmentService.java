@@ -8,20 +8,18 @@ import org.apiapplication.dto.assignment.UserAssignmentDto;
 
 import java.util.List;
 
-public interface AssignmentService {
-    AssignmentDto getById(int assignmentId);
+public interface UserAssignmentService {
+    AssignmentDto getById(int userAssignmentId);
 
     List<UserAssignmentDto> getByUser(int userId);
 
-    boolean isAvailable(int userId);
-
     void assign(int userId);
 
-    void startContinue(int assignmentId);
+    void startContinue(int userAssignmentId);
 
-    void finish(int assignmentId);
+    void finish(int userAssignmentId);
 
-    AssignmentResponseDto answerAssignment(int assignmentId, AssignmentAnswerDto assignmentAnswerDto);
+    AssignmentResponseDto answerAssignment(int userAssignmentId, AssignmentAnswerDto assignmentAnswerDto);
 
-    List<AnswerDto> getAnswersForAssignment(int assignmentId);
+    List<AnswerDto> getAnswersForAssignment(int userAssignmentId);
 }

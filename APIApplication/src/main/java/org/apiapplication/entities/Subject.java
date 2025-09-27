@@ -2,6 +2,8 @@ package org.apiapplication.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
+import org.apiapplication.entities.assignment.Function;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,4 +24,7 @@ public class Subject {
     @ManyToOne
     @JoinColumn(name = "university_id", referencedColumnName = "id")
     private University university;
+
+    @OneToMany(mappedBy = "subject")
+    private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions = new ArrayList<>();
 }

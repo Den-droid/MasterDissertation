@@ -1,3 +1,4 @@
+import { AssignmentRestrictionType } from "../constants/assignment-restriction-type";
 import { AssignmentStatus } from "../constants/assignment-status.constant";
 import { FunctionResultType } from "../constants/function-result-type.constant";
 
@@ -9,38 +10,49 @@ export class AssignmentAnswerDto {
 export class AssignmentDto {
   constructor(
     public hint: string,
-    public attemptRemaining: number,
     public variablesCount: number,
-    public statusId: AssignmentStatus
+    public status: AssignmentStatus,
+    public restrictionType: AssignmentRestrictionType,
+    public attemptsRemaining: number,
+    public deadline: string,
+    public nextAttemptTime: string
   ) { }
 }
-
 export class AssignmentResponseDto {
   constructor(
     public result: number,
+    public hasCorrectAnswer: boolean,
+    public restrictionType: AssignmentRestrictionType,
     public attemptsRemaining: number,
-    public hasCorrectAnswer: boolean
+    public deadline: string,
+    public nextAttemptTime: string
   ) { }
 }
 export class UserAssignmentDto {
   constructor(
-    public assignmentId: number,
+    public userAssignmentId: number,
     public hint: string,
+    public status: AssignmentStatus,
+    public functionResultType: FunctionResultType,
+    public restrictionType: AssignmentRestrictionType,
     public attemptsRemaining: number,
-    public statusId: number,
-    public functionResultTypeId: number,
+    public deadline: string,
+    public nextAttemptTime: string,
     public mark: number,
     public comment: string
   ) { }
 }
 
-export class Assignment {
+export class UserAssignment {
   constructor(
     public id: number,
     public hint: string,
-    public attemptsRemaining: number,
     public status: AssignmentStatus,
     public functionResultType: FunctionResultType,
+    public restrictionType: AssignmentRestrictionType,
+    public attemptsRemaining: number,
+    public deadline: string,
+    public nextAttemptTime: string,
     public mark: number,
     public comment: string,
   ) {
@@ -48,9 +60,10 @@ export class Assignment {
   }
 }
 
-export function parseUserAssignmentDtoToAssignment(userAssignmentDto: UserAssignmentDto): Assignment {
-  return new Assignment(userAssignmentDto.assignmentId, userAssignmentDto.hint,
-    userAssignmentDto.attemptsRemaining, userAssignmentDto.statusId,
-    userAssignmentDto.functionResultTypeId, userAssignmentDto.mark, userAssignmentDto.comment
+export function parseUserAssignmentDtoToAssignment(userAssignmentDto: UserAssignmentDto): UserAssignment {
+  return new UserAssignment(userAssignmentDto.userAssignmentId, userAssignmentDto.hint,
+    userAssignmentDto.status, userAssignmentDto.functionResultType, userAssignmentDto.restrictionType,
+    userAssignmentDto.attemptsRemaining, userAssignmentDto.deadline,
+    userAssignmentDto.nextAttemptTime, userAssignmentDto.mark, userAssignmentDto.comment
   );
 }

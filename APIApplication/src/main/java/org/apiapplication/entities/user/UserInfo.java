@@ -17,6 +17,9 @@ public class UserInfo {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(name = "api_key")
+    private String apiKey;
+
     @OneToOne
     @MapsId
     @JoinColumn(name = "id")

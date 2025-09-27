@@ -1,4 +1,4 @@
-package org.apiapplication.entities;
+package org.apiapplication.entities.assignment;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -12,8 +12,8 @@ public class Answer {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "assignment_id", referencedColumnName = "id")
-    private Assignment assignment;
+    @JoinColumn(name = "user_assignment_id", referencedColumnName = "id")
+    private UserAssignment userAssignment;
 
     private String answer;
     private int answerNumber;

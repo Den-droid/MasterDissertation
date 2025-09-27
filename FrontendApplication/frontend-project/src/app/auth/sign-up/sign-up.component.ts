@@ -67,12 +67,10 @@ export class SignUpComponent implements OnInit {
     let signUpDto = new SignUpDto(this.form.value.email, this.form.value.password,
       this.form.value.firstName, this.form.value.lastName, RoleName.STUDENT);
 
-    console.log(signUpDto);
-
     this.authService.signUp(signUpDto).subscribe({
       error: (error: any) => {
         this.error = true;
-        this.errorMessage = error?.error?.error;
+        this.errorMessage = error?.error?.message;
       },
       complete: () => {
         this.router.navigateByUrl("/auth/signup/success/" + this.uuid);

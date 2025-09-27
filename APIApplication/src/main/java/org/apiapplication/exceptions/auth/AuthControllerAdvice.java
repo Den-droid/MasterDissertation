@@ -25,9 +25,25 @@ public class AuthControllerAdvice {
                 ex.getMessage());
     }
 
+    @ExceptionHandler(value = UserWithEmailOrPasswordNotFoundException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public BaseExceptionDto handleAuthException(UserWithEmailOrPasswordNotFoundException ex, WebRequest request) {
+        return new BaseExceptionDto(
+                HttpStatus.UNAUTHORIZED.value(),
+                ex.getMessage());
+    }
+
     @ExceptionHandler(value = UserWithEmailNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public BaseExceptionDto handleAuthException(UserWithEmailNotFoundException ex, WebRequest request) {
+        return new BaseExceptionDto(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage());
+    }
+
+    @ExceptionHandler(value = UserWithKeyNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public BaseExceptionDto handleAuthException(UserWithKeyNotFoundException ex, WebRequest request) {
         return new BaseExceptionDto(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage());

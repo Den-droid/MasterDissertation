@@ -1,9 +1,11 @@
 package org.apiapplication.dto.assignment;
 
-import org.apiapplication.enums.AssignmentStatus;
-import org.apiapplication.enums.FunctionResultType;
+import java.time.LocalDateTime;
 
-public record UserAssignmentDto(int assignmentId, String hint, int attemptsRemaining,
-                                AssignmentStatus status, FunctionResultType functionResultType,
+public record UserAssignmentDto(int userAssignmentId, String hint, int status,
+                                int functionResultType,
+                                int restrictionType,
+                                int attemptsRemaining, LocalDateTime deadline,
+                                LocalDateTime nextAttemptTime,
                                 int mark, String comment) {
 }
