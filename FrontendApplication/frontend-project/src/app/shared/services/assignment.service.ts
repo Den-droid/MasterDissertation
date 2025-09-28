@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { baseUrl } from "../constants/url.constant";
-import { UserAssignmentDto, AssignmentDto, AssignmentAnswerDto, AssignmentResponseDto } from "../models/assignment.model";
+import { UserAssignmentDto, AssignmentDto, AssignmentAnswerDto, AssignmentResponseDto, AssignDto } from "../models/assignment.model";
 import { AnswerDto } from "../models/answer.model";
 
 @Injectable({
@@ -32,11 +32,8 @@ export class AssignmentService {
     return this.httpClient.get<boolean>(`${this.url}/isAvailable`, options);
   }
 
-  assign(userId: number): Observable<any> {
-    const options = {
-      params: new HttpParams().set('userId', userId.toString())
-    };
-    return this.httpClient.post(`${this.url}/assign`, null, options);
+  assign(assignDto: AssignDto): Observable<any> {
+    return this.httpClient.post(`${this.url}/assign`, assignDto);
   }
 
   startContinue(userAssignmentId: number): Observable<any> {

@@ -8,7 +8,6 @@ import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserInfo;
 import org.apiapplication.enums.UserRole;
 import org.apiapplication.exceptions.auth.*;
-import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.entity.EntityWithNameNotFoundException;
 import org.apiapplication.repositories.RoleRepository;
 import org.apiapplication.repositories.UserInfoRepository;
@@ -141,20 +140,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean existsForgotPasswordToken(String token) {
         return userRepository.existsByForgotPasswordToken(token);
-    }
-
-    @Override
-    public ApiKeyDto getApiKey(int userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER, userId)
-        );
-
-        String newApiToken = generateApiKey();
-        user.getUserInfo().setApiKey(newApiToken);
-
-        userInfoRepository.save(user.getUserInfo());
-
-        return new ApiKeyDto(newApiToken);
     }
 
     private TokensDto getTokensDto(User user) {

@@ -1,9 +1,9 @@
 import { CommonModule, Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { AuthService } from "../../shared/services/auth.service";
+import { ApiKeyDto } from "../../shared/models/user.model";
 import { JWTTokenService } from "../../shared/services/jwt-token.service";
-import { ApiKeyDto } from "../../shared/models/auth.model";
+import { UserService } from "../../shared/services/user.service";
 
 @Component({
   selector: 'app-user-apikey',
@@ -14,11 +14,11 @@ export class ApikeyComponent {
   apiKey: string = '';
   copyButtonText = 'Копіювати ключ';
 
-  public constructor(private location: Location, private authService: AuthService,
+  public constructor(private location: Location, private userService: UserService,
     private jwtService: JWTTokenService) { }
 
   getNewKey() {
-    this.authService.getApiKey(Number(this.jwtService.getId())).subscribe({
+    this.userService.getApiKey(Number(this.jwtService.getId())).subscribe({
       next: (apiKeyDto: ApiKeyDto) => {
         this.apiKey = apiKeyDto.apiKey;
       }

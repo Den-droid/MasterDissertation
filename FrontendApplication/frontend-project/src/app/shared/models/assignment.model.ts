@@ -60,6 +60,10 @@ export class UserAssignment {
   }
 }
 
+export class AssignDto {
+  constructor(public userId: number) { }
+}
+
 export function parseUserAssignmentDtoToAssignment(userAssignmentDto: UserAssignmentDto): UserAssignment {
   return new UserAssignment(userAssignmentDto.userAssignmentId, userAssignmentDto.hint,
     userAssignmentDto.status, userAssignmentDto.functionResultType, userAssignmentDto.restrictionType,

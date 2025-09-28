@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { ApiKeyDto, ChangePasswordDto, ForgotPasswordDto, RefreshTokenDto, SignInDto, SignUpDto, TokensDto } from "../models/auth.model";
+import { ChangePasswordDto, ForgotPasswordDto, RefreshTokenDto, SignInDto, SignUpDto, TokensDto } from "../models/auth.model";
 import { Observable } from "rxjs";
 import { JWTTokenService } from "./jwt-token.service";
 import { RoleName } from "../constants/roles.constant";
@@ -13,14 +13,6 @@ export class AuthService {
   private url: string = baseUrl + "/auth";
 
   constructor(private readonly httpClient: HttpClient, private readonly jwtService: JWTTokenService) {
-  }
-
-  getApiKey(userId: number): Observable<ApiKeyDto> {
-    const options = userId ?
-      {
-        params: new HttpParams().set('userId', userId)
-      } : {};
-    return this.httpClient.get<ApiKeyDto>(`${this.url}/apiKey`, options)
   }
 
   signIn(signInDto: SignInDto): Observable<TokensDto> {

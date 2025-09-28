@@ -15,12 +15,6 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @GetMapping("/apiKey")
-    public ResponseEntity<ApiKeyDto> getApiKey(@RequestParam int userId) {
-        ApiKeyDto apiKeyDto = authService.getApiKey(userId);
-        return ResponseEntity.ok(apiKeyDto);
-    }
-
     @PostMapping("/signIn/password")
     public ResponseEntity<?> signIn(@RequestBody SignInDto signInDto) {
         TokensDto jwtDto = authService.signIn(signInDto);

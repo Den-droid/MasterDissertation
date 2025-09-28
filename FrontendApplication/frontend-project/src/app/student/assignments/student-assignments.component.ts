@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AssignmentService } from '../../shared/services/assignment.service';
 import { JWTTokenService } from '../../shared/services/jwt-token.service';
 import { parseToNumber } from '../../shared/helpers/parse-to-number.helper';
-import { UserAssignment, parseUserAssignmentDtoToAssignment, UserAssignmentDto } from '../../shared/models/assignment.model';
+import { UserAssignment, parseUserAssignmentDtoToAssignment, UserAssignmentDto, AssignDto } from '../../shared/models/assignment.model';
 import { AssignmentStatus, AssignmentStatusLabel } from '../../shared/constants/assignment-status.constant';
 import { Router } from '@angular/router';
 import { FunctionResultType, FunctionResultTypeLabel } from '../../shared/constants/function-result-type.constant';
@@ -59,7 +59,7 @@ export class StudentAssignmentsComponent {
 
   assign() {
     let userId = parseToNumber(this.jwtService.getId());
-    this.assignmentService.assign(userId).subscribe({
+    this.assignmentService.assign(new AssignDto(userId)).subscribe({
       next: () => {
         this.getAssignmentsByUserId();
       }

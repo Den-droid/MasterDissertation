@@ -34,7 +34,7 @@ public class AssignmentController {
     }
 
     @PostMapping("/assign")
-    public ResponseEntity<?> assign(@RequestParam Integer userId) {
+    public ResponseEntity<?> assign(@RequestBody Integer userId) {
         userAssignmentService.assign(userId);
         return ResponseEntity.ok().build();
     }

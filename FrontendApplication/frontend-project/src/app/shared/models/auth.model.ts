@@ -25,7 +25,3 @@ export class ChangePasswordDto {
 export class RefreshTokenDto {
   constructor(public refreshToken: string) { }
 }
-
-export class ApiKeyDto {
-  constructor(public apiKey: string) { }
-}

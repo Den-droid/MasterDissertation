@@ -16,7 +16,4 @@ public interface AuthService {
     void createForgotPassword(ForgotPasswordDto forgotPasswordDto);
 
     boolean existsForgotPasswordToken(String token);
-
-    ApiKeyDto getApiKey(int userId);
-
 }

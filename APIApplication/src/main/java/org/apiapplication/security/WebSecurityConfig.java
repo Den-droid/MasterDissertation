@@ -1,5 +1,6 @@
 package org.apiapplication.security;
 
+import org.apiapplication.enums.UserRole;
 import org.apiapplication.security.jwt.AuthEntryPointJwt;
 import org.apiapplication.security.jwt.AuthTokenFilter;
 import org.apiapplication.security.jwt.JwtUtils;
@@ -7,13 +8,13 @@ import org.apiapplication.security.user_details.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,14 +23,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfig {
-    private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsService userDetailsService;
     private final AuthEntryPointJwt unauthorizedHandler;
     private final JwtUtils jwtUtils;
 
     private final String[] authUrl = {
             "/api/auth/signIn/password",
             "/api/auth/signIn/apiKey",
-            "/api/auth/apiKey",
             "/api/auth/refreshToken",
             "/api/auth/signUp",
             "/api/auth/forgotPassword/tokenExists",
@@ -37,37 +37,42 @@ public class WebSecurityConfig {
             "/api/auth/forgotPassword/change/{token}"
     };
 
-    private final String[] assignmentUrls = {
+    private final String[] studentUrls = {
             "/api/assignments/getByUserId",
             "/api/assignments/{assignmentId}",
-            "/api/assignments/isAvailable",
             "/api/assignments/assign",
             "/api/assignments/{assignmentId}/startContinue",
             "/api/assignments/{assignmentId}/finish",
-            "/api/assignments/{assignmentId}/answer",
-            "/api/assignments/{assignmentId}/answers"
+            "/api/assignments/{assignmentId}/answer"
     };
 
-    private final String[] markUrls = {
+    private final String[] teacherUrls = {
             "/api/assignments/{assignmentId}/mark",
             "/api/assignments/toMark"
     };
 
-    private final String[] subjectUrls = {
+    private final String[] adminUrls = {
+
+    };
+
+    private final String[] studentTeacherUrls = {
+            "/api/assignments/{assignmentId}/answers"
+    };
+
+    private final String[] adminTeacherUrls = {
+
+    };
+
+    private final String[] userUrls = {
+            "/api/users/{userId}/apiKey"
+    };
+
+    public final String[] publicUrls = {
             "/api/subjects",
-    };
-
-    private final String[] universityUrls = {
             "/api/universities",
-    };
-
-    private final String[] fieldUrls = {
             "/api/fields",
+            "/api/urls"
     };
-    private final String[] urlUrls = {
-            "/api/urls",
-    };
-
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,
                              AuthEntryPointJwt unauthorizedHandler,
@@ -83,45 +88,47 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-
-        return authProvider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
-
-    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http,
+                                                       UserDetailsService userDetailsService) throws Exception {
+        AuthenticationManagerBuilder authManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+
+        authManagerBuilder
+                .userDetailsService(userDetailsService);
+
+        return authManagerBuilder.build();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults()).
                 csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(authUrl).permitAll()
-                                .requestMatchers(assignmentUrls).permitAll()
-                                .requestMatchers(markUrls).permitAll()
-                                .requestMatchers(urlUrls).permitAll()
-                                .requestMatchers(fieldUrls).permitAll()
-                                .requestMatchers(subjectUrls).permitAll()
-                                .requestMatchers(universityUrls).permitAll()
+                        auth.requestMatchers(studentUrls).hasRole(UserRole.STUDENT.name())
+                                .requestMatchers(teacherUrls).hasRole(UserRole.TEACHER.name())
+                                .requestMatchers(adminUrls).hasRole(UserRole.ADMIN.name())
+                                .requestMatchers(studentTeacherUrls).hasAnyRole(UserRole.STUDENT.name(),
+                                        UserRole.TEACHER.name())
+                                .requestMatchers(adminTeacherUrls).hasAnyRole(UserRole.ADMIN.name(),
+                                        UserRole.TEACHER.name())
+                                .requestMatchers(userUrls).hasAnyRole(UserRole.ADMIN.name(),
+                                        UserRole.TEACHER.name(), UserRole.STUDENT.name())
+                                .requestMatchers(authUrl).permitAll()
+                                .requestMatchers(publicUrls).permitAll()
                                 .anyRequest().authenticated()
-                );
-
-        http.authenticationProvider(authenticationProvider());
-
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+                )
+                .authenticationManager(authenticationManager(http, userDetailsService))
+                .addFilterBefore(authenticationJwtTokenFilter(),
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

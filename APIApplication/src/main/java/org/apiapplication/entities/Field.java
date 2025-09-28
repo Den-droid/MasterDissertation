@@ -20,12 +20,6 @@ public class Field {
     private FieldType type;
     private boolean required;
 
-    @Column(name = "query_param")
-    private boolean queryParam;
-
-    @Column(name = "body_param")
-    private boolean bodyParam;
-
     @ManyToMany(mappedBy = "fields")
     private List<Url> urls;
 }
