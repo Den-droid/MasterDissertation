@@ -42,7 +42,7 @@ export const authorizeInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, n
       }),
       catchError(err => {
         authService.logout();
-        router.navigateByUrl('/auth/signin');
+        router.navigateByUrl('/apitool/auth/signin');
         return throwError(() => err);
       }),
       finalize(() => {
@@ -50,7 +50,6 @@ export const authorizeInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, n
       })
     );
   };
-
 
   if (req.url.includes('/api/auth')) {
     return next(setHeader(req));

@@ -1,0 +1,69 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+li {
+  list-style: none;
+}
+
+h1 {
+  font-weight: 600;
+  font-size: 1.5rem;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  font-size: 18px;
+  background-color: #fafbfe;
+  margin: 0;
+}
+
+.wrapper {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  min-height: 100vh;
+  background-color: #fafbfe;
+
+  display: flex;
+  justify-content: center;
+  padding-top: 1%;
+}
+
+.main-content {
+  width: 100%;
+}
+
+/* Utility classes */
+.pd-5 {
+  padding: 5px;
+}
+
+.pd-10 {
+  padding: 10px;
+}
+
+.border-content {
+  border: 2px solid lightblue;
+}
+
+td {
+  padding: 5px;
+  border: solid 1px lightblue;
+  text-align: center;
+}

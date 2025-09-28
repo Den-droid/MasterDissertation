@@ -42,10 +42,10 @@ public class AuthControllerAdvice {
     }
 
     @ExceptionHandler(value = UserWithKeyNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public BaseExceptionDto handleAuthException(UserWithKeyNotFoundException ex, WebRequest request) {
         return new BaseExceptionDto(
-                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.UNAUTHORIZED.value(),
                 ex.getMessage());
     }
 
