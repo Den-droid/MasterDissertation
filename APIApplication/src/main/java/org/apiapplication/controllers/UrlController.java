@@ -1,9 +1,12 @@
 package org.apiapplication.controllers;
 
+import org.apiapplication.dto.url.MethodTypeDto;
 import org.apiapplication.dto.url.UrlDto;
 import org.apiapplication.services.interfaces.UrlService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/urls")
@@ -16,8 +19,14 @@ public class UrlController {
     }
 
     @GetMapping
-    public ResponseEntity<UrlDto> getUrlByName(@RequestParam String url) {
-        UrlDto urlDto = urlService.getByName(url);
+    public ResponseEntity<List<UrlDto>> getUrlByName(@RequestParam(required = false) String url) {
+        List<UrlDto> urlDto = urlService.getAllOrByUrl(url);
         return ResponseEntity.ok(urlDto);
+    }
+
+    @GetMapping("/methods")
+    public ResponseEntity<List<MethodTypeDto>> getMethods() {
+        List<MethodTypeDto> methodTypeDto = urlService.getMethods();
+        return ResponseEntity.ok(methodTypeDto);
     }
 }

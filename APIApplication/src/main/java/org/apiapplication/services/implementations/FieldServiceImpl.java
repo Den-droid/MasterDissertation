@@ -1,13 +1,13 @@
 package org.apiapplication.services.implementations;
 
+import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.field.FieldDto;
-import org.apiapplication.entities.Field;
+import org.apiapplication.dto.url.UrlDto;
 import org.apiapplication.entities.Url;
-import org.apiapplication.exceptions.url.UrlWithNameNotFoundException;
+import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.repositories.FieldRepository;
 import org.apiapplication.repositories.UrlRepository;
 import org.apiapplication.services.interfaces.FieldService;
-import org.apiapplication.utils.UrlMatcher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,25 +23,14 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
-    public List<FieldDto> getByUrl(String url) {
-        List<Url> urls = urlRepository.findAll();
-        Url neededUrl = null;
+    public List<FieldDto> getByUrlId(Integer urlId) {
+        Url url = urlRepository.findById(urlId)
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.URL, urlId));
+        List<FieldDto> fieldDtos = url.getFields().stream()
+                .map(f -> new FieldDto(f.getId(), f.getName(), f.getLabel(),
+                        f.getDescription(), f.getType().ordinal(), f.isRequired()))
+                .toList();
 
-        for (Url urlToMatchWith : urls) {
-            if (UrlMatcher.areMatched(urlToMatchWith.getUrl(), url)) {
-                neededUrl = urlToMatchWith;
-            }
-        }
-
-        if (neededUrl != null) {
-            List<Field> fields = neededUrl.getFields();
-            List<FieldDto> fieldDtos = fields.stream()
-                    .map(f -> new FieldDto(f.getId(), f.getName(), f.getLabel(),
-                            f.getDescription(), f.getType(), f.isRequired()))
-                    .toList();
-            return fieldDtos;
-        } else {
-            throw new UrlWithNameNotFoundException(url);
-        }
+        return fieldDtos;
     }
 }

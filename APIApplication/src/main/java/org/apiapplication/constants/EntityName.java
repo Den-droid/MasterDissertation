@@ -10,4 +10,5 @@ public class EntityName {
     public static final String SUBJECT = "Предмет";
     public static final String FIELD = "Поле";
     public static final String FUNCTION = "Функція";
+    public static final String URL = "Посилання";
 }

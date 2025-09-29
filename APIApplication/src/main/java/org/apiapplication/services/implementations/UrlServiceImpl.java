@@ -1,13 +1,16 @@
 package org.apiapplication.services.implementations;
 
+import org.apiapplication.dto.url.MethodTypeDto;
 import org.apiapplication.dto.url.UrlDto;
 import org.apiapplication.entities.Url;
+import org.apiapplication.enums.MethodType;
 import org.apiapplication.exceptions.url.UrlWithNameNotFoundException;
 import org.apiapplication.repositories.UrlRepository;
 import org.apiapplication.services.interfaces.UrlService;
 import org.apiapplication.utils.UrlMatcher;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -19,21 +22,36 @@ public class UrlServiceImpl implements UrlService {
     }
 
     @Override
-    public UrlDto getByName(String url) {
-        List<Url> urls = urlRepository.findAll();
-        Url neededUrl = null;
+    public List<UrlDto> getAllOrByUrl(String url) {
+        if (url == null) {
+            return urlRepository.findAll().stream()
+                    .map(u -> new UrlDto(u.getId(), u.getUrl(),
+                            u.getDescription(), u.getMethod().ordinal()))
+                    .toList();
+        } else {
+            List<Url> urls = urlRepository.findAll();
+            Url neededUrl = null;
 
-        for (Url urlToMatchWith : urls) {
-            if (UrlMatcher.areMatched(urlToMatchWith.getUrl(), url)) {
-                neededUrl = urlToMatchWith;
+            for (Url urlToMatchWith : urls) {
+                if (UrlMatcher.areMatched(urlToMatchWith.getUrl(), url)) {
+                    neededUrl = urlToMatchWith;
+                }
+            }
+
+            if (neededUrl != null) {
+                return List.of(new UrlDto(neededUrl.getId(), neededUrl.getUrl(),
+                        neededUrl.getDescription(), neededUrl.getMethod().ordinal()));
+            } else {
+                throw new UrlWithNameNotFoundException(url);
             }
         }
 
-        if (neededUrl != null) {
-            return new UrlDto(neededUrl.getId(), neededUrl.getUrl(),
-                    neededUrl.getDescription(), neededUrl.getMethod());
-        } else {
-            throw new UrlWithNameNotFoundException(url);
-        }
+    }
+
+    @Override
+    public List<MethodTypeDto> getMethods() {
+        return Arrays.stream(MethodType.values())
+                .map(mt -> new MethodTypeDto(mt.ordinal(), mt.name()))
+                .toList();
     }
 }

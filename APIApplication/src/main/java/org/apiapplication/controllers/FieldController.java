@@ -18,8 +18,8 @@ public class FieldController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FieldDto>> getFieldsByUrl(@RequestParam String url) {
-        List<FieldDto> fieldDtos = fieldService.getByUrl(url);
+    public ResponseEntity<List<FieldDto>> getFieldsByUrl(@RequestParam Integer urlId) {
+        List<FieldDto> fieldDtos = fieldService.getByUrlId(urlId);
         return ResponseEntity.ok().body(fieldDtos);
     }
 }

@@ -9,7 +9,7 @@ import { baseUrl } from "../constants/url.constant";
   providedIn: 'root'
 })
 export class AuthService {
-  private url: string = baseUrl + "/auth";
+  private url: string = baseUrl + "/api/auth";
 
   constructor(private readonly httpClient: HttpClient, private readonly jwtService: JWTTokenService) {
   }

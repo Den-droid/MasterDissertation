@@ -71,7 +71,8 @@ public class WebSecurityConfig {
             "/api/subjects",
             "/api/universities",
             "/api/fields",
-            "/api/urls"
+            "/api/urls",
+            "/api/urls/methods"
     };
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,

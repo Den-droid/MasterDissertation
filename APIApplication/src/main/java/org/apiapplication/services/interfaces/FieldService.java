@@ -5,5 +5,5 @@ import org.apiapplication.dto.field.FieldDto;
 import java.util.List;
 
 public interface FieldService {
-    List<FieldDto> getByUrl(String url);
+    List<FieldDto> getByUrlId(Integer urlId);
 }
