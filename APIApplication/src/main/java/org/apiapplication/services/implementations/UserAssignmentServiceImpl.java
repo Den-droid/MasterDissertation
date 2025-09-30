@@ -3,10 +3,7 @@ package org.apiapplication.services.implementations;
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.answer.AnswerDto;
-import org.apiapplication.dto.assignment.AssignmentAnswerDto;
-import org.apiapplication.dto.assignment.AssignmentDto;
-import org.apiapplication.dto.assignment.AssignmentResponseDto;
-import org.apiapplication.dto.assignment.UserAssignmentDto;
+import org.apiapplication.dto.assignment.*;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.*;
@@ -109,9 +106,9 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
     }
 
     @Override
-    public void assign(int userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER, userId)
+    public void assign(AssignDto assignDto) {
+        User user = userRepository.findById(assignDto.userId()).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.USER, assignDto.userId())
         );
 
         List<Function> allFunctions = functionRepository.findAll();

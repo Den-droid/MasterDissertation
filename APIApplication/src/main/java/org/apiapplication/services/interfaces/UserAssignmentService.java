@@ -1,10 +1,7 @@
 package org.apiapplication.services.interfaces;
 
 import org.apiapplication.dto.answer.AnswerDto;
-import org.apiapplication.dto.assignment.AssignmentAnswerDto;
-import org.apiapplication.dto.assignment.AssignmentDto;
-import org.apiapplication.dto.assignment.AssignmentResponseDto;
-import org.apiapplication.dto.assignment.UserAssignmentDto;
+import org.apiapplication.dto.assignment.*;
 
 import java.util.List;
 
@@ -13,7 +10,7 @@ public interface UserAssignmentService {
 
     List<UserAssignmentDto> getByUser(int userId);
 
-    void assign(int userId);
+    void assign(AssignDto assignDto);
 
     void startContinue(int userAssignmentId);
 

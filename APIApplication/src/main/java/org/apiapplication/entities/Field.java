@@ -18,8 +18,7 @@ public class Field {
     private String label;
     private String description;
     private FieldType type;
-    private boolean required;
 
-    @ManyToMany(mappedBy = "fields")
-    private List<Url> urls;
+    @OneToMany(mappedBy = "field")
+    private List<UrlField> urlFields;
 }

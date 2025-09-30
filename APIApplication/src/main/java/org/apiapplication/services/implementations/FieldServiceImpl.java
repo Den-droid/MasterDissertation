@@ -2,7 +2,6 @@ package org.apiapplication.services.implementations;
 
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.field.FieldDto;
-import org.apiapplication.dto.url.UrlDto;
 import org.apiapplication.entities.Url;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.repositories.FieldRepository;
@@ -26,9 +25,13 @@ public class FieldServiceImpl implements FieldService {
     public List<FieldDto> getByUrlId(Integer urlId) {
         Url url = urlRepository.findById(urlId)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.URL, urlId));
-        List<FieldDto> fieldDtos = url.getFields().stream()
-                .map(f -> new FieldDto(f.getId(), f.getName(), f.getLabel(),
-                        f.getDescription(), f.getType().ordinal(), f.isRequired()))
+
+        List<FieldDto> fieldDtos = url.getUrlFields().stream()
+                .map(f -> new FieldDto(f.getField().getId(),
+                        f.getField().getName(), f.getField().getLabel(),
+                        f.getField().getDescription(),
+                        f.getField().getType().ordinal(),
+                        f.isRequired()))
                 .toList();
 
         return fieldDtos;

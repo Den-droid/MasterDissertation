@@ -4,7 +4,7 @@ export function datetimeValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = control.value as string;
     const date = new Date(value);
-    if (isNaN(date.getTime())) {
+    if (value.length > 0 && isNaN(date.getTime())) {
       return { isDatetime: true };
     }
     return null;

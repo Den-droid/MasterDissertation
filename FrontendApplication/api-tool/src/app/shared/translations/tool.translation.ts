@@ -7,5 +7,7 @@ export const toolErrorLabels = {
   "field-not-decimal": "Введіть число",
   "field-not-datetime": "Введіть дату або час",
   "field-not-boolean": "Введіть true або false",
-  "field-required": "Введіть значення"
+  "field-required": "Введіть значення",
+  "url-required": "Введіть адресу запиту",
+  "method-required": "Виберіть метод запиту"
 }

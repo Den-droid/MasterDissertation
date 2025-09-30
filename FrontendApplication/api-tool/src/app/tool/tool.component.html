@@ -17,8 +17,18 @@
             }
           </select>
           <input type="text" class="form-control flex-grow-1" placeholder="Введіть запит" formControlName="url" />
-          <button class="btn btn-primary">Надіслати</button>
+          <button class="btn btn-primary" (click)="sendRequest()">Надіслати</button>
         </div>
+        @if (urlForm.get('url')?.errors?.['required'] &&
+        (urlForm.get('url')?.touched || urlForm.get('url')?.dirty)) {
+        <div class="text-danger mt-1">{{urlRequiredErrorMessage}}</div>
+        }
+
+        @if (urlForm.get('method')?.errors?.['required'] &&
+        (urlForm.get('method')?.touched || urlForm.get('method')?.dirty)) {
+        <div class="text-danger mt-1">{{methodRequiredErrorMessage}}</div>
+        }
+
         @if(urlError){
         <div class="text-danger">{{urlErrorMessage}}</div>
         }
@@ -79,7 +89,7 @@
     @if(response != null){
     <div class="card p-3 border shadow-sm" style="width: 100%; flex-grow: 1;">
       <h5>Відповідь</h5>
-      <p>Статус: {{responseStatus}} {{responseStatusText}}</p>
+      <p>Статус: {{responseStatus}}</p>
       <pre class="bg-light p-2 border rounded" style="overflow-x: auto;">
         {{response | json}}
       </pre>

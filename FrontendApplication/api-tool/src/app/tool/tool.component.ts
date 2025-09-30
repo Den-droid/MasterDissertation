@@ -41,7 +41,6 @@ export class ToolComponent {
   fields: FieldDto[] = [];
 
   responseStatus!: number;
-  responseStatusText!: string;
   response: any;
 
   urlError = false;
@@ -53,6 +52,9 @@ export class ToolComponent {
   notBooleanErrorMessage = toolErrorLabels['field-not-boolean'];
   requiredErrorMessage = toolErrorLabels['field-required'];
 
+  urlRequiredErrorMessage = toolErrorLabels['url-required'];
+  methodRequiredErrorMessage = toolErrorLabels['method-required'];
+
   ngOnInit() {
     this.urlForm = this.fb.group({
       url: ['', Validators.required],
@@ -60,17 +62,25 @@ export class ToolComponent {
     });
 
     this.urlForm.get('url')?.valueChanges
-      .pipe(debounceTime(200))
+      .pipe(debounceTime(500))
       .subscribe((value: string | null) => {
         if (value !== null && value.length >= 6) {
           this.getUrlDtoByUrl();
         }
       })
 
-    this.searchControl.valueChanges
-      .pipe(debounceTime(200))
+    this.urlForm.get('method')?.valueChanges
+      .pipe(debounceTime(500))
       .subscribe((value: string | null) => {
-        if (value !== null && value.length >= 3)
+        if (this.urlForm.value.url !== null && this.urlForm.value.url.length >= 6) {
+          this.getUrlDtoByUrl();
+        }
+      })
+
+    this.searchControl.valueChanges
+      .pipe(debounceTime(500))
+      .subscribe((value: string | null) => {
+        if (value !== null)
           this.filteredPossibleUrls = this.filterAllPossibleUrls(value);
       });
 
@@ -97,9 +107,10 @@ export class ToolComponent {
   }
 
   getUrlDtoByUrl() {
-    this.urlService.getByUrl(this.urlForm.value.url).subscribe({
+    this.urlService.getByUrl(this.urlForm.value.url, this.urlForm.value.method).subscribe({
       next: (urlDto: UrlDto[]) => {
         this.url = urlDto[0];
+        this.urlError = false;
 
         this.getFieldsForUrl();
       },
@@ -107,6 +118,8 @@ export class ToolComponent {
         if (error.error.status === 404) {
           this.urlError = true;
           this.urlErrorMessage = error.error.message;
+          this.fields = [];
+          this.response = null;
         }
       }
     })
@@ -135,10 +148,12 @@ export class ToolComponent {
       return;
     }
 
-    this.validateForm(this.fieldsForm);
+    if (this.fields.length > 0) {
+      this.validateForm(this.fieldsForm);
 
-    if (this.fieldsForm.invalid) {
-      return;
+      if (this.fieldsForm.invalid) {
+        return;
+      }
     }
 
     let queryOrBody = {};
@@ -149,13 +164,11 @@ export class ToolComponent {
     this.apiService.sendRequest(this.urlForm.value.url, this.urlForm.value.method, queryOrBody).subscribe({
       next: (resp: HttpResponse<any>) => {
         this.responseStatus = resp.status;
-        this.responseStatusText = resp.statusText;
         this.response = resp.body;
       },
       error: (err) => {
         this.responseStatus = err.status;
-        this.responseStatusText = err.statusText;
-        this.response = err.body;
+        this.response = err.error;
       }
     })
   }
@@ -169,18 +182,20 @@ export class ToolComponent {
     let validators: ValidatorFn[] = [];
     if (fieldDto.required)
       validators.push(Validators.required)
+
     switch (fieldDto.type) {
       case FieldType.BOOLEAN:
-        validators.push(booleanValidator);
+        validators.push(booleanValidator());
         break;
       case FieldType.DATETIME:
-        validators.push(datetimeValidator);
+        validators.push(datetimeValidator());
         break;
       case FieldType.DECIMAL:
-        validators.push(decimalValidator);
+        validators.push(decimalValidator());
         break;
-      case FieldType.ENUM || FieldType.INTEGER:
-        validators.push(integerValidator);
+      case FieldType.ENUM:
+      case FieldType.INTEGER:
+        validators.push(integerValidator());
         break;
     }
     return validators;

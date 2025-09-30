@@ -22,8 +22,8 @@ public class UrlServiceImpl implements UrlService {
     }
 
     @Override
-    public List<UrlDto> getAllOrByUrl(String url) {
-        if (url == null) {
+    public List<UrlDto> getAllOrByUrl(String url, Integer method) {
+        if ((url == null || url.isEmpty()) && method == null) {
             return urlRepository.findAll().stream()
                     .map(u -> new UrlDto(u.getId(), u.getUrl(),
                             u.getDescription(), u.getMethod().ordinal()))
@@ -38,7 +38,7 @@ public class UrlServiceImpl implements UrlService {
                 }
             }
 
-            if (neededUrl != null) {
+            if (neededUrl != null && (method != null && neededUrl.getMethod().ordinal() == method)) {
                 return List.of(new UrlDto(neededUrl.getId(), neededUrl.getUrl(),
                         neededUrl.getDescription(), neededUrl.getMethod().ordinal()));
             } else {

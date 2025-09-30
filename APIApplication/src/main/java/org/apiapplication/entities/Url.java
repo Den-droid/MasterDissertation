@@ -18,10 +18,6 @@ public class Url {
     private String description;
     private MethodType method;
 
-    @ManyToMany
-    @JoinTable(
-            name = "url_fields",
-            joinColumns = @JoinColumn(name = "url_id"),
-            inverseJoinColumns = @JoinColumn(name = "field_id"))
-    private List<Field> fields;
+    @OneToMany(mappedBy = "url")
+    private List<UrlField> urlFields;
 }

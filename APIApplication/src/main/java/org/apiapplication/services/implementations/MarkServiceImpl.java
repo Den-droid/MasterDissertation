@@ -29,9 +29,9 @@ public class MarkServiceImpl implements MarkService {
     @Override
     public void markAssignment(int userAssignmentId, MarkAssignmentDto markAssignmentDto) {
         Mark mark;
-        if (markAssignmentDto.markId() > 0) {
-            mark = markRepository.findById(markAssignmentDto.markId()).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.MARK, markAssignmentDto.markId())
+        if (markAssignmentDto.id() > 0) {
+            mark = markRepository.findById(markAssignmentDto.id()).orElseThrow(
+                    () -> new EntityWithIdNotFoundException(EntityName.MARK, markAssignmentDto.id())
             );
             mark.setMark(markAssignmentDto.mark());
             mark.setComment(markAssignmentDto.comment());

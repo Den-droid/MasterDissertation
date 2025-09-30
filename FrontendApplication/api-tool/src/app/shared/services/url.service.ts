@@ -17,9 +17,10 @@ export class UrlService {
     return this.httpClient.get<UrlDto[]>(`${this.url}`);
   }
 
-  getByUrl(url: string): Observable<UrlDto[]> {
+  getByUrl(url: string, method : number): Observable<UrlDto[]> {
     const params = new HttpParams()
-      .set('url', url);
+      .set('url', url)
+      .set('method', method);
     return this.httpClient.get<UrlDto[]>(`${this.url}`, { params });
   }
 

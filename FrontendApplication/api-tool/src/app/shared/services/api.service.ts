@@ -16,10 +16,10 @@ export class ApiService {
   sendRequest(url: string, method: MethodType, paramsOrBody: any): Observable<any> {
     if (method === MethodType.GET) {
       let params = new HttpParams({ fromObject: paramsOrBody });
-      return this.httpClient.request(mapMethodTypeToLabel(method), `${this.url}/${url}`,
+      return this.httpClient.request(mapMethodTypeToLabel(method), `${this.url}${url}`,
         { params: params, observe: 'response' });
     } else {
-      return this.httpClient.request(mapMethodTypeToLabel(method), `${this.url}/${url}`, {
+      return this.httpClient.request(mapMethodTypeToLabel(method), `${this.url}${url}`, {
         params: paramsOrBody,
         observe: 'response'
       });

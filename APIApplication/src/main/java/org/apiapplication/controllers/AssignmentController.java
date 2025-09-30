@@ -1,10 +1,7 @@
 package org.apiapplication.controllers;
 
 import org.apiapplication.dto.answer.AnswerDto;
-import org.apiapplication.dto.assignment.AssignmentAnswerDto;
-import org.apiapplication.dto.assignment.AssignmentDto;
-import org.apiapplication.dto.assignment.AssignmentResponseDto;
-import org.apiapplication.dto.assignment.UserAssignmentDto;
+import org.apiapplication.dto.assignment.*;
 import org.apiapplication.services.interfaces.UserAssignmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +31,8 @@ public class AssignmentController {
     }
 
     @PostMapping("/assign")
-    public ResponseEntity<?> assign(@RequestBody Integer userId) {
-        userAssignmentService.assign(userId);
+    public ResponseEntity<?> assign(@RequestBody AssignDto assignDto) {
+        userAssignmentService.assign(assignDto);
         return ResponseEntity.ok().build();
     }
 

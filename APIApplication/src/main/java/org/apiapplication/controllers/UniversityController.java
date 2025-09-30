@@ -3,6 +3,7 @@ package org.apiapplication.controllers;
 import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.services.interfaces.UniversityService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/universities")
+@CrossOrigin
 public class UniversityController {
     private UniversityService universityService;
 
