@@ -24,6 +24,11 @@
         <div class="text-danger mt-1">{{urlRequiredErrorMessage}}</div>
         }
 
+        @if (urlForm.get('url')?.errors?.['isAuthUrl'] &&
+        (urlForm.get('url')?.touched || urlForm.get('url')?.dirty)) {
+        <div class="text-danger mt-1">{{authUrlErrorMessage}}</div>
+        }
+
         @if (urlForm.get('method')?.errors?.['required'] &&
         (urlForm.get('method')?.touched || urlForm.get('method')?.dirty)) {
         <div class="text-danger mt-1">{{methodRequiredErrorMessage}}</div>

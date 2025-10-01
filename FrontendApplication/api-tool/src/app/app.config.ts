@@ -6,16 +6,18 @@ import { ErrorComponent } from './error/error.component';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authorizeInterceptor } from './shared/interceptors/authorize.interceptor';
 import { ToolComponent } from './tool/tool.component';
+import { authenticatedGuard } from './shared/guards/authenticated.guard';
 
 const routes: Routes = [
-  { path: "", redirectTo: "/apitool/auth/signin", pathMatch: "full" },
+  { path: "", redirectTo: "/apitool/tool", pathMatch: "full" },
   {
     path: "apitool/auth", component: AuthComponent,
     loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule)
   },
   {
     path: "apitool/tool", component: ToolComponent,
-    loadChildren: () => import('./tool/tool.module').then(m => m.ToolModule)
+    loadChildren: () => import('./tool/tool.module').then(m => m.ToolModule),
+    canActivate: [authenticatedGuard]
   },
   {
     path: "apitool/error", component: ErrorComponent,

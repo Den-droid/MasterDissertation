@@ -1,7 +1,9 @@
 package org.apiapplication.controllers;
 
+import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.mark.AssignmentsToMarkDto;
 import org.apiapplication.dto.mark.MarkAssignmentDto;
+import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.MarkService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +21,15 @@ public class MarkController {
     }
 
     @PutMapping("/assignments/{assignmentId}/mark")
-    public ResponseEntity<?> mark(@PathVariable int assignmentId, @RequestBody MarkAssignmentDto markAssignmentDto) {
-        markService.markAssignment(assignmentId, markAssignmentDto);
+    public ResponseEntity<?> mark(@PathVariable String assignmentId,
+                                  @RequestBody MarkAssignmentDto markAssignmentDto) {
+        int assignmentIdInt;
+        try {
+            assignmentIdInt = Integer.parseInt(assignmentId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, assignmentId);
+        }
+        markService.markAssignment(assignmentIdInt, markAssignmentDto);
         return ResponseEntity.ok().build();
     }
 

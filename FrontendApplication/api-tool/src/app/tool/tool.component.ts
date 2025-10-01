@@ -16,6 +16,7 @@ import { JsonPipe } from '@angular/common';
 import { toolErrorLabels } from '../shared/translations/tool.translation';
 import { AuthService } from '../shared/services/auth.service';
 import { Router } from '@angular/router';
+import { notAuthUrlValidator } from '../shared/validators/not-auth-url.validator';
 
 @Component({
   selector: 'app-tool',
@@ -51,13 +52,14 @@ export class ToolComponent {
   notDatetimeErrorMessage = toolErrorLabels['field-not-datetime'];
   notBooleanErrorMessage = toolErrorLabels['field-not-boolean'];
   requiredErrorMessage = toolErrorLabels['field-required'];
+  authUrlErrorMessage = toolErrorLabels['auth-url'];
 
   urlRequiredErrorMessage = toolErrorLabels['url-required'];
   methodRequiredErrorMessage = toolErrorLabels['method-required'];
 
   ngOnInit() {
     this.urlForm = this.fb.group({
-      url: ['', Validators.required],
+      url: ['', [Validators.required, notAuthUrlValidator()]],
       method: ['', Validators.required]
     });
 
@@ -107,6 +109,12 @@ export class ToolComponent {
   }
 
   getUrlDtoByUrl() {
+    if (this.urlForm.invalid) {
+      this.urlError = false;
+      this.validateForm(this.urlForm);
+      return;
+    }
+
     this.urlService.getByUrl(this.urlForm.value.url, this.urlForm.value.method).subscribe({
       next: (urlDto: UrlDto[]) => {
         this.url = urlDto[0];
@@ -115,6 +123,7 @@ export class ToolComponent {
         this.getFieldsForUrl();
       },
       error: (error: any) => {
+        console.log(error);
         if (error.error.status === 404) {
           this.urlError = true;
           this.urlErrorMessage = error.error.message;
@@ -175,7 +184,7 @@ export class ToolComponent {
 
   logout() {
     this.authService.logout();
-    this.router.navigateByUrl("/auth/signin");
+    this.router.navigateByUrl("/apitool/auth/signin");
   }
 
   getValidatorsForField(fieldDto: FieldDto): ValidatorFn[] {

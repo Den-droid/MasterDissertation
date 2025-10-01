@@ -26,7 +26,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public List<SubjectDto> getByUniversityId(int universityId) {
         University university = universityRepository.findById(universityId).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY, universityId));
+                () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY, String.valueOf(universityId)));
 
         List<Subject> subjects = university.getSubjects();
         List<SubjectDto> subjectDtos = subjects.stream()

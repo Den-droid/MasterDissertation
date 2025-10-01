@@ -31,7 +31,7 @@ public class MarkServiceImpl implements MarkService {
         Mark mark;
         if (markAssignmentDto.id() > 0) {
             mark = markRepository.findById(markAssignmentDto.id()).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.MARK, markAssignmentDto.id())
+                    () -> new EntityWithIdNotFoundException(EntityName.MARK, String.valueOf(markAssignmentDto.id()))
             );
             mark.setMark(markAssignmentDto.mark());
             mark.setComment(markAssignmentDto.comment());
@@ -41,7 +41,8 @@ public class MarkServiceImpl implements MarkService {
             mark.setComment(markAssignmentDto.comment());
 
             UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT, userAssignmentId)
+                    () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
+                            String.valueOf(userAssignmentId))
             );
 
             mark.setUserAssignment(userAssignment);

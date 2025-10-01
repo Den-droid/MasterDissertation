@@ -24,4 +24,12 @@ public class EntityControllerAdvice {
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage());
     }
+
+    @ExceptionHandler(value = EntityWithNameNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public BaseExceptionDto handleEntityException(EntityWithNameNotFoundException ex, WebRequest request) {
+        return new BaseExceptionDto(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage());
+    }
 }

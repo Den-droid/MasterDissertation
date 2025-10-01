@@ -2,11 +2,10 @@ import { NgModule } from '@angular/core';
 
 import { RouterModule, Routes } from '@angular/router';
 import { NotFoundComponent } from './not-found/not-found.component';
-import { ForbiddenComponent } from './forbidden/forbidden.component';
+import { errorPagesTitles } from '../shared/translations/error.translation';
 
 const errorRoutes: Routes = [
-  { path: "404", component: NotFoundComponent, title: 'Сторінку не знайдено' },
-  { path: "403", component: ForbiddenComponent, title: 'Немає доступу' }
+  { path: "404", component: NotFoundComponent, title: errorPagesTitles[404] },
 ];
 
 @NgModule({

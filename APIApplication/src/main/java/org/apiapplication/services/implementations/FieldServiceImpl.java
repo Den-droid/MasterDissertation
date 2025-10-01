@@ -24,7 +24,7 @@ public class FieldServiceImpl implements FieldService {
     @Override
     public List<FieldDto> getByUrlId(Integer urlId) {
         Url url = urlRepository.findById(urlId)
-                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.URL, urlId));
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.URL, urlId.toString()));
 
         List<FieldDto> fieldDtos = url.getUrlFields().stream()
                 .map(f -> new FieldDto(f.getField().getId(),

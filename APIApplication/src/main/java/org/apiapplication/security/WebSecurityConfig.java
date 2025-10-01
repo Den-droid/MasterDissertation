@@ -39,15 +39,15 @@ public class WebSecurityConfig {
 
     private final String[] studentUrls = {
             "/api/assignments/getByUserId",
-            "/api/assignments/{assignmentId}",
+            "/api/assignments/*",
             "/api/assignments/assign",
-            "/api/assignments/{assignmentId}/startContinue",
-            "/api/assignments/{assignmentId}/finish",
-            "/api/assignments/{assignmentId}/answer"
+            "/api/assignments/*/startContinue",
+            "/api/assignments/*/finish",
+            "/api/assignments/*/answer"
     };
 
     private final String[] teacherUrls = {
-            "/api/assignments/{assignmentId}/mark",
+            "/api/assignments/*/mark",
             "/api/assignments/toMark"
     };
 
@@ -56,7 +56,7 @@ public class WebSecurityConfig {
     };
 
     private final String[] studentTeacherUrls = {
-            "/api/assignments/{assignmentId}/answers"
+            "/api/assignments/*/answers"
     };
 
     private final String[] adminTeacherUrls = {
@@ -64,7 +64,7 @@ public class WebSecurityConfig {
     };
 
     private final String[] userUrls = {
-            "/api/users/{userId}/apiKey"
+            "/api/users/*/apiKey"
     };
 
     public final String[] publicUrls = {

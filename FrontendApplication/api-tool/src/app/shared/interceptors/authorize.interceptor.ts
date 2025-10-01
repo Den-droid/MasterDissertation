@@ -51,6 +51,7 @@ export const authorizeInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, n
     );
   };
 
+
   if (req.url.includes('/api/auth')) {
     return next(setHeader(req));
   }

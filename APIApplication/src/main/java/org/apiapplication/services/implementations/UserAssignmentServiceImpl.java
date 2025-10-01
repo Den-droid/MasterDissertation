@@ -52,7 +52,8 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
     @Override
     public AssignmentDto getById(int userAssignmentId) {
         UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT, userAssignmentId)
+                () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
+                        String.valueOf(userAssignmentId))
         );
 
         return new AssignmentDto(
@@ -72,7 +73,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
     @Override
     public List<UserAssignmentDto> getByUser(int userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER, userId)
+                () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(userId))
         );
         List<UserAssignment> assignments = user.getUserAssignments();
 
@@ -108,7 +109,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
     @Override
     public void assign(AssignDto assignDto) {
         User user = userRepository.findById(assignDto.userId()).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER, assignDto.userId())
+                () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(assignDto.userId()))
         );
 
         List<Function> allFunctions = functionRepository.findAll();
@@ -172,7 +173,8 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
     @Override
     public void startContinue(int userAssignmentId) {
         UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT, userAssignmentId)
+                () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
+                        String.valueOf(userAssignmentId))
         );
 
         userAssignment.setStatus(AssignmentStatus.ACTIVE);
@@ -182,7 +184,8 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
     @Override
     public void finish(int userAssignmentId) {
         UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT, userAssignmentId)
+                () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
+                        String.valueOf(userAssignmentId))
         );
 
         userAssignment.setStatus(AssignmentStatus.FINISHED);
@@ -194,7 +197,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
                                                   AssignmentAnswerDto assignmentAnswerDto) {
         UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
-                        userAssignmentId));
+                        String.valueOf(userAssignmentId)));
 
         if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.N_ATTEMPTS) &&
                 userAssignment.getAttemptsRemaining() == 0) {
@@ -263,7 +266,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
     public List<AnswerDto> getAnswersForAssignment(int userAssignmentId) {
         UserAssignment assignment = userAssignmentRepository.findById(userAssignmentId)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
-                        userAssignmentId));
+                        String.valueOf(userAssignmentId)));
 
         List<Answer> answers = assignment.getAnswers();
         List<AnswerDto> answerDtos = answers.stream()

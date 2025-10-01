@@ -1,24 +1,14 @@
-import { Injectable } from "@angular/core";
-import { CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from "@angular/router";
-import { Observable } from "rxjs";
+import { CanActivateFn, Router } from "@angular/router";
 import { AuthService } from "../services/auth.service";
+import { inject } from "@angular/core";
 
-@Injectable({
-  providedIn: 'root',
-})
-export class StudentGuard implements CanActivate {
-  constructor(
-    private readonly authorizeService: AuthService,
-    private readonly router: Router,
-  ) {
+export const studentGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (authService.isStudent()) {
+    return true;
   }
 
-  canActivate(route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    if (this.authorizeService.isStudent()) {
-      return true;
-    }
-
-    return this.router.createUrlTree(["/", "error", "403"]);
-  }
-}
+  return router.createUrlTree(['/', 'auth', 'signin']);
+};

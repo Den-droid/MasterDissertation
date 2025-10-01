@@ -9,5 +9,6 @@ export const toolErrorLabels = {
   "field-not-boolean": "Введіть true або false",
   "field-required": "Введіть значення",
   "url-required": "Введіть адресу запиту",
-  "method-required": "Виберіть метод запиту"
+  "method-required": "Виберіть метод запиту",
+  "auth-url": "Надсилання таких запитів заборонено"
 }

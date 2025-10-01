@@ -11,6 +11,7 @@ import org.apiapplication.utils.UrlMatcher;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -32,9 +33,14 @@ public class UrlServiceImpl implements UrlService {
             List<Url> urls = urlRepository.findAll();
             Url neededUrl = null;
 
+            urls = urls.stream()
+                    .sorted((u1, u2) -> Comparator.comparing(Url::getUrl).compare(u1, u2))
+                    .toList();
+
             for (Url urlToMatchWith : urls) {
                 if (UrlMatcher.areMatched(urlToMatchWith.getUrl(), url)) {
                     neededUrl = urlToMatchWith;
+                    break;
                 }
             }
 

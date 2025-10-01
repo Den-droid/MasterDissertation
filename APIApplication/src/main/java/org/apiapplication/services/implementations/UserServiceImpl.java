@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ApiKeyDto getApiKey(int userId) {
         UserInfo userInfo = userInfoRepository.findById(userId).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER, userId)
+                () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(userId))
         );
 
         String newApiToken = generateApiKey();

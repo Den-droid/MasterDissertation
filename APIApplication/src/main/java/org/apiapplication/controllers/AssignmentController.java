@@ -1,7 +1,9 @@
 package org.apiapplication.controllers;
 
+import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.answer.AnswerDto;
 import org.apiapplication.dto.assignment.*;
+import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.UserAssignmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +27,14 @@ public class AssignmentController {
     }
 
     @GetMapping("/{userAssignmentId}")
-    public ResponseEntity<AssignmentDto> getById(@PathVariable Integer userAssignmentId) {
-        AssignmentDto assignmentDto = userAssignmentService.getById(userAssignmentId);
+    public ResponseEntity<AssignmentDto> getById(@PathVariable String userAssignmentId) {
+        int userAssignmentIdInt;
+        try {
+            userAssignmentIdInt = Integer.parseInt(userAssignmentId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
+        }
+        AssignmentDto assignmentDto = userAssignmentService.getById(userAssignmentIdInt);
         return ResponseEntity.ok(assignmentDto);
     }
 
@@ -37,28 +45,52 @@ public class AssignmentController {
     }
 
     @PutMapping("/{userAssignmentId}/startContinue")
-    public ResponseEntity<?> startContinue(@PathVariable Integer userAssignmentId) {
-        userAssignmentService.startContinue(userAssignmentId);
+    public ResponseEntity<?> startContinue(@PathVariable String userAssignmentId) {
+        int userAssignmentIdInt;
+        try {
+            userAssignmentIdInt = Integer.parseInt(userAssignmentId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
+        }
+        userAssignmentService.startContinue(userAssignmentIdInt);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{userAssignmentId}/finish")
-    public ResponseEntity<?> finish(@PathVariable Integer userAssignmentId) {
-        userAssignmentService.finish(userAssignmentId);
+    public ResponseEntity<?> finish(@PathVariable String userAssignmentId) {
+        int userAssignmentIdInt;
+        try {
+            userAssignmentIdInt = Integer.parseInt(userAssignmentId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
+        }
+        userAssignmentService.finish(userAssignmentIdInt);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{userAssignmentId}/answer")
-    public ResponseEntity<AssignmentResponseDto> answer(@PathVariable Integer userAssignmentId,
+    public ResponseEntity<AssignmentResponseDto> answer(@PathVariable String userAssignmentId,
                                                         @RequestBody AssignmentAnswerDto assignmentAnswerDto) {
-        AssignmentResponseDto assignmentResponseDto = userAssignmentService.answerAssignment(userAssignmentId,
+        int userAssignmentIdInt;
+        try {
+            userAssignmentIdInt = Integer.parseInt(userAssignmentId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
+        }
+        AssignmentResponseDto assignmentResponseDto = userAssignmentService.answerAssignment(userAssignmentIdInt,
                 assignmentAnswerDto);
         return ResponseEntity.ok(assignmentResponseDto);
     }
 
     @GetMapping("/{userAssignmentId}/answers")
-    public ResponseEntity<List<AnswerDto>> getAnswers(@PathVariable Integer userAssignmentId) {
-        List<AnswerDto> answerDtos = userAssignmentService.getAnswersForAssignment(userAssignmentId);
+    public ResponseEntity<List<AnswerDto>> getAnswers(@PathVariable String userAssignmentId) {
+        int userAssignmentIdInt;
+        try {
+            userAssignmentIdInt = Integer.parseInt(userAssignmentId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
+        }
+        List<AnswerDto> answerDtos = userAssignmentService.getAnswersForAssignment(userAssignmentIdInt);
         return ResponseEntity.ok(answerDtos);
     }
 }
