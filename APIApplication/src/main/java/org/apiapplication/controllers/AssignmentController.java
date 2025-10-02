@@ -68,7 +68,7 @@ public class AssignmentController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{userAssignmentId}/answer")
+    @PostMapping("/{userAssignmentId}/giveAnswer")
     public ResponseEntity<AssignmentResponseDto> answer(@PathVariable String userAssignmentId,
                                                         @RequestBody AssignmentAnswerDto assignmentAnswerDto) {
         int userAssignmentIdInt;
@@ -92,5 +92,11 @@ public class AssignmentController {
         }
         List<AnswerDto> answerDtos = userAssignmentService.getAnswersForAssignment(userAssignmentIdInt);
         return ResponseEntity.ok(answerDtos);
+    }
+
+    @GetMapping("/restrictionTypes")
+    public ResponseEntity<List<RestrictionTypeDto>> getRestrictionTypes() {
+        List<RestrictionTypeDto> restrictionTypeDtos = userAssignmentService.getRestrictionTypes();
+        return ResponseEntity.ok(restrictionTypeDtos);
     }
 }

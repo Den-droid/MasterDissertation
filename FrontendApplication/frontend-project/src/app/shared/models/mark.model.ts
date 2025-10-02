@@ -1,13 +1,7 @@
-export class MarkAssignmentDto {
+export class MarkDto {
   constructor(
-    public markId: number,
-    public userId: number,
+    public id: number,
     public mark: number,
     public comment: string
-  ) { }
-}
-
-export class AssignmentsToMarkDto {
-  constructor(
   ) { }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.apiapplication.entities.Subject;
 
+import java.util.List;
+
 @Entity
 @Table(name = "functions")
 @Data
@@ -22,6 +24,9 @@ public class Function {
 
     private String minValues;
     private String maxValues;
+
+    @OneToMany(mappedBy = "function")
+    private List<UserAssignment> userAssignments;
 
     @Override
     public boolean equals(Object o) {

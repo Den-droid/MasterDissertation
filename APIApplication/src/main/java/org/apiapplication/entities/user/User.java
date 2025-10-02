@@ -39,6 +39,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<UserAssignment> userAssignments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<UserPermission> userPermissions;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

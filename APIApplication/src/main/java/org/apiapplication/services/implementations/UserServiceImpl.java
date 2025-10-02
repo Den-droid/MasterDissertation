@@ -4,7 +4,9 @@ import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.auth.ApiKeyDto;
 import org.apiapplication.entities.user.UserInfo;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
+import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.UserInfoRepository;
+import org.apiapplication.security.utils.SessionUtil;
 import org.apiapplication.services.interfaces.UserService;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +16,12 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
     private final UserInfoRepository userInfoRepository;
 
-    public UserServiceImpl(UserInfoRepository userInfoRepository) {
+    private final SessionUtil sessionUtil;
+
+    public UserServiceImpl(UserInfoRepository userInfoRepository,
+                           SessionUtil sessionUtil) {
         this.userInfoRepository = userInfoRepository;
+        this.sessionUtil = sessionUtil;
     }
 
     @Override
@@ -23,6 +29,10 @@ public class UserServiceImpl implements UserService {
         UserInfo userInfo = userInfoRepository.findById(userId).orElseThrow(
                 () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(userId))
         );
+
+        if (!sessionUtil.getUserFromSession().getId().equals(userInfo.getId())) {
+            throw new PermissionException();
+        }
 
         String newApiToken = generateApiKey();
         userInfo.setApiKey(newApiToken);

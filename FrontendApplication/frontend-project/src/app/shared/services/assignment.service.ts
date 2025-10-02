@@ -25,13 +25,6 @@ export class AssignmentService {
     return this.httpClient.get<AssignmentDto>(`${this.url}/${userAssignmentId}`);
   }
 
-  isAvailable(userId: number): Observable<boolean> {
-    const options = {
-      params: new HttpParams().set('userId', userId.toString())
-    };
-    return this.httpClient.get<boolean>(`${this.url}/isAvailable`, options);
-  }
-
   assign(assignDto: AssignDto): Observable<any> {
     return this.httpClient.post(`${this.url}/assign`, assignDto);
   }
@@ -46,7 +39,7 @@ export class AssignmentService {
 
   answer(userAssignmentId: number, assignmentAnswerDto: AssignmentAnswerDto): Observable<AssignmentResponseDto> {
     return this.httpClient.post<AssignmentResponseDto>(
-      `${this.url}/${userAssignmentId}/answer`,
+      `${this.url}/${userAssignmentId}/giveAnswer`,
       assignmentAnswerDto
     );
   }
