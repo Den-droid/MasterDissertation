@@ -18,8 +18,9 @@ public class SubjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SubjectDto>> getByUniversityId(@RequestParam int universityId) {
-        List<SubjectDto> subjectDtoList = subjectService.getByUniversityId(universityId);
+    public ResponseEntity<List<SubjectDto>> get(@RequestParam(required = false)
+                                                Integer universityId) {
+        List<SubjectDto> subjectDtoList = subjectService.get(universityId);
         return ResponseEntity.ok().body(subjectDtoList);
     }
 }

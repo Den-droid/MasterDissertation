@@ -40,7 +40,14 @@ public class PermissionServiceImpl implements PermissionService {
 
         Function function = userAssignment.getFunction();
 
-        userPermission = userPermissions.stream()
+        return userCanAccessFunction(user, function);
+    }
+
+    @Override
+    public boolean userCanAccessFunction(User user, Function function) {
+        List<UserPermission> userPermissions = user.getUserPermissions();
+
+        Optional<UserPermission> userPermission = userPermissions.stream()
                 .filter(up -> up.getFunction().getId().equals(function.getId()))
                 .findFirst();
 
@@ -50,8 +57,15 @@ public class PermissionServiceImpl implements PermissionService {
 
         Subject subject = function.getSubject();
 
+        return userCanAccessSubject(user, subject);
+    }
+
+    @Override
+    public boolean userCanAccessSubject(User user, Subject subject) {
+        List<UserPermission> userPermissions = user.getUserPermissions();
+
         if (subject != null) {
-            userPermission = userPermissions.stream()
+            Optional<UserPermission> userPermission = userPermissions.stream()
                     .filter(up -> up.getSubject().getId().equals(subject.getId()))
                     .findFirst();
 
@@ -61,15 +75,22 @@ public class PermissionServiceImpl implements PermissionService {
 
             University university = subject.getUniversity();
 
-            if (university != null) {
-                userPermission = userPermissions.stream()
-                        .filter(up -> up.getUniversity().getId().equals(university.getId()))
-                        .findFirst();
+            return userCanAccessUniversity(user, university);
+        }
 
-                return userPermission.isPresent();
-            } else {
-                return false;
-            }
+        return false;
+    }
+
+    @Override
+    public boolean userCanAccessUniversity(User user, University university) {
+        List<UserPermission> userPermissions = user.getUserPermissions();
+
+        if (university != null) {
+            Optional<UserPermission> userPermission = userPermissions.stream()
+                    .filter(up -> up.getUniversity().getId().equals(university.getId()))
+                    .findFirst();
+
+            return userPermission.isPresent();
         }
 
         return false;

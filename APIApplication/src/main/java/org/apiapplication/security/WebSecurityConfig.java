@@ -43,12 +43,11 @@ public class WebSecurityConfig {
             "/api/assignments/assign",
             "/api/assignments/*/startContinue",
             "/api/assignments/*/finish",
-            "/api/assignments/*/answer"
+            "/api/assignments/*/giveAnswer"
     };
 
     private final String[] teacherUrls = {
-            "/api/assignments/*/mark",
-            "/api/assignments/toMark"
+            "/api/assignments/*/putMark"
     };
 
     private final String[] adminUrls = {
@@ -56,11 +55,12 @@ public class WebSecurityConfig {
     };
 
     private final String[] studentTeacherUrls = {
-            "/api/assignments/*/answers"
+            "/api/assignments/*/answers",
+            "/api/assignments/*/marks"
     };
 
     private final String[] adminTeacherUrls = {
-
+            "/api/functions"
     };
 
     private final String[] userUrls = {
@@ -72,7 +72,8 @@ public class WebSecurityConfig {
             "/api/universities",
             "/api/fields",
             "/api/urls",
-            "/api/urls/methods"
+            "/api/urls/methods",
+            "/api/assignments/restrictionTypes"
     };
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,

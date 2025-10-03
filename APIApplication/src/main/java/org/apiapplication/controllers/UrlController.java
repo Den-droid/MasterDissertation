@@ -19,9 +19,9 @@ public class UrlController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UrlDto>> getUrlByName(@RequestParam(required = false) String url,
-                                                     @RequestParam(required = false) Integer method) {
-        List<UrlDto> urlDto = urlService.getAllOrByUrl(url, method);
+    public ResponseEntity<List<UrlDto>> get(@RequestParam(required = false) String url,
+                                            @RequestParam(required = false) Integer method) {
+        List<UrlDto> urlDto = urlService.get(url, method);
         return ResponseEntity.ok(urlDto);
     }
 

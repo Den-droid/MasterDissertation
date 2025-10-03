@@ -23,12 +23,9 @@ public class UrlServiceImpl implements UrlService {
     }
 
     @Override
-    public List<UrlDto> getAllOrByUrl(String url, Integer method) {
+    public List<UrlDto> get(String url, Integer method) {
         if ((url == null || url.isEmpty()) && method == null) {
-            return urlRepository.findAll().stream()
-                    .map(u -> new UrlDto(u.getId(), u.getUrl(),
-                            u.getDescription(), u.getMethod().ordinal()))
-                    .toList();
+            return getUrlDtoFromUrl(urlRepository.findAll());
         } else {
             List<Url> urls = urlRepository.findAll();
             Url neededUrl = null;
@@ -45,8 +42,7 @@ public class UrlServiceImpl implements UrlService {
             }
 
             if (neededUrl != null && (method != null && neededUrl.getMethod().ordinal() == method)) {
-                return List.of(new UrlDto(neededUrl.getId(), neededUrl.getUrl(),
-                        neededUrl.getDescription(), neededUrl.getMethod().ordinal()));
+                return getUrlDtoFromUrl(List.of(neededUrl));
             } else {
                 throw new UrlWithNameNotFoundException(url);
             }
@@ -58,6 +54,13 @@ public class UrlServiceImpl implements UrlService {
     public List<MethodTypeDto> getMethods() {
         return Arrays.stream(MethodType.values())
                 .map(mt -> new MethodTypeDto(mt.ordinal(), mt.name()))
+                .toList();
+    }
+
+    private List<UrlDto> getUrlDtoFromUrl(List<Url> urls) {
+        return urls.stream()
+                .map(u -> new UrlDto(u.getId(), u.getUrl(),
+                        u.getDescription(), u.getMethod().ordinal()))
                 .toList();
     }
 }
