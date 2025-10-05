@@ -1,4 +1,4 @@
-package org.apiapplication.dto.assignment;
+package org.apiapplication.dto.restriction;
 
 import java.time.LocalDateTime;
 

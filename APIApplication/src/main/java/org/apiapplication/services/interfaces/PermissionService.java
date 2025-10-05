@@ -17,4 +17,6 @@ public interface PermissionService {
     boolean userCanAccessUniversity(User user, University university);
 
     void givePermission(PermissionDto permissionDto);
+
+    void removePermission(PermissionDto permissionDto);
 }

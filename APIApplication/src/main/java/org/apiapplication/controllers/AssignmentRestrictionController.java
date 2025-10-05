@@ -1,8 +1,9 @@
 package org.apiapplication.controllers;
 
-import org.apiapplication.dto.assignment.DefaultRestrictionDto;
-import org.apiapplication.dto.assignment.RestrictionDto;
-import org.apiapplication.dto.assignment.RestrictionTypeDto;
+import org.apiapplication.dto.restriction.DefaultRestrictionDto;
+import org.apiapplication.dto.restriction.DeleteRestrictionDto;
+import org.apiapplication.dto.restriction.RestrictionDto;
+import org.apiapplication.dto.restriction.RestrictionTypeDto;
 import org.apiapplication.services.interfaces.UserAssignmentRestrictionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +27,15 @@ public class AssignmentRestrictionController {
         return ResponseEntity.ok(restrictionTypeDtos);
     }
 
-    @PostMapping("/setDefaultRestriction")
+    @PutMapping("/setDefaultRestriction")
     public ResponseEntity<?> setDefaultRestriction(@RequestBody DefaultRestrictionDto restrictionDto) {
         userAssignmentRestrictionService.setDefaultRestriction(restrictionDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/deleteDefaultRestriction")
+    public ResponseEntity<?> deleteDefaultRestriction(@RequestBody DeleteRestrictionDto deleteRestrictionDto) {
+        userAssignmentRestrictionService.deleteDefaultRestriction(deleteRestrictionDto);
         return ResponseEntity.ok().build();
     }
 

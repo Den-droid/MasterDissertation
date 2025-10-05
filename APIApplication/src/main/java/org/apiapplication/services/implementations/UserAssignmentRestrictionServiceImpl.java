@@ -2,9 +2,10 @@ package org.apiapplication.services.implementations;
 
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
-import org.apiapplication.dto.assignment.DefaultRestrictionDto;
-import org.apiapplication.dto.assignment.RestrictionDto;
-import org.apiapplication.dto.assignment.RestrictionTypeDto;
+import org.apiapplication.dto.restriction.DefaultRestrictionDto;
+import org.apiapplication.dto.restriction.DeleteRestrictionDto;
+import org.apiapplication.dto.restriction.RestrictionDto;
+import org.apiapplication.dto.restriction.RestrictionTypeDto;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
@@ -167,9 +168,16 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
         defaultAssignmentRestriction.setSubject(subject);
         defaultAssignmentRestriction.setUniversity(university);
 
-        if (userAssignmentRestrictionRepository.findAll()
-                .contains(defaultAssignmentRestriction)) {
-            return;
+        Optional<DefaultAssignmentRestriction> existingRestriction =
+                userAssignmentRestrictionRepository.findAll().stream()
+                        .filter(dar ->
+                                dar.getUniversity().getId().equals(defaultRestrictionDto.universityId()) &&
+                                        dar.getSubject().getId().equals(defaultRestrictionDto.subjectId()) &&
+                                        dar.getFunction().getId().equals(defaultRestrictionDto.functionId()))
+                        .findFirst();
+
+        if (existingRestriction.isPresent()) {
+            defaultAssignmentRestriction = existingRestriction.get();
         }
 
         setAssignmentRestriction(defaultRestrictionDto, defaultAssignmentRestriction);
@@ -251,6 +259,63 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
         }
 
         userAssignmentRepository.saveAll(userAssignments);
+    }
+
+    @Override
+    public void deleteDefaultRestriction(DeleteRestrictionDto deleteRestrictionDto) {
+        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())
+                && !sessionService.isUserTeacher(sessionService.getCurrentUser())) {
+            throw new PermissionException();
+        }
+
+        Function function = null;
+        Subject subject = null;
+        University university = null;
+
+        if (deleteRestrictionDto.functionId() != null) {
+            function = functionRepository.findById(deleteRestrictionDto.functionId())
+                    .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.FUNCTION,
+                            String.valueOf(deleteRestrictionDto.functionId())));
+
+            if (!permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
+                    function)) {
+                throw new PermissionException();
+            }
+        } else if (deleteRestrictionDto.subjectId() != null) {
+            subject = subjectRepository.findById(deleteRestrictionDto.subjectId())
+                    .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.SUBJECT,
+                            String.valueOf(deleteRestrictionDto.subjectId())));
+
+            if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
+                    subject)) {
+                throw new PermissionException();
+            }
+        } else if (deleteRestrictionDto.universityId() != null) {
+            university = universityRepository.findById(deleteRestrictionDto.universityId())
+                    .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
+                            String.valueOf(deleteRestrictionDto.universityId())));
+
+            if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
+                    university)) {
+                throw new PermissionException();
+            }
+        }
+
+        if (subject == null && university == null && function == null) {
+            return;
+        }
+
+        DefaultAssignmentRestriction defaultAssignmentRestriction = new DefaultAssignmentRestriction();
+        defaultAssignmentRestriction.setFunction(function);
+        defaultAssignmentRestriction.setSubject(subject);
+        defaultAssignmentRestriction.setUniversity(university);
+
+        Optional<DefaultAssignmentRestriction> existingRestriction =
+                userAssignmentRestrictionRepository.findAll().stream()
+                        .filter(dar -> dar.equals(defaultAssignmentRestriction))
+                        .findFirst();
+
+        existingRestriction.ifPresent(userAssignmentRestrictionRepository::delete);
     }
 
     @Override

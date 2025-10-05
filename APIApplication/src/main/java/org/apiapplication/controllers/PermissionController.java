@@ -20,4 +20,10 @@ public class PermissionController {
         permissionService.givePermission(permissionDto);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/removePermission")
+    public ResponseEntity<?> removePermission(@RequestBody PermissionDto permissionDto) {
+        permissionService.removePermission(permissionDto);
+        return ResponseEntity.ok().build();
+    }
 }
