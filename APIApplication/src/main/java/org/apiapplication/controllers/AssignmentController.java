@@ -93,10 +93,4 @@ public class AssignmentController {
         List<AnswerDto> answerDtos = userAssignmentService.getAnswersForAssignment(userAssignmentIdInt);
         return ResponseEntity.ok(answerDtos);
     }
-
-    @GetMapping("/restrictionTypes")
-    public ResponseEntity<List<RestrictionTypeDto>> getRestrictionTypes() {
-        List<RestrictionTypeDto> restrictionTypeDtos = userAssignmentService.getRestrictionTypes();
-        return ResponseEntity.ok(restrictionTypeDtos);
-    }
 }

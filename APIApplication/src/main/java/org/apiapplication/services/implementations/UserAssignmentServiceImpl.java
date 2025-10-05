@@ -4,8 +4,6 @@ import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.answer.AnswerDto;
 import org.apiapplication.dto.assignment.*;
-import org.apiapplication.entities.Subject;
-import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.*;
 import org.apiapplication.entities.user.Role;
 import org.apiapplication.entities.user.User;
@@ -18,8 +16,9 @@ import org.apiapplication.exceptions.assignment.*;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.*;
-import org.apiapplication.security.utils.SessionUtil;
+import org.apiapplication.services.interfaces.UserAssignmentRestrictionService;
 import org.apiapplication.services.interfaces.PermissionService;
+import org.apiapplication.services.interfaces.SessionService;
 import org.apiapplication.services.interfaces.UserAssignmentService;
 import org.apiapplication.utils.AnswerParser;
 import org.apiapplication.utils.ExpressionParser;
@@ -31,39 +30,34 @@ import java.util.*;
 @Service
 @Transactional
 public class UserAssignmentServiceImpl implements UserAssignmentService {
-    UserRepository userRepository;
-    FunctionRepository functionRepository;
-    UserAssignmentRepository userAssignmentRepository;
-    AssignmentRepository assignmentRepository;
-    MarkRepository markRepository;
-    AnswerRepository answerRepository;
-    DefaultAssignmentRestrictionRepository defaultAssignmentRestrictionRepository;
-    UserPermissionRepository userPermissionRepository;
+    private final UserRepository userRepository;
+    private final FunctionRepository functionRepository;
+    private final UserAssignmentRepository userAssignmentRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final AnswerRepository answerRepository;
 
-    PermissionService permissionService;
-    SessionUtil sessionUtil;
+    private final PermissionService permissionService;
+    private final UserAssignmentRestrictionService defaultRestrictionTypeService;
+    private final SessionService sessionService;
 
-    public UserAssignmentServiceImpl(AnswerRepository answerRepository,
-                                     AssignmentRepository assignmentRepository,
-                                     UserAssignmentRepository userAssignmentRepository,
+    public UserAssignmentServiceImpl(UserRepository userRepository,
                                      FunctionRepository functionRepository,
-                                     MarkRepository markRepository,
-                                     UserRepository userRepository,
-                                     DefaultAssignmentRestrictionRepository defaultAssignmentRestrictionRepository,
-                                     UserPermissionRepository userPermissionRepository,
+                                     UserAssignmentRepository userAssignmentRepository,
+                                     AssignmentRepository assignmentRepository,
+                                     AnswerRepository answerRepository,
                                      PermissionService permissionService,
-                                     SessionUtil sessionUtil) {
-        this.answerRepository = answerRepository;
-        this.assignmentRepository = assignmentRepository;
-        this.userAssignmentRepository = userAssignmentRepository;
-        this.functionRepository = functionRepository;
-        this.markRepository = markRepository;
+                                     UserAssignmentRestrictionService
+                                             defaultRestrictionTypeService,
+                                     SessionService sessionService) {
         this.userRepository = userRepository;
-        this.defaultAssignmentRestrictionRepository = defaultAssignmentRestrictionRepository;
-        this.userPermissionRepository = userPermissionRepository;
+        this.functionRepository = functionRepository;
+        this.userAssignmentRepository = userAssignmentRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.answerRepository = answerRepository;
 
         this.permissionService = permissionService;
-        this.sessionUtil = sessionUtil;
+        this.defaultRestrictionTypeService = defaultRestrictionTypeService;
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -73,7 +67,8 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!permissionService.userCanAccessAssignment(sessionUtil.getUserFromSession(), userAssignment)) {
+        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                userAssignment)) {
             throw new PermissionException();
         }
 
@@ -101,7 +96,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
         Role role = user.getRoles().get(0);
 
         if (role.getName().equals(UserRole.STUDENT)) {
-            if (!sessionUtil.getUserFromSession().getId().equals(user.getId())) {
+            if (!sessionService.isCurrentUser(userId)) {
                 throw new PermissionException();
             }
 
@@ -178,26 +173,24 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
         userAssignment.setHasCorrectAnswer(false);
         userAssignment.setStatus(AssignmentStatus.ASSIGNED);
 
-        DefaultAssignmentRestriction defaultAssignmentRestriction = getDefaultRestriction(possibleUserAssignments
-                .get(possibleFunctionIndex).getFunction());
+        DefaultAssignmentRestriction defaultAssignmentRestriction =
+                defaultRestrictionTypeService.getDefaultRestrictionForFunction(userAssignment.getFunction());
 
-        if (defaultAssignmentRestriction != null) {
-            if (defaultAssignmentRestriction.getAssignmentRestrictionType()
-                    .equals(AssignmentRestrictionType.N_ATTEMPTS)) {
-                userAssignment.setRestrictionType(AssignmentRestrictionType.N_ATTEMPTS);
-                userAssignment.setAttemptsRemaining(defaultAssignmentRestriction.getAttemptsRemaining());
-            } else if (defaultAssignmentRestriction.getAssignmentRestrictionType()
-                    .equals(AssignmentRestrictionType.DEADLINE)) {
-                userAssignment.setRestrictionType(AssignmentRestrictionType.DEADLINE);
-                userAssignment.setDeadline(LocalDateTime.now()
-                        .plusMinutes(defaultAssignmentRestriction.getMinutesToDeadline()));
-            } else {
-                userAssignment.setRestrictionType(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
-                userAssignment.setAttemptsRemaining(defaultAssignmentRestriction.getAttemptsRemaining());
-            }
-        } else {
-            userAssignment.setAttemptsRemaining(10);
+        if (defaultAssignmentRestriction == null) {
+            defaultAssignmentRestriction = defaultRestrictionTypeService.getDefaultRestriction();
+        }
+
+        if (defaultAssignmentRestriction.getAssignmentRestrictionType()
+                .equals(AssignmentRestrictionType.N_ATTEMPTS)) {
             userAssignment.setRestrictionType(AssignmentRestrictionType.N_ATTEMPTS);
+            userAssignment.setAttemptsRemaining(defaultAssignmentRestriction.getAttemptsRemaining());
+        } else if (defaultAssignmentRestriction.getAssignmentRestrictionType()
+                .equals(AssignmentRestrictionType.DEADLINE)) {
+            userAssignment.setRestrictionType(AssignmentRestrictionType.DEADLINE);
+            userAssignment.setDeadline(defaultAssignmentRestriction.getDeadline());
+        } else {
+            userAssignment.setRestrictionType(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
+            userAssignment.setMinutesForAttempt(defaultAssignmentRestriction.getMinutesForAttempt());
         }
 
         userAssignmentRepository.save(userAssignment);
@@ -210,7 +203,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!permissionService.studentCanAccessAssignment(sessionUtil.getUserFromSession(),
+        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
                 userAssignment)) {
             throw new PermissionException();
         }
@@ -226,7 +219,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!permissionService.studentCanAccessAssignment(sessionUtil.getUserFromSession(),
+        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
                 userAssignment)) {
             throw new PermissionException();
         }
@@ -242,7 +235,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
                         String.valueOf(userAssignmentId)));
 
-        if (!permissionService.studentCanAccessAssignment(sessionUtil.getUserFromSession(),
+        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
                 userAssignment)) {
             throw new PermissionException();
         }
@@ -316,7 +309,8 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
                         String.valueOf(userAssignmentId)));
 
-        if (!permissionService.userCanAccessAssignment(sessionUtil.getUserFromSession(), userAssignment)) {
+        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                userAssignment)) {
             throw new PermissionException();
         }
 
@@ -328,54 +322,6 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
                 .toList();
 
         return answerDtos;
-    }
-
-    @Override
-    public List<RestrictionTypeDto> getRestrictionTypes() {
-        return Arrays.stream(AssignmentRestrictionType.values())
-                .map(rt -> new RestrictionTypeDto(rt.ordinal(), rt.name()))
-                .toList();
-    }
-
-    private DefaultAssignmentRestriction getDefaultRestriction(Function function) {
-        List<DefaultAssignmentRestriction> defaultAssignmentRestrictions =
-                defaultAssignmentRestrictionRepository.findAll();
-
-        Optional<DefaultAssignmentRestriction> defaultRestriction = defaultAssignmentRestrictions.stream()
-                .filter(restriction -> restriction.getFunction() != null &&
-                        Objects.equals(restriction.getFunction().getId(),
-                                function.getId()))
-                .findFirst();
-
-        if (defaultRestriction.isPresent()) {
-            return defaultRestriction.get();
-        }
-
-        Subject subject = function.getSubject();
-
-        defaultRestriction = defaultAssignmentRestrictions.stream()
-                .filter(restriction -> restriction.getSubject() != null &&
-                        Objects.equals(restriction.getSubject().getId(),
-                                subject.getId()))
-                .findFirst();
-
-        if (defaultRestriction.isPresent()) {
-            return defaultRestriction.get();
-        }
-
-        University university = function.getSubject().getUniversity();
-
-        defaultRestriction = defaultAssignmentRestrictions.stream()
-                .filter(restriction -> restriction.getUniversity() != null &&
-                        Objects.equals(restriction.getUniversity().getId(),
-                                university.getId()))
-                .findFirst();
-
-        if (defaultRestriction.isPresent()) {
-            return defaultRestriction.get();
-        }
-
-        return null;
     }
 
     private Set<UserAssignment> getByUser(User user) {

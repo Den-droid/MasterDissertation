@@ -19,6 +19,4 @@ public interface UserAssignmentService {
     AssignmentResponseDto answerAssignment(int userAssignmentId, AssignmentAnswerDto assignmentAnswerDto);
 
     List<AnswerDto> getAnswersForAssignment(int userAssignmentId);
-
-    List<RestrictionTypeDto> getRestrictionTypes();
 }

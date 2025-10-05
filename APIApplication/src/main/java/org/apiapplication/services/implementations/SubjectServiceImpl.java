@@ -14,8 +14,8 @@ import java.util.List;
 
 @Service
 public class SubjectServiceImpl implements SubjectService {
-    private SubjectRepository subjectRepository;
-    private UniversityRepository universityRepository;
+    private final SubjectRepository subjectRepository;
+    private final UniversityRepository universityRepository;
 
     public SubjectServiceImpl(SubjectRepository subjectRepository,
                               UniversityRepository universityRepository) {

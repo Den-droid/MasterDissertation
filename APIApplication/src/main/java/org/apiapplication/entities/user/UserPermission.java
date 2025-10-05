@@ -7,6 +7,8 @@ import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.assignment.UserAssignment;
 
+import java.util.Objects;
+
 @Data
 @Entity
 @Table(name = "user_permissions")
@@ -34,4 +36,19 @@ public class UserPermission {
     @ManyToOne
     @JoinColumn(name = "user_assignment_id", referencedColumnName = "id")
     private UserAssignment userAssignment;
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof UserPermission that)) return false;
+        return Objects.equals(getUser(), that.getUser()) &&
+                Objects.equals(getUniversity(), that.getUniversity()) &&
+                Objects.equals(getSubject(), that.getSubject()) &&
+                Objects.equals(getFunction(), that.getFunction()) &&
+                Objects.equals(getUserAssignment(), that.getUserAssignment());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUser(), getUniversity(), getSubject(), getFunction(), getUserAssignment());
+    }
 }

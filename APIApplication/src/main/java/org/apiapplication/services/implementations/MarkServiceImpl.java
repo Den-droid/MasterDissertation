@@ -9,9 +9,9 @@ import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.MarkRepository;
 import org.apiapplication.repositories.UserAssignmentRepository;
-import org.apiapplication.security.utils.SessionUtil;
 import org.apiapplication.services.interfaces.MarkService;
 import org.apiapplication.services.interfaces.PermissionService;
+import org.apiapplication.services.interfaces.SessionService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,23 +19,21 @@ import java.util.List;
 @Service
 @Transactional
 public class MarkServiceImpl implements MarkService {
-    MarkRepository markRepository;
-    UserAssignmentRepository userAssignmentRepository;
+    private final MarkRepository markRepository;
+    private final UserAssignmentRepository userAssignmentRepository;
 
-    PermissionService permissionService;
-
-    SessionUtil sessionUtil;
+    private final PermissionService permissionService;
+    private final SessionService sessionService;
 
     public MarkServiceImpl(UserAssignmentRepository userAssignmentRepository,
                            MarkRepository markRepository,
                            PermissionService permissionService,
-                           SessionUtil sessionUtil) {
+                           SessionService sessionService) {
         this.userAssignmentRepository = userAssignmentRepository;
         this.markRepository = markRepository;
 
         this.permissionService = permissionService;
-
-        this.sessionUtil = sessionUtil;
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -46,7 +44,8 @@ public class MarkServiceImpl implements MarkService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!permissionService.userCanAccessAssignment(sessionUtil.getUserFromSession(), userAssignment)) {
+        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                userAssignment)) {
             throw new PermissionException();
         }
 
@@ -74,11 +73,8 @@ public class MarkServiceImpl implements MarkService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!permissionService.studentCanAccessAssignment(sessionUtil.getUserFromSession(), userAssignment)) {
-            throw new PermissionException();
-        }
-
-        if (!permissionService.userCanAccessAssignment(sessionUtil.getUserFromSession(), userAssignment)) {
+        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                userAssignment)) {
             throw new PermissionException();
         }
 

@@ -11,4 +11,5 @@ public class EntityName {
     public static final String FIELD = "Поле";
     public static final String FUNCTION = "Функція";
     public static final String URL = "Посилання";
+    public static final String RESTRICTION_TYPE = "Обмеження завдання";
 }

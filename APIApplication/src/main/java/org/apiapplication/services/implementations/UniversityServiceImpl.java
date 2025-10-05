@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public class UniversityServiceImpl implements UniversityService {
-    private UniversityRepository universityRepository;
+    private final UniversityRepository universityRepository;
 
     public UniversityServiceImpl(UniversityRepository universityRepository) {
         this.universityRepository = universityRepository;

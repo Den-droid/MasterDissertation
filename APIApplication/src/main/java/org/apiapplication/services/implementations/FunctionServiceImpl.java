@@ -7,12 +7,11 @@ import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
-import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.FunctionRepository;
 import org.apiapplication.repositories.SubjectRepository;
-import org.apiapplication.security.utils.SessionUtil;
 import org.apiapplication.services.interfaces.FunctionService;
 import org.apiapplication.services.interfaces.PermissionService;
+import org.apiapplication.services.interfaces.SessionService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -21,23 +20,21 @@ import java.util.Set;
 
 @Service
 public class FunctionServiceImpl implements FunctionService {
-    private FunctionRepository functionRepository;
-    private SubjectRepository subjectRepository;
+    private final FunctionRepository functionRepository;
+    private final SubjectRepository subjectRepository;
 
-    private PermissionService permissionService;
-
-    private SessionUtil sessionUtil;
+    private final PermissionService permissionService;
+    private final SessionService sessionService;
 
     public FunctionServiceImpl(FunctionRepository functionRepository,
                                SubjectRepository subjectRepository,
                                PermissionService permissionService,
-                               SessionUtil sessionUtil) {
+                               SessionService sessionService) {
         this.functionRepository = functionRepository;
         this.subjectRepository = subjectRepository;
 
         this.permissionService = permissionService;
-
-        this.sessionUtil = sessionUtil;
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -49,13 +46,15 @@ public class FunctionServiceImpl implements FunctionService {
                             String.valueOf(subjectId))
             );
 
-            if (!permissionService.userCanAccessSubject(sessionUtil.getUserFromSession(), subject)) {
-                throw new PermissionException();
+            if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(), subject)) {
+                functions = getByUser(sessionService.getCurrentUser()).stream()
+                        .filter(f -> f.getSubject().getId().equals(subjectId))
+                        .toList();
+            } else {
+                functions = subject.getFunctions();
             }
-
-            functions = subject.getFunctions();
         } else {
-            functions = getFunctionsByUser(sessionUtil.getUserFromSession()).stream().toList();
+            functions = getByUser(sessionService.getCurrentUser()).stream().toList();
         }
 
         return getFunctionDtoFromFunction(functions);
@@ -68,7 +67,7 @@ public class FunctionServiceImpl implements FunctionService {
                 .toList();
     }
 
-    private Set<Function> getFunctionsByUser(User user) {
+    private Set<Function> getByUser(User user) {
         Set<Function> functions = new HashSet<>();
         List<UserPermission> userPermissions = user.getUserPermissions();
 
