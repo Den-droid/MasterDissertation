@@ -181,62 +181,11 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public void removePermission(PermissionDto permissionDto) {
+    public void removePermission(int permissionId) {
         if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
             throw new PermissionException();
         }
 
-        User user = userRepository.findById(permissionDto.userId()).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER,
-                        String.valueOf(permissionDto.userId()))
-        );
-
-        if (sessionService.isUserStudent(user)) {
-            throw new PermissionException();
-        }
-
-        University university = null;
-        Subject subject = null;
-        Function function = null;
-        UserAssignment userAssignment = null;
-
-        if (permissionDto.universityId() != null) {
-            university = universityRepository.findById(permissionDto.universityId()).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
-                            String.valueOf(permissionDto.universityId()))
-            );
-        } else if (permissionDto.subjectId() != null) {
-            subject = subjectRepository.findById(permissionDto.subjectId()).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.SUBJECT,
-                            String.valueOf(permissionDto.subjectId()))
-            );
-        } else if (permissionDto.functionId() != null) {
-            function = functionRepository.findById(permissionDto.functionId()).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.FUNCTION,
-                            String.valueOf(permissionDto.functionId()))
-            );
-        } else if (permissionDto.userAssignmentId() != null) {
-            userAssignment = userAssignmentRepository.findById(permissionDto.userAssignmentId()).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
-                            String.valueOf(permissionDto.userAssignmentId()))
-            );
-        }
-
-        if (university == null && subject == null && function == null && userAssignment == null) {
-            return;
-        }
-
-        UserPermission userPermission = new UserPermission();
-        userPermission.setUser(user);
-        userPermission.setUniversity(university);
-        userPermission.setSubject(subject);
-        userPermission.setFunction(function);
-        userPermission.setUserAssignment(userAssignment);
-
-        Optional<UserPermission> existingUserPermission = userPermissionRepository.findAll().stream()
-                .filter(eup -> eup.equals(userPermission))
-                .findFirst();
-
-        existingUserPermission.ifPresent(userPermissionRepository::delete);
+        userPermissionRepository.deleteById(permissionId);
     }
 }

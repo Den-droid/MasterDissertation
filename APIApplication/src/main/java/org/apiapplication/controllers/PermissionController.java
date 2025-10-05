@@ -22,8 +22,8 @@ public class PermissionController {
     }
 
     @DeleteMapping("/removePermission")
-    public ResponseEntity<?> removePermission(@RequestBody PermissionDto permissionDto) {
-        permissionService.removePermission(permissionDto);
+    public ResponseEntity<?> removePermission(@RequestParam int permissionId) {
+        permissionService.removePermission(permissionId);
         return ResponseEntity.ok().build();
     }
 }

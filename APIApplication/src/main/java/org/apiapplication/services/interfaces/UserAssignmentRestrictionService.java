@@ -1,7 +1,6 @@
 package org.apiapplication.services.interfaces;
 
 import org.apiapplication.dto.restriction.DefaultRestrictionDto;
-import org.apiapplication.dto.restriction.DeleteRestrictionDto;
 import org.apiapplication.dto.restriction.RestrictionDto;
 import org.apiapplication.dto.restriction.RestrictionTypeDto;
 import org.apiapplication.entities.Subject;
@@ -24,7 +23,7 @@ public interface UserAssignmentRestrictionService {
 
     void setRestriction(RestrictionDto restrictionDto);
 
-    void deleteDefaultRestriction(DeleteRestrictionDto deleteRestrictionDto);
+    void deleteDefaultRestriction(int defaultRestrictionId);
 
     List<RestrictionTypeDto> getRestrictionTypes();
 }

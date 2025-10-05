@@ -1,7 +1,6 @@
 package org.apiapplication.controllers;
 
 import org.apiapplication.dto.restriction.DefaultRestrictionDto;
-import org.apiapplication.dto.restriction.DeleteRestrictionDto;
 import org.apiapplication.dto.restriction.RestrictionDto;
 import org.apiapplication.dto.restriction.RestrictionTypeDto;
 import org.apiapplication.services.interfaces.UserAssignmentRestrictionService;
@@ -34,8 +33,8 @@ public class AssignmentRestrictionController {
     }
 
     @DeleteMapping("/deleteDefaultRestriction")
-    public ResponseEntity<?> deleteDefaultRestriction(@RequestBody DeleteRestrictionDto deleteRestrictionDto) {
-        userAssignmentRestrictionService.deleteDefaultRestriction(deleteRestrictionDto);
+    public ResponseEntity<?> deleteDefaultRestriction(@RequestParam int defaultRestrictionId) {
+        userAssignmentRestrictionService.deleteDefaultRestriction(defaultRestrictionId);
         return ResponseEntity.ok().build();
     }
 

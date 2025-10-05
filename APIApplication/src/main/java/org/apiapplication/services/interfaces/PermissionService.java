@@ -18,5 +18,5 @@ public interface PermissionService {
 
     void givePermission(PermissionDto permissionDto);
 
-    void removePermission(PermissionDto permissionDto);
+    void removePermission(int permissionId);
 }
