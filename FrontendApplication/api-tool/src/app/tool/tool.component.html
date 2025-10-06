@@ -1,123 +1,143 @@
-<div class="main-content">
+<div style="
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 75%;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        overflow-y: auto;
+        box-sizing: border-box;
+        padding: 1.5rem
+      ">
 
-  <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1><i class="fa-solid fa-network-wired me-2"></i> API Tool</h1>
+    <button class="btn btn-danger" (click)="logout()">Вийти</button>
+  </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fa-solid fa-network-wired me-2"></i> API Tool</h1>
-      <button class="btn btn-danger" (click)="logout()">Вийти</button>
+  <form [formGroup]="urlForm">
+    <div class="card p-3 border shadow-sm" style="width: 100%;">
+      <h5>API запит</h5>
+      <div class="d-flex gap-2 align-items-center mb-2">
+        <select class="form-select" style="width: 130px;" formControlName="method">
+          @for(method of methods; track method){
+          <option [label]="method.label" [value]="method.method"></option>
+          }
+        </select>
+        <input type="text" class="form-control flex-grow-1" placeholder="Введіть запит" formControlName="url" />
+        <button class="btn btn-primary" (click)="sendRequest()">Надіслати</button>
+      </div>
+      @if (urlForm.get('url')?.errors?.['required'] &&
+      (urlForm.get('url')?.touched || urlForm.get('url')?.dirty)) {
+      <div class="text-danger mt-1">{{urlRequiredErrorMessage}}</div>
+      }
+
+      @if (urlForm.get('url')?.errors?.['isAuthUrl'] &&
+      (urlForm.get('url')?.touched || urlForm.get('url')?.dirty)) {
+      <div class="text-danger mt-1">{{authUrlErrorMessage}}</div>
+      }
+
+      @if (urlForm.get('method')?.errors?.['required'] &&
+      (urlForm.get('method')?.touched || urlForm.get('method')?.dirty)) {
+      <div class="text-danger mt-1">{{methodRequiredErrorMessage}}</div>
+      }
+
+      @if(urlError){
+      <div class="text-danger">{{urlErrorMessage}}</div>
+      }
     </div>
+  </form>
 
-    <form [formGroup]="urlForm">
-      <div class="card p-3 border shadow-sm" style="width: 100%;">
-        <h5>API запит</h5>
-        <div class="d-flex gap-2 align-items-center mb-2">
-          <select class="form-select" style="width: 130px;" formControlName="method">
-            @for(method of methods; track method){
-            <option [label]="method.label" [value]="method.method"></option>
-            }
-          </select>
-          <input type="text" class="form-control flex-grow-1" placeholder="Введіть запит" formControlName="url" />
-          <button class="btn btn-primary" (click)="sendRequest()">Надіслати</button>
+  @if(fields.length > 0){
+  <form [formGroup]="fieldsForm">
+    <div class="card p-3 border shadow-sm"
+      style="width: 100%; display: flex; flex-direction: column; gap: 1rem; flex-shrink: 0;" formArrayName="fields">
+      <h5>Поля запиту</h5>
+
+      @for (i of fieldsIndices; track i) {
+      <div class="d-flex align-items-start mb-2">
+        <div style="width: 25%; flex-shrink: 0; padding-right: 20px;">
+          <label class="form-label mb-1">{{fields[i].label}} ({{fields[i].required ? 'обов\'язкове':
+            'опціональне'}}):</label>
+          <div style="font-size: 0.9rem; color: #555;">{{mapFieldTypeToLabel(fields[i].type)}}:
+            {{fields[i].description}}</div>
         </div>
-        @if (urlForm.get('url')?.errors?.['required'] &&
-        (urlForm.get('url')?.touched || urlForm.get('url')?.dirty)) {
-        <div class="text-danger mt-1">{{urlRequiredErrorMessage}}</div>
-        }
+        <div style="flex-grow: 1;">
+          <input [type]="isDatetime(fields[i]) ? 'datetime-local':'text'" class="form-control"
+            [placeholder]="'Введіть ' + fields[i].label" [formControlName]="i" />
 
-        @if (urlForm.get('url')?.errors?.['isAuthUrl'] &&
-        (urlForm.get('url')?.touched || urlForm.get('url')?.dirty)) {
-        <div class="text-danger mt-1">{{authUrlErrorMessage}}</div>
-        }
+          @if (fieldsFormControls.at(i).errors?.['required'] &&
+          (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
+          <div class="text-danger mt-1">{{requiredErrorMessage}}</div>
+          }
 
-        @if (urlForm.get('method')?.errors?.['required'] &&
-        (urlForm.get('method')?.touched || urlForm.get('method')?.dirty)) {
-        <div class="text-danger mt-1">{{methodRequiredErrorMessage}}</div>
-        }
+          @if (fieldsFormControls.at(i).errors?.['isInteger'] &&
+          (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
+          <div class="text-danger mt-1">{{notIntegerErrorMessage}}</div>
+          }
 
-        @if(urlError){
-        <div class="text-danger">{{urlErrorMessage}}</div>
-        }
-      </div>
-    </form>
+          @if (fieldsFormControls.at(i).errors?.['isDecimal'] &&
+          (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
+          <div class="text-danger mt-1">{{notDecimalErrorMessage}}</div>
+          }
 
-    @if(fields.length > 0){
-    <form [formGroup]="fieldsForm">
-      <div class="card p-3 border shadow-sm"
-        style="width: 100%; display: flex; flex-direction: column; gap: 1rem; flex-shrink: 0;" formArrayName="fields">
-        <h5>Поля запиту</h5>
+          @if (fieldsFormControls.at(i).errors?.['isDatetime'] &&
+          (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
+          <div class="text-danger mt-1">{{notDatetimeErrorMessage}}</div>
+          }
 
-        @for (i of fieldsIndices; track i) {
-        <div class="d-flex align-items-start mb-2">
-          <div style="width: 50%; flex-shrink: 0; padding-right: 20px;">
-            <label class="form-label mb-1">{{fields[i].label}} ({{fields[i].required ? 'обов\'язкове':
-              'опціональне'}}):</label>
-            <div style="font-size: 0.9rem; color: #555;">{{mapFieldTypeToLabel(fields[i].type)}}:
-              {{fields[i].description}}</div>
-          </div>
-          <div style="flex-grow: 1;">
-            <input [type]="isDatetime(fields[i]) ? 'datetime-local':'text'" class="form-control"
-              [placeholder]="'Введіть ' + fields[i].label" [formControlName]="i" />
+          @if (fieldsFormControls.at(i).errors?.['isBoolean'] &&
+          (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
+          <div class="text-danger mt-1">{{notBooleanErrorMessage}}</div>
+          }
 
-            @if (fieldsFormControls.at(i).errors?.['required'] &&
-            (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
-            <div class="text-danger mt-1">{{requiredErrorMessage}}</div>
-            }
-
-            @if (fieldsFormControls.at(i).errors?.['isInteger'] &&
-            (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
-            <div class="text-danger mt-1">{{notIntegerErrorMessage}}</div>
-            }
-
-            @if (fieldsFormControls.at(i).errors?.['isDecimal'] &&
-            (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
-            <div class="text-danger mt-1">{{notDecimalErrorMessage}}</div>
-            }
-
-            @if (fieldsFormControls.at(i).errors?.['isDatetime'] &&
-            (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
-            <div class="text-danger mt-1">{{notDatetimeErrorMessage}}</div>
-            }
-
-            @if (fieldsFormControls.at(i).errors?.['isBoolean'] &&
-            (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
-            <div class="text-danger mt-1">{{notBooleanErrorMessage}}</div>
-            }
-
-          </div>
         </div>
-        }
-
       </div>
-    </form>
-    }
+      }
 
-    @if(response != null){
-    <div class="card p-3 border shadow-sm" style="width: 100%; flex-grow: 1;">
-      <h5>Відповідь</h5>
-      <p>Статус: {{responseStatus}}</p>
-      <pre class="bg-light p-2 border rounded" style="overflow-x: auto;">
+    </div>
+  </form>
+  }
+
+  @if(showResponse){
+  <div class="card p-3 border shadow-sm" style="width: 100%;">
+    <h5>Відповідь</h5>
+    <p>Статус: {{responseStatus}}</p>
+    @if(response){
+    <pre class="bg-light p-2 border rounded" style="overflow-x: auto;">
         {{response | json}}
       </pre>
-    </div>
     }
   </div>
+  }
+</div>
 
-  <div style="position: fixed; right: 0; top: 0; height: 100vh; width: 25%; display: flex; flex-direction: column;">
-    <div class="card border shadow-sm" style="overflow-y: auto; flex-grow: 1;">
-      <div style="position: sticky; top: 0; background: #fff; z-index: 10; padding: 1rem;
+<div style="
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 25%;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        box-sizing: border-box;
+      ">
+  <div class="card border shadow-sm" style="overflow-y: auto; flex-grow: 1;">
+    <div style="position: sticky; top: 0; background: #fff; z-index: 10; padding: 1rem;
                   display: flex; flex-direction: column; gap: 0.5rem;">
-        <h5>Всі запити</h5>
-        <input type="text" class="form-control" placeholder="Знайти запит..." [formControl]="searchControl" />
-      </div>
-      <ul class="list-group list-group-flush">
-        @for(possibleUrl of filteredPossibleUrls; track possibleUrl){
-        <li class="list-group-item">
-          <strong>{{getMethodTypeLabel(possibleUrl.method)}} {{possibleUrl.url}}</strong>
-          <div style="font-size: 0.9rem; color: #555;">{{possibleUrl.description}}</div>
-        </li>
-        }
-      </ul>
+      <h5>Всі запити</h5>
+      <input type="text" class="form-control" placeholder="Знайти запит..." [formControl]="searchControl" />
     </div>
+    <ul class="list-group list-group-flush">
+      @for(possibleUrl of filteredPossibleUrls; track possibleUrl){
+      <li class="list-group-item">
+        <strong>{{getMethodTypeLabel(possibleUrl.method)}} {{possibleUrl.url}}</strong>
+        <div style="font-size: 0.9rem; color: #555;">{{possibleUrl.description}}</div>
+      </li>
+      }
+    </ul>
   </div>
-
 </div>

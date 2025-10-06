@@ -43,6 +43,7 @@ export class ToolComponent {
 
   responseStatus!: number;
   response: any;
+  showResponse = false;
 
   urlError = false;
   urlErrorMessage = '';
@@ -123,12 +124,11 @@ export class ToolComponent {
         this.getFieldsForUrl();
       },
       error: (error: any) => {
-        console.log(error);
         if (error.error.status === 404) {
           this.urlError = true;
           this.urlErrorMessage = error.error.message;
           this.fields = [];
-          this.response = null;
+          this.showResponse = false;
         }
       }
     })
@@ -170,14 +170,17 @@ export class ToolComponent {
       Object.assign(queryOrBody, { [this.fields[i].name]: this.fieldsFormControls.at(i).value })
     }
 
+    this.showResponse = true;
     this.apiService.sendRequest(this.urlForm.value.url, this.urlForm.value.method, queryOrBody).subscribe({
       next: (resp: HttpResponse<any>) => {
         this.responseStatus = resp.status;
-        this.response = resp.body;
+        if (resp.body)
+          this.response = resp.body;
       },
       error: (err) => {
         this.responseStatus = err.status;
-        this.response = err.error;
+        if (err.error)
+          this.response = err.error;
       }
     })
   }

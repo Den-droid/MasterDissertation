@@ -39,7 +39,7 @@ public class FunctionController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@RequestParam Integer functionId) {
+    public ResponseEntity<?> delete(@RequestParam int functionId) {
         functionService.delete(functionId);
         return ResponseEntity.ok().build();
     }

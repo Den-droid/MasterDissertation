@@ -44,13 +44,14 @@ public class UrlServiceImpl implements UrlService {
                     .toList();
 
             for (Url urlToMatchWith : urls) {
-                if (UrlMatcher.areMatched(urlToMatchWith.getUrl(), url)) {
+                if (UrlMatcher.areMatched(urlToMatchWith.getUrl(), url)
+                        && urlToMatchWith.getMethod().ordinal() == method) {
                     neededUrl = urlToMatchWith;
                     break;
                 }
             }
 
-            if (neededUrl != null && (method != null && neededUrl.getMethod().ordinal() == method)) {
+            if (neededUrl != null) {
                 return getUrlDtoFromUrl(List.of(neededUrl));
             } else {
                 throw new UrlWithNameNotFoundException(url);
