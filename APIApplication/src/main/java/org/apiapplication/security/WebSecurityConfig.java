@@ -52,7 +52,8 @@ public class WebSecurityConfig {
 
     private final String[] adminUrls = {
             "/api/permissions/givePermission",
-            "/api/permissions/removePermission"
+            "/api/permissions/removePermission",
+            "/api/users"
     };
 
     private final String[] studentTeacherUrls = {
@@ -64,7 +65,9 @@ public class WebSecurityConfig {
             "/api/functions",
             "/api/assignmentRestrictions/setDefaultRestriction",
             "/api/assignmentRestrictions/setRestriction",
-            "/api/assignmentRestrictions/removeDefaultRestriction"
+            "/api/assignmentRestrictions/removeDefaultRestriction",
+            "/api/assignmentRestrictions/defaultRestrictions",
+            "/api/permissions"
     };
 
     private final String[] userUrls = {
@@ -77,7 +80,7 @@ public class WebSecurityConfig {
 
     public final String[] publicUrls = {
             "/api/subjects",
-            "/api/universities",
+            "/api/universities"
     };
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,

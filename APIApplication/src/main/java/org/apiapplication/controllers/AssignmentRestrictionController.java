@@ -20,6 +20,15 @@ public class AssignmentRestrictionController {
         this.userAssignmentRestrictionService = userAssignmentRestrictionService;
     }
 
+    @GetMapping("defaultRestrictions")
+    public ResponseEntity<List<DefaultRestrictionDto>> getDefaultRestrictions(@RequestParam(required = false) Integer functionId,
+                                                                              @RequestParam(required = false) Integer subjectId,
+                                                                              @RequestParam(required = false) Integer universityId) {
+        List<DefaultRestrictionDto> defaultRestrictionDtos = userAssignmentRestrictionService
+                .get(functionId, subjectId, universityId);
+        return ResponseEntity.ok(defaultRestrictionDtos);
+    }
+
     @GetMapping("/restrictionTypes")
     public ResponseEntity<List<RestrictionTypeDto>> getRestrictionTypes() {
         List<RestrictionTypeDto> restrictionTypeDtos = userAssignmentRestrictionService.getRestrictionTypes();

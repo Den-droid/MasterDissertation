@@ -7,7 +7,11 @@ import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.assignment.UserAssignment;
 import org.apiapplication.entities.user.User;
 
+import java.util.List;
+
 public interface PermissionService {
+    List<PermissionDto> get(Integer userId);
+
     boolean userCanAccessAssignment(User user, UserAssignment userAssignment);
 
     boolean userCanAccessFunction(User user, Function function);

@@ -2,10 +2,13 @@ package org.apiapplication.controllers;
 
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.auth.ApiKeyDto;
+import org.apiapplication.dto.user.UserDto;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -15,6 +18,12 @@ public class UserController {
 
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserDto>> get(@RequestParam(required = false) Integer userId) {
+        List<UserDto> userDtos = userService.get(userId);
+        return ResponseEntity.ok(userDtos);
     }
 
     @PutMapping("/{userId}/apiKey")

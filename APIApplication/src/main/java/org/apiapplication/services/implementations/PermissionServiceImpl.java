@@ -49,6 +49,34 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    public List<PermissionDto> get(Integer userId) {
+        if (userId != null) {
+            User user = userRepository.findById(userId).orElseThrow(
+                    () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(userId))
+            );
+
+            if (sessionService.isCurrentUser(userId) ||
+                    sessionService.isUserAdmin(sessionService.getCurrentUser())) {
+                List<UserPermission> userPermissions = user.getUserPermissions();
+                return userPermissions.stream()
+                        .map(this::getPermissionDto)
+                        .toList();
+            } else {
+                return List.of();
+            }
+        } else {
+            if (sessionService.isUserAdmin(sessionService.getCurrentUser())) {
+                List<UserPermission> userPermissions = userPermissionRepository.findAll();
+                return userPermissions.stream().map(this::getPermissionDto).toList();
+            } else {
+                User user = sessionService.getCurrentUser();
+                List<UserPermission> userPermissions = user.getUserPermissions();
+                return userPermissions.stream().map(this::getPermissionDto).toList();
+            }
+        }
+    }
+
+    @Override
     public boolean userCanAccessAssignment(User user, UserAssignment userAssignment) {
         if (userAssignment.getUser().getId().equals(user.getId())) {
             return true;
@@ -178,6 +206,19 @@ public class PermissionServiceImpl implements PermissionService {
             throw new PermissionException();
         }
 
-        userPermissionRepository.deleteById(permissionId);
+        UserPermission userPermission = userPermissionRepository.findById(permissionId)
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_PERMISSION,
+                        String.valueOf(permissionId)));
+
+        userPermissionRepository.delete(userPermission);
+    }
+
+    private PermissionDto getPermissionDto(UserPermission userPermission) {
+        return new PermissionDto(userPermission.getId(), userPermission.getUser().getId(),
+                userPermission.getUniversity() != null ? userPermission.getUniversity().getId() : null,
+                userPermission.getSubject() != null ? userPermission.getSubject().getId() : null,
+                userPermission.getFunction() != null ? userPermission.getFunction().getId() : null,
+                userPermission.getUserAssignment() != null ? userPermission.getUserAssignment().getId()
+                        : null);
     }
 }

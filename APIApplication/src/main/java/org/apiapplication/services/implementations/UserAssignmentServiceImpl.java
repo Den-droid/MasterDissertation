@@ -37,7 +37,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
     private final AnswerRepository answerRepository;
 
     private final PermissionService permissionService;
-    private final UserAssignmentRestrictionService defaultRestrictionTypeService;
+    private final UserAssignmentRestrictionService userAssignmentRestrictionService;
     private final SessionService sessionService;
 
     public UserAssignmentServiceImpl(UserRepository userRepository,
@@ -47,7 +47,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
                                      AnswerRepository answerRepository,
                                      PermissionService permissionService,
                                      UserAssignmentRestrictionService
-                                             defaultRestrictionTypeService,
+                                             userAssignmentRestrictionService,
                                      SessionService sessionService) {
         this.userRepository = userRepository;
         this.functionRepository = functionRepository;
@@ -56,7 +56,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
         this.answerRepository = answerRepository;
 
         this.permissionService = permissionService;
-        this.defaultRestrictionTypeService = defaultRestrictionTypeService;
+        this.userAssignmentRestrictionService = userAssignmentRestrictionService;
         this.sessionService = sessionService;
     }
 
@@ -174,10 +174,10 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
         userAssignment.setStatus(AssignmentStatus.ASSIGNED);
 
         DefaultAssignmentRestriction defaultAssignmentRestriction =
-                defaultRestrictionTypeService.getDefaultRestrictionForFunction(userAssignment.getFunction());
+                userAssignmentRestrictionService.getDefaultRestrictionForFunction(userAssignment.getFunction());
 
         if (defaultAssignmentRestriction == null) {
-            defaultAssignmentRestriction = defaultRestrictionTypeService.getDefaultRestriction();
+            defaultAssignmentRestriction = userAssignmentRestrictionService.getDefaultRestriction();
         }
 
         if (defaultAssignmentRestriction.getAssignmentRestrictionType()

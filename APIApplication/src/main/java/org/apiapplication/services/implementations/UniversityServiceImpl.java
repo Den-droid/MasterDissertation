@@ -1,5 +1,6 @@
 package org.apiapplication.services.implementations;
 
+import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.common.NameDto;
 import org.apiapplication.dto.university.UniversityDto;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class UniversityServiceImpl implements UniversityService {
     private final UniversityRepository universityRepository;
 

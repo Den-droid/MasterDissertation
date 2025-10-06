@@ -1,5 +1,6 @@
 package org.apiapplication.services.implementations;
 
+import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.subject.AddSubjectDto;
 import org.apiapplication.dto.subject.SubjectDto;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class SubjectServiceImpl implements SubjectService {
     private final SubjectRepository subjectRepository;
     private final UniversityRepository universityRepository;
@@ -96,20 +98,23 @@ public class SubjectServiceImpl implements SubjectService {
             }
         }
 
-        University university = universityRepository
-                .findById(updateSubjectDto.universityId())
-                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
-                        String.valueOf(updateSubjectDto.universityId())));
+        if (updateSubjectDto.universityId() != null) {
+            University university = universityRepository
+                    .findById(updateSubjectDto.universityId())
+                    .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
+                            String.valueOf(updateSubjectDto.universityId())));
 
-        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-            if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
-                    university)) {
-                throw new PermissionException();
+            if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
+                if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
+                        university)) {
+                    throw new PermissionException();
+                }
             }
+
+            existingSubject.setUniversity(university);
         }
 
         existingSubject.setName(updateSubjectDto.name());
-        existingSubject.setUniversity(university);
 
         subjectRepository.save(existingSubject);
     }

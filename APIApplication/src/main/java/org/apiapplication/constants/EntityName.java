@@ -8,8 +8,9 @@ public class EntityName {
     public static final String MARK = "Оцінка";
     public static final String UNIVERSITY = "Університет";
     public static final String SUBJECT = "Предмет";
-    public static final String FIELD = "Поле";
     public static final String FUNCTION = "Функція";
     public static final String URL = "Посилання";
     public static final String RESTRICTION_TYPE = "Обмеження завдання";
+    public static final String DEFAULT_ASSIGNMENT_RESTRICTION = "Обмеження завдання по замовчуванню";
+    public static final String USER_PERMISSION = "Права користувача";
 }

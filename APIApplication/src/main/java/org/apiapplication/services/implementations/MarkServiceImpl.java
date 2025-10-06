@@ -44,7 +44,8 @@ public class MarkServiceImpl implements MarkService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+        if (sessionService.isUserStudent(sessionService.getCurrentUser())
+                || !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
                 userAssignment)) {
             throw new PermissionException();
         }

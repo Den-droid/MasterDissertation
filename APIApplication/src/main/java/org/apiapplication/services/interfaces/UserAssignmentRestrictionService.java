@@ -11,6 +11,8 @@ import org.apiapplication.entities.assignment.Function;
 import java.util.List;
 
 public interface UserAssignmentRestrictionService {
+    List<DefaultRestrictionDto> get(Integer functionId, Integer subjectId, Integer universityId);
+
     DefaultAssignmentRestriction getDefaultRestrictionForFunction(Function function);
 
     DefaultAssignmentRestriction getDefaultRestrictionForSubject(Subject subject);
