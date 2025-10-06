@@ -70,14 +70,14 @@ public class WebSecurityConfig {
     private final String[] userUrls = {
             "/api/users/*/apiKey",
             "/api/urls",
-            "/api/fields"
+            "/api/fields",
+            "/api/urls/methods",
+            "/api/assignmentRestrictions/restrictionTypes"
     };
 
     public final String[] publicUrls = {
             "/api/subjects",
             "/api/universities",
-            "/api/urls/methods",
-            "/api/assignmentRestrictions/restrictionTypes"
     };
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,

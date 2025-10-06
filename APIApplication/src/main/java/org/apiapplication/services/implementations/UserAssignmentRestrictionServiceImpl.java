@@ -75,23 +75,19 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
         List<DefaultAssignmentRestriction> defaultAssignmentRestrictions =
                 userAssignmentRestrictionRepository.findAll();
 
-        if (subject != null) {
-            Optional<DefaultAssignmentRestriction> defaultRestriction = defaultAssignmentRestrictions.stream()
-                    .filter(restriction -> restriction.getSubject() != null &&
-                            Objects.equals(restriction.getSubject().getId(),
-                                    subject.getId()))
-                    .findFirst();
+        Optional<DefaultAssignmentRestriction> defaultRestriction = defaultAssignmentRestrictions.stream()
+                .filter(restriction -> restriction.getSubject() != null &&
+                        Objects.equals(restriction.getSubject().getId(),
+                                subject.getId()))
+                .findFirst();
 
-            if (defaultRestriction.isPresent()) {
-                return defaultRestriction.get();
-            }
-
-            University university = subject.getUniversity();
-
-            return getDefaultRestrictionForUniversity(university);
+        if (defaultRestriction.isPresent()) {
+            return defaultRestriction.get();
         }
 
-        return null;
+        University university = subject.getUniversity();
+
+        return getDefaultRestrictionForUniversity(university);
     }
 
     @Override
@@ -272,6 +268,10 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
 
     @Override
     public List<RestrictionTypeDto> getRestrictionTypes() {
+        if (sessionService.getCurrentUser() == null) {
+            throw new PermissionException();
+        }
+
         return Arrays.stream(AssignmentRestrictionType.values())
                 .map(rt -> new RestrictionTypeDto(rt.ordinal(), rt.name()))
                 .toList();

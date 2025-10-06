@@ -1,6 +1,10 @@
 package org.apiapplication.controllers;
 
+import org.apiapplication.dto.common.NameDto;
+import org.apiapplication.dto.subject.AddSubjectDto;
 import org.apiapplication.dto.subject.SubjectDto;
+import org.apiapplication.dto.subject.UpdateSubjectDto;
+import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.services.interfaces.SubjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,5 +26,23 @@ public class SubjectController {
                                                 Integer universityId) {
         List<SubjectDto> subjectDtoList = subjectService.get(universityId);
         return ResponseEntity.ok().body(subjectDtoList);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> add(@RequestBody AddSubjectDto addSubjectDto) {
+        subjectService.add(addSubjectDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<?> update(@RequestBody UpdateSubjectDto updateSubjectDto) {
+        subjectService.update(updateSubjectDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> delete(@RequestParam int subjectId) {
+        subjectService.delete(subjectId);
+        return ResponseEntity.ok().build();
     }
 }

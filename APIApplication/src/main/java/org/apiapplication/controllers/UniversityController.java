@@ -1,12 +1,10 @@
 package org.apiapplication.controllers;
 
+import org.apiapplication.dto.common.NameDto;
 import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.services.interfaces.UniversityService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,5 +22,23 @@ public class UniversityController {
     public ResponseEntity<List<UniversityDto>> getAllUniversities() {
         List<UniversityDto> universityDtoList = universityService.getAll();
         return ResponseEntity.ok().body(universityDtoList);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> add(@RequestBody NameDto nameDto) {
+        universityService.add(nameDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<?> update(@RequestBody UniversityDto universityDto) {
+        universityService.update(universityDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> delete(@RequestParam int universityId) {
+        universityService.delete(universityId);
+        return ResponseEntity.ok().build();
     }
 }

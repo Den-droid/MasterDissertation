@@ -16,9 +16,9 @@ import org.apiapplication.exceptions.assignment.*;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.*;
-import org.apiapplication.services.interfaces.UserAssignmentRestrictionService;
 import org.apiapplication.services.interfaces.PermissionService;
 import org.apiapplication.services.interfaces.SessionService;
+import org.apiapplication.services.interfaces.UserAssignmentRestrictionService;
 import org.apiapplication.services.interfaces.UserAssignmentService;
 import org.apiapplication.utils.AnswerParser;
 import org.apiapplication.utils.ExpressionParser;
@@ -333,17 +333,16 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
                 userAssignments.add(userPermission.getUserAssignment());
             } else if (userPermission.getFunction() != null) {
                 userAssignments.addAll(userPermission.getFunction().getUserAssignments());
-            } else if (userPermission.getSubject() != null &&
-                    userPermission.getUniversity() != null) {
-                userAssignments.addAll(
-                        userPermission.getUniversity().getSubjects().stream()
-                                .flatMap(s -> s.getFunctions().stream())
-                                .flatMap(f -> f.getUserAssignments().stream())
-                                .toList()
-                );
             } else if (userPermission.getSubject() != null) {
                 userAssignments.addAll(
                         userPermission.getSubject().getFunctions().stream()
+                                .flatMap(f -> f.getUserAssignments().stream())
+                                .toList()
+                );
+            } else if (userPermission.getUniversity() != null) {
+                userAssignments.addAll(
+                        userPermission.getUniversity().getSubjects().stream()
+                                .flatMap(s -> s.getFunctions().stream())
                                 .flatMap(f -> f.getUserAssignments().stream())
                                 .toList()
                 );

@@ -74,16 +74,15 @@ public class FunctionServiceImpl implements FunctionService {
         for (UserPermission userPermission : userPermissions) {
             if (userPermission.getFunction() != null) {
                 functions.add(userPermission.getFunction());
-            } else if (userPermission.getSubject() != null &&
-                    userPermission.getUniversity() != null) {
-                functions.addAll(
-                        userPermission.getUniversity().getSubjects().stream()
-                                .flatMap(s -> s.getFunctions().stream())
-                                .toList()
-                );
             } else if (userPermission.getSubject() != null) {
                 functions.addAll(
                         userPermission.getSubject().getFunctions().stream()
+                                .toList()
+                );
+            } else if (userPermission.getUniversity() != null) {
+                functions.addAll(
+                        userPermission.getUniversity().getSubjects().stream()
+                                .flatMap(s -> s.getFunctions().stream())
                                 .toList()
                 );
             }

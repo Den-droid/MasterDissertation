@@ -90,36 +90,28 @@ public class PermissionServiceImpl implements PermissionService {
     public boolean userCanAccessSubject(User user, Subject subject) {
         List<UserPermission> userPermissions = user.getUserPermissions();
 
-        if (subject != null) {
-            Optional<UserPermission> userPermission = userPermissions.stream()
-                    .filter(up -> up.getSubject().getId().equals(subject.getId()))
-                    .findFirst();
+        Optional<UserPermission> userPermission = userPermissions.stream()
+                .filter(up -> up.getSubject().getId().equals(subject.getId()))
+                .findFirst();
 
-            if (userPermission.isPresent()) {
-                return true;
-            }
-
-            University university = subject.getUniversity();
-
-            return userCanAccessUniversity(user, university);
+        if (userPermission.isPresent()) {
+            return true;
         }
 
-        return false;
+        University university = subject.getUniversity();
+
+        return userCanAccessUniversity(user, university);
     }
 
     @Override
     public boolean userCanAccessUniversity(User user, University university) {
         List<UserPermission> userPermissions = user.getUserPermissions();
 
-        if (university != null) {
-            Optional<UserPermission> userPermission = userPermissions.stream()
-                    .filter(up -> up.getUniversity().getId().equals(university.getId()))
-                    .findFirst();
+        Optional<UserPermission> userPermission = userPermissions.stream()
+                .filter(up -> up.getUniversity().getId().equals(university.getId()))
+                .findFirst();
 
-            return userPermission.isPresent();
-        }
-
-        return false;
+        return userPermission.isPresent();
     }
 
     @Override

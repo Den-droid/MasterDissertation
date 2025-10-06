@@ -4,8 +4,10 @@ import org.apiapplication.dto.url.MethodTypeDto;
 import org.apiapplication.dto.url.UrlDto;
 import org.apiapplication.entities.Url;
 import org.apiapplication.enums.MethodType;
+import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.exceptions.url.UrlWithNameNotFoundException;
 import org.apiapplication.repositories.UrlRepository;
+import org.apiapplication.services.interfaces.SessionService;
 import org.apiapplication.services.interfaces.UrlService;
 import org.apiapplication.utils.UrlMatcher;
 import org.springframework.stereotype.Service;
@@ -18,12 +20,19 @@ import java.util.List;
 public class UrlServiceImpl implements UrlService {
     private final UrlRepository urlRepository;
 
-    public UrlServiceImpl(UrlRepository urlRepository) {
+    private final SessionService sessionService;
+
+    public UrlServiceImpl(UrlRepository urlRepository, SessionService sessionService) {
         this.urlRepository = urlRepository;
+        this.sessionService = sessionService;
     }
 
     @Override
     public List<UrlDto> get(String url, Integer method) {
+        if (sessionService.getCurrentUser() == null) {
+            throw new PermissionException();
+        }
+
         if ((url == null || url.isEmpty()) && method == null) {
             return getUrlDtoFromUrl(urlRepository.findAll());
         } else {
@@ -47,11 +56,14 @@ public class UrlServiceImpl implements UrlService {
                 throw new UrlWithNameNotFoundException(url);
             }
         }
-
     }
 
     @Override
     public List<MethodTypeDto> getMethods() {
+        if (sessionService.getCurrentUser() == null) {
+            throw new PermissionException();
+        }
+
         return Arrays.stream(MethodType.values())
                 .map(mt -> new MethodTypeDto(mt.ordinal(), mt.name()))
                 .toList();

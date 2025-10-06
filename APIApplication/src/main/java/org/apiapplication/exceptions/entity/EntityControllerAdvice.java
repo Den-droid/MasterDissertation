@@ -32,4 +32,20 @@ public class EntityControllerAdvice {
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage());
     }
+
+    @ExceptionHandler(value = EntityWithNameAlreadyFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseExceptionDto handleEntityException(EntityWithNameAlreadyFoundException ex, WebRequest request) {
+        return new BaseExceptionDto(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage());
+    }
+
+    @ExceptionHandler(value = EntityCantBeDeletedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseExceptionDto handleEntityException(EntityCantBeDeletedException ex, WebRequest request) {
+        return new BaseExceptionDto(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage());
+    }
 }
