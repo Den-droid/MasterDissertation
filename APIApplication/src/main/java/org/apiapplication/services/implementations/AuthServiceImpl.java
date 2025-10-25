@@ -46,12 +46,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokensDto signIn(SignInDto signInDto) {
-        User user = userRepository.findByEmail(signInDto.email()).orElseThrow(
+    public TokensDto signIn(SignInDto dto) {
+        User user = userRepository.findByEmail(dto.email()).orElseThrow(
                 UserWithEmailOrPasswordNotFoundException::new
         );
 
-        if (!passwordEncoder.matches(signInDto.password(), user.getPassword())) {
+        if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
             throw new UserWithEmailOrPasswordNotFoundException();
         }
 
@@ -63,19 +63,19 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokensDto signIn(ApiKeyDto apiKeyDto) {
+    public TokensDto signIn(ApiKeyDto dto) {
         UserInfo userInfo = userInfoRepository.findAll()
                 .stream()
-                .filter(ui -> passwordEncoder.matches(apiKeyDto.apiKey(), ui.getApiKey()))
+                .filter(ui -> passwordEncoder.matches(dto.apiKey(), ui.getApiKey()))
                 .findFirst()
-                .orElseThrow(() -> new UserWithKeyNotFoundException(apiKeyDto.apiKey()));
+                .orElseThrow(() -> new UserWithKeyNotFoundException(dto.apiKey()));
 
         return getTokensDto(userInfo.getUser());
     }
 
     @Override
-    public TokensDto refreshToken(RefreshTokenDto refreshTokenDto) {
-        String requestRefreshToken = refreshTokenDto.refreshToken();
+    public TokensDto refreshToken(RefreshTokenDto dto) {
+        String requestRefreshToken = dto.refreshToken();
 
         if (!jwtUtils.validateRefreshToken(requestRefreshToken)) {
             throw new TokenRefreshException();
@@ -89,26 +89,26 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void signUp(SignUpDto signUpDto) {
-        Optional<User> optionalUser = userRepository.findByEmail(signUpDto.email());
+    public void signUp(SignUpDto dto) {
+        Optional<User> optionalUser = userRepository.findByEmail(dto.email());
         if (optionalUser.isPresent()) {
-            throw new UserWithEmailExistsException(signUpDto.email());
+            throw new UserWithEmailExistsException(dto.email());
         }
 
         User user = new User();
-        user.setEmail(signUpDto.email());
-        user.setPassword(passwordEncoder.encode(signUpDto.password()));
+        user.setEmail(dto.email());
+        user.setPassword(passwordEncoder.encode(dto.password()));
         user.setApproved(false);
 
         UserInfo userInfo = new UserInfo();
-        userInfo.setFirstName(signUpDto.firstName());
-        userInfo.setLastName(signUpDto.lastName());
+        userInfo.setFirstName(dto.firstName());
+        userInfo.setLastName(dto.lastName());
         userInfo.setApiKey(generateApiKey());
         userInfo.setUser(user);
 
         List<Role> roles = new ArrayList<>();
-        Role userRole = roleRepository.findByName(UserRole.valueOf(signUpDto.role()))
-                .orElseThrow(() -> new EntityWithNameNotFoundException(EntityName.ROLE, signUpDto.role()));
+        Role userRole = roleRepository.findByName(UserRole.valueOf(dto.role()))
+                .orElseThrow(() -> new EntityWithNameNotFoundException(EntityName.ROLE, dto.role()));
         roles.add(userRole);
         user.setRoles(roles);
 

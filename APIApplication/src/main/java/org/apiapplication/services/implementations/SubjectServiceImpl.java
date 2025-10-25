@@ -45,7 +45,8 @@ public class SubjectServiceImpl implements SubjectService {
         List<Subject> subjects;
         if (universityId != null) {
             University university = universityRepository.findById(universityId).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY, String.valueOf(universityId)));
+                    () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
+                            String.valueOf(universityId)));
 
             subjects = university.getSubjects();
         } else {
@@ -56,53 +57,51 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void add(AddSubjectDto addSubjectDto) {
+    public int add(AddSubjectDto dto) {
         Optional<Subject> existingSubject = subjectRepository.findAll().stream()
-                .filter(u -> u.getName().equals(addSubjectDto.name()))
+                .filter(u -> u.getName().equals(dto.name()))
                 .findFirst();
 
         if (existingSubject.isPresent()) {
             throw new EntityWithNameAlreadyFoundException(EntityName.SUBJECT,
-                    addSubjectDto.name());
+                    dto.name());
         }
 
         University university = universityRepository
-                .findById(addSubjectDto.universityId())
+                .findById(dto.universityId())
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
-                        String.valueOf(addSubjectDto.universityId())));
+                        String.valueOf(dto.universityId())));
 
-        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-            if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
-                    university)) {
-                throw new PermissionException();
-            }
+        if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
+                university)) {
+            throw new PermissionException();
         }
 
         Subject subject = new Subject();
-        subject.setName(addSubjectDto.name());
+        subject.setName(dto.name());
         subject.setUniversity(university);
 
         subjectRepository.save(subject);
+
+        return subject.getId();
     }
 
     @Override
-    public void update(UpdateSubjectDto updateSubjectDto) {
-        Subject existingSubject = subjectRepository.findById(updateSubjectDto.id())
+    public void update(UpdateSubjectDto dto) {
+        Subject existingSubject = subjectRepository.findById(dto.id())
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.SUBJECT,
-                        String.valueOf(updateSubjectDto.id())));
+                        String.valueOf(dto.id())));
 
-        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-            if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
-                    existingSubject)) {
-                throw new PermissionException();
-            }
+        if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
+                existingSubject)) {
+            throw new PermissionException();
         }
 
-        if (updateSubjectDto.universityId() != null) {
+        if (dto.universityId() != null) {
             University university = universityRepository
-                    .findById(updateSubjectDto.universityId())
+                    .findById(dto.universityId())
                     .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
-                            String.valueOf(updateSubjectDto.universityId())));
+                            String.valueOf(dto.universityId())));
 
             if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
                 if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
@@ -116,15 +115,15 @@ public class SubjectServiceImpl implements SubjectService {
 
         Optional<Subject> subjectWithSameName = subjectRepository.findAll()
                 .stream()
-                .filter(s -> s.getName().equals(updateSubjectDto.name())
-                        && !s.getId().equals(updateSubjectDto.id()))
+                .filter(s -> s.getName().equals(dto.name())
+                        && !s.getId().equals(dto.id()))
                 .findFirst();
 
         if (subjectWithSameName.isPresent()) {
-            throw new EntityWithNameAlreadyFoundException(EntityName.SUBJECT, updateSubjectDto.name());
+            throw new EntityWithNameAlreadyFoundException(EntityName.SUBJECT, dto.name());
         }
 
-        existingSubject.setName(updateSubjectDto.name());
+        existingSubject.setName(dto.name());
 
         subjectRepository.save(existingSubject);
     }
@@ -136,11 +135,9 @@ public class SubjectServiceImpl implements SubjectService {
                         EntityName.SUBJECT, String.valueOf(subjectId)
                 ));
 
-        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-            if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
-                    subject)) {
-                throw new PermissionException();
-            }
+        if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
+                subject)) {
+            throw new PermissionException();
         }
 
         if (!subject.getFunctions().isEmpty()) {

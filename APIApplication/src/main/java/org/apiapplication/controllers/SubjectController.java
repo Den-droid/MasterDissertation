@@ -28,8 +28,8 @@ public class SubjectController {
 
     @PostMapping
     public ResponseEntity<?> add(@RequestBody AddSubjectDto addSubjectDto) {
-        subjectService.add(addSubjectDto);
-        return ResponseEntity.ok().build();
+        int id = subjectService.add(addSubjectDto);
+        return ResponseEntity.ok(id);
     }
 
     @PutMapping

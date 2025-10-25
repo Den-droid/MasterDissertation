@@ -12,6 +12,7 @@ import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.exceptions.entity.EntityCantBeDeletedException;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.entity.EntityWithNameAlreadyFoundException;
+import org.apiapplication.exceptions.function.FunctionSameExistsException;
 import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.FunctionRepository;
 import org.apiapplication.repositories.SubjectRepository;
@@ -69,62 +70,58 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public void add(AddFunctionDto addFunctionDto) {
+    public int add(AddFunctionDto dto) {
         Optional<Function> existingFunction = functionRepository.findAll().stream()
-                .filter(u -> u.getText().equals(addFunctionDto.text()))
+                .filter(u -> u.getText().equals(dto.text()))
                 .findFirst();
 
         if (existingFunction.isPresent()) {
             throw new EntityWithNameAlreadyFoundException(EntityName.FUNCTION,
-                    addFunctionDto.text());
+                    dto.text());
         }
 
         Subject subject = subjectRepository
-                .findById(addFunctionDto.subjectId())
+                .findById(dto.subjectId())
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.FUNCTION,
-                        String.valueOf(addFunctionDto.subjectId())));
+                        String.valueOf(dto.subjectId())));
 
-        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-            if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
-                    subject)) {
-                throw new PermissionException();
-            }
+        if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
+                subject)) {
+            throw new PermissionException();
         }
 
         Function function = new Function();
-        function.setText(addFunctionDto.text());
-        function.setMinValues(addFunctionDto.minValues());
-        function.setMaxValues(addFunctionDto.maxValues());
-        function.setVariablesCount(addFunctionDto.variablesCount());
+        function.setText(dto.text());
+        function.setMinValues(dto.minValues());
+        function.setMaxValues(dto.maxValues());
+        function.setVariablesCount(dto.variablesCount());
         function.setSubject(subject);
 
         functionRepository.save(function);
+
+        return function.getId();
     }
 
     @Override
-    public void update(UpdateFunctionDto updateFunctionDto) {
-        Function existingFunction = functionRepository.findById(updateFunctionDto.id())
+    public void update(UpdateFunctionDto dto) {
+        Function existingFunction = functionRepository.findById(dto.id())
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.FUNCTION,
-                        String.valueOf(updateFunctionDto.id())));
+                        String.valueOf(dto.id())));
 
-        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-            if (!permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
-                    existingFunction)) {
-                throw new PermissionException();
-            }
+        if (!permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
+                existingFunction)) {
+            throw new PermissionException();
         }
 
-        if (updateFunctionDto.subjectId() != null) {
+        if (dto.subjectId() != null) {
             Subject subject = subjectRepository
-                    .findById(updateFunctionDto.subjectId())
+                    .findById(dto.subjectId())
                     .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.SUBJECT,
-                            String.valueOf(updateFunctionDto.subjectId())));
+                            String.valueOf(dto.subjectId())));
 
-            if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-                if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
-                        subject)) {
-                    throw new PermissionException();
-                }
+            if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
+                    subject)) {
+                throw new PermissionException();
             }
 
             existingFunction.setSubject(subject);
@@ -132,14 +129,18 @@ public class FunctionServiceImpl implements FunctionService {
 
         Optional<Function> functionWithSameName = functionRepository.findAll()
                 .stream()
-                .filter(f -> f.getText().equals(updateFunctionDto.text())
-                        && !f.getId().equals(updateFunctionDto.id()))
+                .filter(f -> f.getText().equalsIgnoreCase(dto.text())
+                        && !f.getId().equals(dto.id()))
                 .findFirst();
 
-        existingFunction.setText(updateFunctionDto.text());
-        existingFunction.setMinValues(updateFunctionDto.minValues());
-        existingFunction.setMaxValues(updateFunctionDto.maxValues());
-        existingFunction.setVariablesCount(updateFunctionDto.variablesCount());
+        if (functionWithSameName.isPresent()) {
+            throw new FunctionSameExistsException();
+        }
+
+        existingFunction.setText(dto.text());
+        existingFunction.setMinValues(dto.minValues());
+        existingFunction.setMaxValues(dto.maxValues());
+        existingFunction.setVariablesCount(dto.variablesCount());
 
         functionRepository.save(existingFunction);
     }
@@ -151,11 +152,9 @@ public class FunctionServiceImpl implements FunctionService {
                         EntityName.FUNCTION, String.valueOf(functionId)
                 ));
 
-        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-            if (!permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
-                    function)) {
-                throw new PermissionException();
-            }
+        if (!permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
+                function)) {
+            throw new PermissionException();
         }
 
         if (!function.getUserAssignments().isEmpty()) {

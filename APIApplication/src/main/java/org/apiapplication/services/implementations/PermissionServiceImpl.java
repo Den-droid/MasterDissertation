@@ -143,14 +143,14 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public void givePermission(PermissionDto permissionDto) {
+    public void givePermission(PermissionDto dto) {
         if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
             throw new PermissionException();
         }
 
-        User user = userRepository.findById(permissionDto.userId()).orElseThrow(
+        User user = userRepository.findById(dto.userId()).orElseThrow(
                 () -> new EntityWithIdNotFoundException(EntityName.USER,
-                        String.valueOf(permissionDto.userId()))
+                        String.valueOf(dto.userId()))
         );
 
         if (sessionService.isUserStudent(user)) {
@@ -162,25 +162,25 @@ public class PermissionServiceImpl implements PermissionService {
         Function function = null;
         UserAssignment userAssignment = null;
 
-        if (permissionDto.universityId() != null) {
-            university = universityRepository.findById(permissionDto.universityId()).orElseThrow(
+        if (dto.universityId() != null) {
+            university = universityRepository.findById(dto.universityId()).orElseThrow(
                     () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
-                            String.valueOf(permissionDto.universityId()))
+                            String.valueOf(dto.universityId()))
             );
-        } else if (permissionDto.subjectId() != null) {
-            subject = subjectRepository.findById(permissionDto.subjectId()).orElseThrow(
+        } else if (dto.subjectId() != null) {
+            subject = subjectRepository.findById(dto.subjectId()).orElseThrow(
                     () -> new EntityWithIdNotFoundException(EntityName.SUBJECT,
-                            String.valueOf(permissionDto.subjectId()))
+                            String.valueOf(dto.subjectId()))
             );
-        } else if (permissionDto.functionId() != null) {
-            function = functionRepository.findById(permissionDto.functionId()).orElseThrow(
+        } else if (dto.functionId() != null) {
+            function = functionRepository.findById(dto.functionId()).orElseThrow(
                     () -> new EntityWithIdNotFoundException(EntityName.FUNCTION,
-                            String.valueOf(permissionDto.functionId()))
+                            String.valueOf(dto.functionId()))
             );
-        } else if (permissionDto.userAssignmentId() != null) {
-            userAssignment = userAssignmentRepository.findById(permissionDto.userAssignmentId()).orElseThrow(
+        } else if (dto.userAssignmentId() != null) {
+            userAssignment = userAssignmentRepository.findById(dto.userAssignmentId()).orElseThrow(
                     () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
-                            String.valueOf(permissionDto.userAssignmentId()))
+                            String.valueOf(dto.userAssignmentId()))
             );
         }
 

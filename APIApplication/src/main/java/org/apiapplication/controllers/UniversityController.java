@@ -1,7 +1,8 @@
 package org.apiapplication.controllers;
 
-import org.apiapplication.dto.common.NameDto;
+import org.apiapplication.dto.university.AddUniversityDto;
 import org.apiapplication.dto.university.UniversityDto;
+import org.apiapplication.dto.university.UpdateUniversityDto;
 import org.apiapplication.services.interfaces.UniversityService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +26,14 @@ public class UniversityController {
     }
 
     @PostMapping
-    public ResponseEntity<?> add(@RequestBody NameDto nameDto) {
-        universityService.add(nameDto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> add(@RequestBody AddUniversityDto addUniversityDto) {
+        int id = universityService.add(addUniversityDto);
+        return ResponseEntity.ok(id);
     }
 
     @PutMapping
-    public ResponseEntity<?> update(@RequestBody UniversityDto universityDto) {
-        universityService.update(universityDto);
+    public ResponseEntity<?> update(@RequestBody UpdateUniversityDto updateUniversityDto) {
+        universityService.update(updateUniversityDto);
         return ResponseEntity.ok().build();
     }
 

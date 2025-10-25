@@ -1,4 +1,4 @@
-package org.apiapplication.exceptions.permission;
+package org.apiapplication.exceptions.function;
 
 import org.apiapplication.dto.BaseExceptionDto;
 import org.springframework.http.HttpStatus;
@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 @RestControllerAdvice
-public class PermissionControllerAdvice {
-    @ExceptionHandler(value = PermissionException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public BaseExceptionDto handleEntityException(PermissionException ex, WebRequest request) {
+public class FunctionControllerAdvice {
+    @ExceptionHandler(value = FunctionSameExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseExceptionDto handleEntityException(FunctionSameExistsException ex, WebRequest request) {
         return new BaseExceptionDto(
-                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage());
     }
 }

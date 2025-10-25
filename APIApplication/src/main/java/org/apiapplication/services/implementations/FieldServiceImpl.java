@@ -15,15 +15,12 @@ import java.util.List;
 
 @Service
 public class FieldServiceImpl implements FieldService {
-    private final FieldRepository fieldRepository;
     private final UrlRepository urlRepository;
 
     private final SessionService sessionService;
 
-    public FieldServiceImpl(FieldRepository fieldRepository,
-                            UrlRepository urlRepository,
+    public FieldServiceImpl(UrlRepository urlRepository,
                             SessionService sessionService) {
-        this.fieldRepository = fieldRepository;
         this.urlRepository = urlRepository;
 
         this.sessionService = sessionService;

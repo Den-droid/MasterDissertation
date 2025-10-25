@@ -9,7 +9,7 @@ import java.util.List;
 public interface FunctionService {
     List<FunctionDto> get(Integer subjectId);
 
-    void add(AddFunctionDto addFunctionDto);
+    int add(AddFunctionDto addFunctionDto);
 
     void update(UpdateFunctionDto updateFunctionDto);
 

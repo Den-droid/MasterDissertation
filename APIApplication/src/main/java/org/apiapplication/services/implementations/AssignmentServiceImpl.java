@@ -67,8 +67,9 @@ public class AssignmentServiceImpl implements AssignmentService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
-                userAssignment)) {
+        if (sessionService.isUserAdmin(sessionService.getCurrentUser()) ||
+                !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                        userAssignment)) {
             throw new PermissionException();
         }
 
@@ -135,9 +136,13 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public void assign(AssignDto assignDto) {
-        User user = userRepository.findById(assignDto.userId()).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(assignDto.userId()))
+    public void assign(AssignDto dto) {
+        if (!sessionService.isUserStudent(sessionService.getCurrentUser())) {
+            throw new PermissionException();
+        }
+
+        User user = userRepository.findById(dto.userId()).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(dto.userId()))
         );
 
         List<Function> allFunctions = functionRepository.findAll();
@@ -203,8 +208,9 @@ public class AssignmentServiceImpl implements AssignmentService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
-                userAssignment)) {
+        if (!sessionService.isUserStudent(sessionService.getCurrentUser()) ||
+                !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                        userAssignment)) {
             throw new PermissionException();
         }
 
@@ -219,8 +225,9 @@ public class AssignmentServiceImpl implements AssignmentService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
-                userAssignment)) {
+        if (!sessionService.isUserStudent(sessionService.getCurrentUser()) ||
+                !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                        userAssignment)) {
             throw new PermissionException();
         }
 
@@ -230,13 +237,14 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public AssignmentResponseDto answerAssignment(int userAssignmentId,
-                                                  AssignmentAnswerDto assignmentAnswerDto) {
+                                                  AssignmentAnswerDto dto) {
         UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
                         String.valueOf(userAssignmentId)));
 
-        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
-                userAssignment)) {
+        if (!sessionService.isUserStudent(sessionService.getCurrentUser()) ||
+                !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                        userAssignment)) {
             throw new PermissionException();
         }
 
@@ -259,7 +267,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         double result;
         try {
-            Map<String, Double> answerVariables = AnswerParser.parseAnswer(assignmentAnswerDto.answer());
+            Map<String, Double> answerVariables = AnswerParser.parseAnswer(dto.answer());
             result = ExpressionParser.parse(userAssignment.getFunction().getText(), answerVariables);
         } catch (RuntimeException e) {
             throw new AnswerFormatIncorrectException();
@@ -291,7 +299,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             userAssignment.setLastAttemptTime(LocalDateTime.now());
 
         answer.setUserAssignment(userAssignment);
-        answer.setAnswer(assignmentAnswerDto.answer());
+        answer.setAnswer(dto.answer());
         answer.setResult(result);
 
         List<Answer> answers = userAssignment.getAnswers();
@@ -314,7 +322,8 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
                         String.valueOf(userAssignmentId)));
 
-        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+        if (sessionService.isUserAdmin(sessionService.getCurrentUser())
+                || !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
                 userAssignment)) {
             throw new PermissionException();
         }

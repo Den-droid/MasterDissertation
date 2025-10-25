@@ -28,8 +28,8 @@ public class FunctionController {
 
     @PostMapping
     public ResponseEntity<?> add(@RequestBody AddFunctionDto addFunctionDto) {
-        functionService.add(addFunctionDto);
-        return ResponseEntity.ok().build();
+        int id = functionService.add(addFunctionDto);
+        return ResponseEntity.ok(id);
     }
 
     @PutMapping

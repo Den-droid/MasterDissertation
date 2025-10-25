@@ -37,29 +37,29 @@ public class MarkServiceImpl implements MarkService {
     }
 
     @Override
-    public void markAssignment(int userAssignmentId, MarkDto markDto) {
+    public void markAssignment(int userAssignmentId, MarkDto dto) {
         Mark mark;
         UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId).orElseThrow(
                 () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
                         String.valueOf(userAssignmentId))
         );
 
-        if (sessionService.isUserStudent(sessionService.getCurrentUser())
+        if (!sessionService.isUserTeacher(sessionService.getCurrentUser())
                 || !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
                 userAssignment)) {
             throw new PermissionException();
         }
 
-        if (markDto.id() > 0) {
-            mark = markRepository.findById(markDto.id()).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.MARK, String.valueOf(markDto.id()))
+        if (dto.id() > 0) {
+            mark = markRepository.findById(dto.id()).orElseThrow(
+                    () -> new EntityWithIdNotFoundException(EntityName.MARK, String.valueOf(dto.id()))
             );
-            mark.setMark(markDto.mark());
-            mark.setComment(markDto.comment());
+            mark.setMark(dto.mark());
+            mark.setComment(dto.comment());
         } else {
             mark = new Mark();
-            mark.setMark(markDto.mark());
-            mark.setComment(markDto.comment());
+            mark.setMark(dto.mark());
+            mark.setComment(dto.comment());
 
             mark.setUserAssignment(userAssignment);
         }
@@ -74,15 +74,16 @@ public class MarkServiceImpl implements MarkService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
-                userAssignment)) {
+        if (sessionService.isUserAdmin(sessionService.getCurrentUser()) ||
+                !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                        userAssignment)) {
             throw new PermissionException();
         }
 
-        List<MarkDto> markDtos = userAssignment.getMarks().stream()
+        List<MarkDto> dtos = userAssignment.getMarks().stream()
                 .map(m -> new MarkDto(m.getId(), m.getMark(), m.getComment()))
                 .toList();
 
-        return markDtos;
+        return dtos;
     }
 }

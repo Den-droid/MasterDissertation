@@ -9,7 +9,7 @@ import java.util.List;
 public interface SubjectService {
     List<SubjectDto> get(Integer universityId);
 
-    void add(AddSubjectDto addSubjectDto);
+    int add(AddSubjectDto addSubjectDto);
 
     void update(UpdateSubjectDto updateSubjectDto);
 

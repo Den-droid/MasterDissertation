@@ -122,13 +122,16 @@ public class WebSecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(studentUrls).hasRole(UserRole.STUDENT.name())
-                                .requestMatchers(teacherUrls).hasRole(UserRole.TEACHER.name())
-                                .requestMatchers(adminUrls).hasRole(UserRole.ADMIN.name())
-                                .requestMatchers(studentTeacherUrls).hasAnyRole(UserRole.STUDENT.name(),
-                                        UserRole.TEACHER.name())
+                        auth.requestMatchers(studentUrls).hasAnyRole(UserRole.ADMIN.name(),
+                                        UserRole.TEACHER.name(), UserRole.STUDENT.name())
+                                .requestMatchers(teacherUrls).hasAnyRole(UserRole.ADMIN.name(),
+                                        UserRole.TEACHER.name(), UserRole.STUDENT.name())
+                                .requestMatchers(adminUrls).hasAnyRole(UserRole.ADMIN.name(),
+                                        UserRole.TEACHER.name(), UserRole.STUDENT.name())
+                                .requestMatchers(studentTeacherUrls).hasAnyRole(UserRole.ADMIN.name(),
+                                        UserRole.TEACHER.name(), UserRole.STUDENT.name())
                                 .requestMatchers(adminTeacherUrls).hasAnyRole(UserRole.ADMIN.name(),
-                                        UserRole.TEACHER.name())
+                                        UserRole.TEACHER.name(), UserRole.STUDENT.name())
                                 .requestMatchers(userUrls).hasAnyRole(UserRole.ADMIN.name(),
                                         UserRole.TEACHER.name(), UserRole.STUDENT.name())
                                 .requestMatchers(authUrl).permitAll()
