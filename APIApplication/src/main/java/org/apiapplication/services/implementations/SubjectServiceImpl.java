@@ -114,6 +114,16 @@ public class SubjectServiceImpl implements SubjectService {
             existingSubject.setUniversity(university);
         }
 
+        Optional<Subject> subjectWithSameName = subjectRepository.findAll()
+                .stream()
+                .filter(s -> s.getName().equals(updateSubjectDto.name())
+                        && !s.getId().equals(updateSubjectDto.id()))
+                .findFirst();
+
+        if (subjectWithSameName.isPresent()) {
+            throw new EntityWithNameAlreadyFoundException(EntityName.SUBJECT, updateSubjectDto.name());
+        }
+
         existingSubject.setName(updateSubjectDto.name());
 
         subjectRepository.save(existingSubject);

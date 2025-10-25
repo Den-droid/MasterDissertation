@@ -130,6 +130,12 @@ public class FunctionServiceImpl implements FunctionService {
             existingFunction.setSubject(subject);
         }
 
+        Optional<Function> functionWithSameName = functionRepository.findAll()
+                .stream()
+                .filter(f -> f.getText().equals(updateFunctionDto.text())
+                        && !f.getId().equals(updateFunctionDto.id()))
+                .findFirst();
+
         existingFunction.setText(updateFunctionDto.text());
         existingFunction.setMinValues(updateFunctionDto.minValues());
         existingFunction.setMaxValues(updateFunctionDto.maxValues());

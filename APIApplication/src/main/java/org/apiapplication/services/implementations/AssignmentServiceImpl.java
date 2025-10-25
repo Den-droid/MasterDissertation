@@ -16,10 +16,10 @@ import org.apiapplication.exceptions.assignment.*;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.*;
+import org.apiapplication.services.interfaces.AssignmentRestrictionService;
+import org.apiapplication.services.interfaces.AssignmentService;
 import org.apiapplication.services.interfaces.PermissionService;
 import org.apiapplication.services.interfaces.SessionService;
-import org.apiapplication.services.interfaces.UserAssignmentRestrictionService;
-import org.apiapplication.services.interfaces.UserAssignmentService;
 import org.apiapplication.utils.AnswerParser;
 import org.apiapplication.utils.ExpressionParser;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ import java.util.*;
 
 @Service
 @Transactional
-public class UserAssignmentServiceImpl implements UserAssignmentService {
+public class AssignmentServiceImpl implements AssignmentService {
     private final UserRepository userRepository;
     private final FunctionRepository functionRepository;
     private final UserAssignmentRepository userAssignmentRepository;
@@ -37,18 +37,18 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
     private final AnswerRepository answerRepository;
 
     private final PermissionService permissionService;
-    private final UserAssignmentRestrictionService userAssignmentRestrictionService;
+    private final AssignmentRestrictionService assignmentRestrictionService;
     private final SessionService sessionService;
 
-    public UserAssignmentServiceImpl(UserRepository userRepository,
-                                     FunctionRepository functionRepository,
-                                     UserAssignmentRepository userAssignmentRepository,
-                                     AssignmentRepository assignmentRepository,
-                                     AnswerRepository answerRepository,
-                                     PermissionService permissionService,
-                                     UserAssignmentRestrictionService
-                                             userAssignmentRestrictionService,
-                                     SessionService sessionService) {
+    public AssignmentServiceImpl(UserRepository userRepository,
+                                 FunctionRepository functionRepository,
+                                 UserAssignmentRepository userAssignmentRepository,
+                                 AssignmentRepository assignmentRepository,
+                                 AnswerRepository answerRepository,
+                                 PermissionService permissionService,
+                                 AssignmentRestrictionService
+                                         assignmentRestrictionService,
+                                 SessionService sessionService) {
         this.userRepository = userRepository;
         this.functionRepository = functionRepository;
         this.userAssignmentRepository = userAssignmentRepository;
@@ -56,7 +56,7 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
         this.answerRepository = answerRepository;
 
         this.permissionService = permissionService;
-        this.userAssignmentRestrictionService = userAssignmentRestrictionService;
+        this.assignmentRestrictionService = assignmentRestrictionService;
         this.sessionService = sessionService;
     }
 
@@ -174,10 +174,10 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
         userAssignment.setStatus(AssignmentStatus.ASSIGNED);
 
         DefaultAssignmentRestriction defaultAssignmentRestriction =
-                userAssignmentRestrictionService.getDefaultRestrictionForFunction(userAssignment.getFunction());
+                assignmentRestrictionService.getDefaultRestrictionForFunction(userAssignment.getFunction());
 
         if (defaultAssignmentRestriction == null) {
-            defaultAssignmentRestriction = userAssignmentRestrictionService.getDefaultRestriction();
+            defaultAssignmentRestriction = assignmentRestrictionService.getDefaultRestriction();
         }
 
         if (defaultAssignmentRestriction.getAssignmentRestrictionType()
@@ -257,8 +257,13 @@ public class UserAssignmentServiceImpl implements UserAssignmentService {
             throw new AlreadyCorrectAnswerException();
         }
 
-        Map<String, Double> answerVariables = AnswerParser.parseAnswer(assignmentAnswerDto.answer());
-        double result = ExpressionParser.parse(userAssignment.getFunction().getText(), answerVariables);
+        double result;
+        try {
+            Map<String, Double> answerVariables = AnswerParser.parseAnswer(assignmentAnswerDto.answer());
+            result = ExpressionParser.parse(userAssignment.getFunction().getText(), answerVariables);
+        } catch (RuntimeException e) {
+            throw new AnswerFormatIncorrectException();
+        }
 
         Function function = userAssignment.getFunction();
         FunctionResultType functionResultType = userAssignment.getAssignment().getFunctionResultType();

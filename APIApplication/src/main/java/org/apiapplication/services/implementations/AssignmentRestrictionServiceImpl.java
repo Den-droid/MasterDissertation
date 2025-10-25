@@ -16,15 +16,15 @@ import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.*;
 import org.apiapplication.services.interfaces.PermissionService;
 import org.apiapplication.services.interfaces.SessionService;
-import org.apiapplication.services.interfaces.UserAssignmentRestrictionService;
+import org.apiapplication.services.interfaces.AssignmentRestrictionService;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 @Transactional
-public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestrictionService {
-    private final UserAssignmentRestrictionRepository userAssignmentRestrictionRepository;
+public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionService {
+    private final DefaultAssignmentRestrictionRepository defaultAssignmentRestrictionRepository;
     private final FunctionRepository functionRepository;
     private final SubjectRepository subjectRepository;
     private final UniversityRepository universityRepository;
@@ -33,14 +33,14 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
     private final SessionService sessionService;
     private final PermissionService permissionService;
 
-    public UserAssignmentRestrictionServiceImpl(UserAssignmentRestrictionRepository userAssignmentRestrictionRepository,
-                                                FunctionRepository functionRepository,
-                                                SubjectRepository subjectRepository,
-                                                UniversityRepository universityRepository,
-                                                SessionService sessionService,
-                                                PermissionService permissionService,
-                                                UserAssignmentRepository userAssignmentRepository) {
-        this.userAssignmentRestrictionRepository = userAssignmentRestrictionRepository;
+    public AssignmentRestrictionServiceImpl(DefaultAssignmentRestrictionRepository defaultAssignmentRestrictionRepository,
+                                            FunctionRepository functionRepository,
+                                            SubjectRepository subjectRepository,
+                                            UniversityRepository universityRepository,
+                                            SessionService sessionService,
+                                            PermissionService permissionService,
+                                            UserAssignmentRepository userAssignmentRepository) {
+        this.defaultAssignmentRestrictionRepository = defaultAssignmentRestrictionRepository;
         this.functionRepository = functionRepository;
         this.subjectRepository = subjectRepository;
         this.universityRepository = universityRepository;
@@ -112,7 +112,7 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
             }
 
             List<DefaultAssignmentRestriction> defaultAssignmentRestrictions =
-                    userAssignmentRestrictionRepository.findAll();
+                    defaultAssignmentRestrictionRepository.findAll();
             return defaultAssignmentRestrictions.stream()
                     .map(this::getDefaultAssignmentRestrictionDto)
                     .toList();
@@ -122,7 +122,7 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
     @Override
     public DefaultAssignmentRestriction getDefaultRestrictionForFunction(Function function) {
         List<DefaultAssignmentRestriction> defaultAssignmentRestrictions =
-                userAssignmentRestrictionRepository.findAll();
+                defaultAssignmentRestrictionRepository.findAll();
 
         Optional<DefaultAssignmentRestriction> defaultRestriction = defaultAssignmentRestrictions.stream()
                 .filter(restriction -> restriction.getFunction() != null &&
@@ -142,7 +142,7 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
     @Override
     public DefaultAssignmentRestriction getDefaultRestrictionForSubject(Subject subject) {
         List<DefaultAssignmentRestriction> defaultAssignmentRestrictions =
-                userAssignmentRestrictionRepository.findAll();
+                defaultAssignmentRestrictionRepository.findAll();
 
         Optional<DefaultAssignmentRestriction> defaultRestriction = defaultAssignmentRestrictions.stream()
                 .filter(restriction -> restriction.getSubject() != null &&
@@ -162,7 +162,7 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
     @Override
     public DefaultAssignmentRestriction getDefaultRestrictionForUniversity(University university) {
         List<DefaultAssignmentRestriction> defaultAssignmentRestrictions =
-                userAssignmentRestrictionRepository.findAll();
+                defaultAssignmentRestrictionRepository.findAll();
 
         Optional<DefaultAssignmentRestriction> defaultRestriction = defaultAssignmentRestrictions.stream()
                 .filter(restriction -> restriction.getUniversity() != null &&
@@ -234,7 +234,7 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
         defaultAssignmentRestriction.setUniversity(university);
 
         Optional<DefaultAssignmentRestriction> existingRestriction =
-                userAssignmentRestrictionRepository.findAll().stream()
+                defaultAssignmentRestrictionRepository.findAll().stream()
                         .filter(dar ->
                                 dar.getUniversity().getId().equals(defaultRestrictionDto.universityId()) &&
                                         dar.getSubject().getId().equals(defaultRestrictionDto.subjectId()) &&
@@ -247,7 +247,7 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
 
         setAssignmentRestriction(defaultRestrictionDto, defaultAssignmentRestriction);
 
-        userAssignmentRestrictionRepository.save(defaultAssignmentRestriction);
+        defaultAssignmentRestrictionRepository.save(defaultAssignmentRestriction);
     }
 
     @Override
@@ -332,7 +332,7 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
     @Override
     public void deleteDefaultRestriction(int defaultRestrictionId) {
         DefaultAssignmentRestriction defaultAssignmentRestriction =
-                userAssignmentRestrictionRepository.findById(defaultRestrictionId)
+                defaultAssignmentRestrictionRepository.findById(defaultRestrictionId)
                         .orElseThrow(() -> new EntityWithIdNotFoundException(
                                 EntityName.DEFAULT_ASSIGNMENT_RESTRICTION,
                                 String.valueOf(defaultRestrictionId)));
@@ -357,7 +357,7 @@ public class UserAssignmentRestrictionServiceImpl implements UserAssignmentRestr
             }
         }
 
-        userAssignmentRestrictionRepository.deleteById(defaultRestrictionId);
+        defaultAssignmentRestrictionRepository.deleteById(defaultRestrictionId);
     }
 
     @Override

@@ -48,4 +48,12 @@ public class AssignmentControllerAdvice {
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage());
     }
+
+    @ExceptionHandler(value = AnswerFormatIncorrectException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseExceptionDto handleAssignmentException(AnswerFormatIncorrectException ex, WebRequest request) {
+        return new BaseExceptionDto(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage());
+    }
 }

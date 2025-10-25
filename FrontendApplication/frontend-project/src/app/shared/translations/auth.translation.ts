@@ -8,7 +8,8 @@ export const authLabels = {
   "password-format-incoorect": "Пароль має містити 1 велику літеру, 1 малу літеру, 1 цифру та 1 спецсимвол",
   "confirm-password-required": "Підтвердження пароля є обов’язковим",
   "password-not-match-confirm": "Паролі не співпадають",
-  "user-not-exists-by-email-password": "Неправильна електронна адреса чи пароль! Спробуйте знову"
+  "user-not-exists-by-email-password": "Неправильна електронна адреса чи пароль! Спробуйте знову",
+  "role-required": "Роль є обов'язковою"
 };
 
 export const authTitles = {

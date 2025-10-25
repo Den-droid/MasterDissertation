@@ -5,7 +5,6 @@ import lombok.Data;
 import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
 import org.apiapplication.entities.assignment.Function;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,12 +18,15 @@ public class Subject {
     private String name;
 
     @OneToMany(mappedBy = "subject")
-    private List<Function> functions = new ArrayList<>();
+    private List<Function> functions;
 
     @ManyToOne
     @JoinColumn(name = "university_id", referencedColumnName = "id")
     private University university;
 
     @OneToMany(mappedBy = "subject")
-    private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions = new ArrayList<>();
+    private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions;
+
+    @ManyToMany(mappedBy = "subjects")
+    private List<Group> groups;
 }

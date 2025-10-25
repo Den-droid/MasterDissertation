@@ -12,6 +12,7 @@ import org.apiapplication.repositories.UserInfoRepository;
 import org.apiapplication.repositories.UserRepository;
 import org.apiapplication.services.interfaces.SessionService;
 import org.apiapplication.services.interfaces.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,12 +26,16 @@ public class UserServiceImpl implements UserService {
 
     private final SessionService sessionService;
 
+    private final PasswordEncoder passwordEncoder;
+
     public UserServiceImpl(UserInfoRepository userInfoRepository,
                            UserRepository userRepository,
-                           SessionService sessionService) {
+                           SessionService sessionService,
+                           PasswordEncoder passwordEncoder) {
         this.userInfoRepository = userInfoRepository;
         this.userRepository = userRepository;
         this.sessionService = sessionService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -61,7 +66,7 @@ public class UserServiceImpl implements UserService {
         }
 
         String newApiToken = generateApiKey();
-        userInfo.setApiKey(newApiToken);
+        userInfo.setApiKey(passwordEncoder.encode(newApiToken));
 
         userInfoRepository.save(userInfo);
 

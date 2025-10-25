@@ -12,6 +12,7 @@ import { authorizeInterceptor } from './shared/interceptors/authorize.intercepto
 import { AuthService } from './shared/services/auth.service';
 import { StudentComponent } from './student/student.component';
 import { UserComponent } from './user/user.component';
+import { studentTeacherGuard } from './shared/guards/student-teacher.guard';
 
 const routes: Routes = [
   {
@@ -26,7 +27,7 @@ const routes: Routes = [
         return '';
       }
 
-        return '/auth/signin';
+      return '/auth/signin';
     },
     pathMatch: 'full'
   },
@@ -46,7 +47,7 @@ const routes: Routes = [
   {
     path: "assignments", component: AssignmentsComponent,
     loadChildren: () => import('./assignments/assignments.module').then(m => m.AssignmentsModule),
-    canActivate: [studentGuard, teacherGuard]
+    canActivate: [studentTeacherGuard]
   },
   {
     path: "user", component: UserComponent,

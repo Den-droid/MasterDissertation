@@ -64,9 +64,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokensDto signIn(ApiKeyDto apiKeyDto) {
-        UserInfo userInfo = userInfoRepository.findByApiKey(apiKeyDto.apiKey()).orElseThrow(
-                () -> new UserWithKeyNotFoundException(apiKeyDto.apiKey())
-        );
+        UserInfo userInfo = userInfoRepository.findAll()
+                .stream()
+                .filter(ui -> passwordEncoder.matches(apiKeyDto.apiKey(), ui.getApiKey()))
+                .findFirst()
+                .orElseThrow(() -> new UserWithKeyNotFoundException(apiKeyDto.apiKey()));
 
         return getTokensDto(userInfo.getUser());
     }

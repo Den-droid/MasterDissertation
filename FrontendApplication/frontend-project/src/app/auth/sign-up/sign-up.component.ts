@@ -28,6 +28,7 @@ export class SignUpComponent implements OnInit {
   passwordFormatIncorrect = authLabels['password-format-incoorect'];
   confirmPasswordRequired = authLabels['confirm-password-required'];
   passwordNotMatchConfirm = authLabels['password-not-match-confirm'];
+  roleRequired = authLabels['role-required'];
 
   constructor(private readonly router: Router, private readonly authService: AuthService,
     private fb: FormBuilder, private location: Location
@@ -52,6 +53,7 @@ export class SignUpComponent implements OnInit {
           ],
         ],
         confirmPassword: ['', [Validators.required]],
+        role: ['', [Validators.required]]
       },
       { validators: this.passwordMatchValidator }
     );

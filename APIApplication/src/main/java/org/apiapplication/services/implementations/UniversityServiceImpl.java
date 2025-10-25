@@ -76,6 +76,15 @@ public class UniversityServiceImpl implements UniversityService {
             }
         }
 
+        Optional<University> universityWithSameName = universityRepository.findAll().stream()
+                .filter(u -> u.getName().equals(universityDto.name()) &&
+                        !u.getId().equals(universityDto.id()))
+                .findFirst();
+
+        if (universityWithSameName.isPresent()) {
+            throw new EntityWithNameAlreadyFoundException(EntityName.UNIVERSITY, universityDto.name());
+        }
+
         existingUniversity.setName(universityDto.name());
 
         universityRepository.save(existingUniversity);

@@ -4,7 +4,7 @@ import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.answer.AnswerDto;
 import org.apiapplication.dto.assignment.*;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
-import org.apiapplication.services.interfaces.UserAssignmentService;
+import org.apiapplication.services.interfaces.AssignmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,15 +14,15 @@ import java.util.List;
 @RequestMapping("/api/assignments")
 @CrossOrigin
 public class AssignmentController {
-    private final UserAssignmentService userAssignmentService;
+    private final AssignmentService assignmentService;
 
-    public AssignmentController(UserAssignmentService userAssignmentService) {
-        this.userAssignmentService = userAssignmentService;
+    public AssignmentController(AssignmentService assignmentService) {
+        this.assignmentService = assignmentService;
     }
 
     @GetMapping("/getByUserId")
     public ResponseEntity<List<UserAssignmentDto>> getByUserId(@RequestParam Integer userId) {
-        List<UserAssignmentDto> userAssignmentsDto = userAssignmentService.getByUser(userId);
+        List<UserAssignmentDto> userAssignmentsDto = assignmentService.getByUser(userId);
         return ResponseEntity.ok(userAssignmentsDto);
     }
 
@@ -34,13 +34,13 @@ public class AssignmentController {
         } catch (NumberFormatException e) {
             throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
         }
-        AssignmentDto assignmentDto = userAssignmentService.getById(userAssignmentIdInt);
+        AssignmentDto assignmentDto = assignmentService.getById(userAssignmentIdInt);
         return ResponseEntity.ok(assignmentDto);
     }
 
     @PostMapping("/assign")
     public ResponseEntity<?> assign(@RequestBody AssignDto assignDto) {
-        userAssignmentService.assign(assignDto);
+        assignmentService.assign(assignDto);
         return ResponseEntity.ok().build();
     }
 
@@ -52,7 +52,7 @@ public class AssignmentController {
         } catch (NumberFormatException e) {
             throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
         }
-        userAssignmentService.startContinue(userAssignmentIdInt);
+        assignmentService.startContinue(userAssignmentIdInt);
         return ResponseEntity.ok().build();
     }
 
@@ -64,7 +64,7 @@ public class AssignmentController {
         } catch (NumberFormatException e) {
             throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
         }
-        userAssignmentService.finish(userAssignmentIdInt);
+        assignmentService.finish(userAssignmentIdInt);
         return ResponseEntity.ok().build();
     }
 
@@ -77,7 +77,7 @@ public class AssignmentController {
         } catch (NumberFormatException e) {
             throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
         }
-        AssignmentResponseDto assignmentResponseDto = userAssignmentService.answerAssignment(userAssignmentIdInt,
+        AssignmentResponseDto assignmentResponseDto = assignmentService.answerAssignment(userAssignmentIdInt,
                 assignmentAnswerDto);
         return ResponseEntity.ok(assignmentResponseDto);
     }
@@ -90,7 +90,7 @@ public class AssignmentController {
         } catch (NumberFormatException e) {
             throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
         }
-        List<AnswerDto> answerDtos = userAssignmentService.getAnswersForAssignment(userAssignmentIdInt);
+        List<AnswerDto> answerDtos = assignmentService.getAnswersForAssignment(userAssignmentIdInt);
         return ResponseEntity.ok(answerDtos);
     }
 }

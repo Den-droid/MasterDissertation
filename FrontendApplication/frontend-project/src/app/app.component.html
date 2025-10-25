@@ -1,4 +1,25 @@
 <div class="wrapper">
+  <aside id="sidebar">
+    <div style="
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 1rem;
+      ">
+      <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="sidebar-logo">
+        <a href="#">My App</a>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="sidebar-link"><i class="fas fa-home"></i><span>Home</span></a>
+      <a href="#" class="sidebar-link"><i class="fas fa-user"></i><span>Profile</span></a>
+      <a href="#" class="sidebar-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+    </nav>
+  </aside>
+
   <div class="main main-not-expand p-3">
     <router-outlet></router-outlet>
   </div>

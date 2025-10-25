@@ -2,6 +2,7 @@ package org.apiapplication.entities.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.apiapplication.entities.Group;
 import org.apiapplication.entities.assignment.UserAssignment;
 
 import java.util.ArrayList;
@@ -41,6 +42,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<UserPermission> userPermissions;
+
+    @ManyToMany(mappedBy = "students")
+    private List<Group> groups;
 
     @Override
     public boolean equals(Object o) {

@@ -5,7 +5,7 @@ import org.apiapplication.dto.assignment.*;
 
 import java.util.List;
 
-public interface UserAssignmentService {
+public interface AssignmentService {
     AssignmentDto getById(int userAssignmentId);
 
     List<UserAssignmentDto> getByUser(int userId);
