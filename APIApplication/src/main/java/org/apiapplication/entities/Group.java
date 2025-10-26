@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.apiapplication.entities.user.User;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -26,7 +26,7 @@ public class Group {
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> students;
+    private Set<User> students;
 
     @ManyToMany
     @JoinTable(
@@ -34,5 +34,5 @@ public class Group {
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id")
     )
-    private List<Subject> subjects;
+    private Set<Subject> subjects;
 }

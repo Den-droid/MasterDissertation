@@ -1,20 +1,29 @@
 package org.apiapplication.services.interfaces;
 
-import org.apiapplication.dto.group.AddGroupDto;
-import org.apiapplication.dto.group.SetStudentsDto;
-import org.apiapplication.dto.group.SetSubjectsDto;
-import org.apiapplication.dto.group.UpdateGroupDto;
+import org.apiapplication.dto.group.*;
+
+import java.util.List;
 
 public interface GroupService {
-    // add get method
+    List<GroupDto> getForCurrentUser();
+
+    GroupDto getById(int id);
 
     int add(AddGroupDto addGroupDto);
 
-    void update(UpdateGroupDto updateGroupDto);
+    void update(int groupId, UpdateGroupDto updateGroupDto);
 
-    void delete(int id);
+    void delete(int groupId);
 
-    void setStudents(SetStudentsDto setStudentsDto);
+    void setStudents(int groupId, SetStudentsDto setStudentsDto);
 
-    void setSubjects(SetSubjectsDto setSubjectsDto);
+    void addStudents(int groupId, SetStudentsDto setStudentsDto);
+
+    void removeStudents(int groupId, SetStudentsDto setStudentsDto);
+
+    void setSubjects(int groupId, SetSubjectsDto setSubjectsDto);
+
+    void addSubjects(int groupId, SetSubjectsDto setSubjectsDto);
+
+    void removeSubjects(int groupId, SetSubjectsDto setSubjectsDto);
 }

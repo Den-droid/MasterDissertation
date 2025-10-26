@@ -1,4 +1,4 @@
 package org.apiapplication.dto.mark;
 
-public record MarkDto(int id, int mark, String comment) {
+public record MarkDto(Integer markId, int mark, String comment) {
 }

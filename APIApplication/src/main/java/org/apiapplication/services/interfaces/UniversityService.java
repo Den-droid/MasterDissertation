@@ -11,7 +11,7 @@ public interface UniversityService {
 
     int add(AddUniversityDto addUniversityDto);
 
-    void update(UpdateUniversityDto updateUniversityDto);
+    void update(int universityId, UpdateUniversityDto updateUniversityDto);
 
     void delete(int universityId);
 }

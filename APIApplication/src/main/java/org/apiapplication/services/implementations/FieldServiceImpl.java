@@ -5,7 +5,6 @@ import org.apiapplication.dto.field.FieldDto;
 import org.apiapplication.entities.Url;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
-import org.apiapplication.repositories.FieldRepository;
 import org.apiapplication.repositories.UrlRepository;
 import org.apiapplication.services.interfaces.FieldService;
 import org.apiapplication.services.interfaces.SessionService;
@@ -39,7 +38,8 @@ public class FieldServiceImpl implements FieldService {
                         f.getField().getName(), f.getField().getLabel(),
                         f.getField().getDescription(),
                         f.getField().getType().ordinal(),
-                        f.isRequired()))
+                        f.isRequired(),
+                        f.isMultiple()))
                 .toList();
 
         return fieldDtos;

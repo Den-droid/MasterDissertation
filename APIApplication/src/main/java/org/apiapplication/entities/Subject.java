@@ -6,6 +6,7 @@ import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
 import org.apiapplication.entities.assignment.Function;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "subjects")
@@ -24,9 +25,14 @@ public class Subject {
     @JoinColumn(name = "university_id", referencedColumnName = "id")
     private University university;
 
-    @OneToMany(mappedBy = "subject")
-    private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions;
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Subject subject)) return false;
+        return Objects.equals(getId(), subject.getId());
+    }
 
-    @ManyToMany(mappedBy = "subjects")
-    private List<Group> groups;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
+    }
 }

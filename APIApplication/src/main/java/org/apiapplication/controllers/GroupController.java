@@ -1,12 +1,13 @@
 package org.apiapplication.controllers;
 
-import org.apiapplication.dto.group.AddGroupDto;
-import org.apiapplication.dto.group.SetStudentsDto;
-import org.apiapplication.dto.group.SetSubjectsDto;
-import org.apiapplication.dto.group.UpdateGroupDto;
+import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.group.*;
+import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.GroupService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/groups")
@@ -18,33 +19,130 @@ public class GroupController {
         this.groupService = groupService;
     }
 
+    @GetMapping("/{groupId}")
+    public ResponseEntity<GroupDto> getById(@PathVariable String groupId) {
+        int groupIdInt;
+        try {
+            groupIdInt = Integer.parseInt(groupId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
+        }
+        GroupDto groupDto = groupService.getById(groupIdInt);
+        return ResponseEntity.ok(groupDto);
+    }
+
+    @GetMapping("/getForCurrentUser")
+    public ResponseEntity<List<GroupDto>> getForCurrentUser() {
+        List<GroupDto> groupDtos = groupService.getForCurrentUser();
+        return ResponseEntity.ok(groupDtos);
+    }
+
     @PostMapping
     private ResponseEntity<Integer> add(@RequestBody AddGroupDto addGroupDto) {
         int id = groupService.add(addGroupDto);
         return ResponseEntity.ok(id);
     }
 
-    @PutMapping
-    private ResponseEntity<?> update(@RequestBody UpdateGroupDto updateGroupDto) {
-        groupService.update(updateGroupDto);
+    @PutMapping("/{groupId}")
+    private ResponseEntity<?> update(@PathVariable String groupId,
+                                     @RequestBody UpdateGroupDto updateGroupDto) {
+        int groupIdInt;
+        try {
+            groupIdInt = Integer.parseInt(groupId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
+        }
+        groupService.update(groupIdInt, updateGroupDto);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping
-    private ResponseEntity<?> delete(@RequestParam Integer id) {
-        groupService.delete(id);
+    @DeleteMapping("/{groupId}")
+    private ResponseEntity<?> delete(@PathVariable String groupId) {
+        int groupIdInt;
+        try {
+            groupIdInt = Integer.parseInt(groupId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
+        }
+        groupService.delete(groupIdInt);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/setStudents")
-    private ResponseEntity<?> setStudents(@RequestBody SetStudentsDto setStudentsDto) {
-        groupService.setStudents(setStudentsDto);
+    @PutMapping("/{groupId}/setStudents")
+    private ResponseEntity<?> setStudents(@PathVariable String groupId,
+                                          @RequestBody SetStudentsDto setStudentsDto) {
+        int groupIdInt;
+        try {
+            groupIdInt = Integer.parseInt(groupId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
+        }
+        groupService.setStudents(groupIdInt, setStudentsDto);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/setSubjects")
-    private ResponseEntity<?> setSubjects(@RequestBody SetSubjectsDto setSubjectsDto) {
-        groupService.setSubjects(setSubjectsDto);
+    @PutMapping("/{groupId}/addStudents")
+    private ResponseEntity<?> addStudents(@PathVariable String groupId,
+                                          @RequestBody SetStudentsDto setStudentsDto) {
+        int groupIdInt;
+        try {
+            groupIdInt = Integer.parseInt(groupId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
+        }
+        groupService.addStudents(groupIdInt, setStudentsDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{groupId}/removeStudents")
+    private ResponseEntity<?> removeStudents(@PathVariable String groupId,
+                                             @RequestBody SetStudentsDto setStudentsDto) {
+        int groupIdInt;
+        try {
+            groupIdInt = Integer.parseInt(groupId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
+        }
+        groupService.removeStudents(groupIdInt, setStudentsDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{groupId}/setSubjects")
+    private ResponseEntity<?> setSubjects(@PathVariable String groupId,
+                                          @RequestBody SetSubjectsDto setSubjectsDto) {
+        int groupIdInt;
+        try {
+            groupIdInt = Integer.parseInt(groupId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
+        }
+        groupService.setSubjects(groupIdInt, setSubjectsDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{groupId}/addSubjects")
+    private ResponseEntity<?> addSubjects(@PathVariable String groupId,
+                                          @RequestBody SetSubjectsDto setSubjectsDto) {
+        int groupIdInt;
+        try {
+            groupIdInt = Integer.parseInt(groupId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
+        }
+        groupService.addSubjects(groupIdInt, setSubjectsDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{groupId}/removeSubjects")
+    private ResponseEntity<?> removeSubjects(@PathVariable String groupId,
+                                             @RequestBody SetSubjectsDto setSubjectsDto) {
+        int groupIdInt;
+        try {
+            groupIdInt = Integer.parseInt(groupId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
+        }
+        groupService.removeSubjects(groupIdInt, setSubjectsDto);
         return ResponseEntity.ok().build();
     }
 }

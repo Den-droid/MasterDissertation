@@ -338,7 +338,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
             }
         }
 
-        defaultAssignmentRestrictionRepository.deleteById(defaultRestrictionId);
+        defaultAssignmentRestrictionRepository.delete(defaultAssignmentRestriction);
     }
 
     @Override
@@ -381,17 +381,20 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
         if (dto.restrictionType() == AssignmentRestrictionType.N_ATTEMPTS.ordinal()) {
             userAssignment.setRestrictionType(
                     AssignmentRestrictionType.N_ATTEMPTS);
-            userAssignment.setAttemptsRemaining(
-                    dto.attemptsRemaining());
+            if (dto.attemptsRemaining() != null)
+                userAssignment.setAttemptsRemaining(
+                        dto.attemptsRemaining());
         } else if (dto.restrictionType() == AssignmentRestrictionType.DEADLINE.ordinal()) {
             userAssignment.setRestrictionType(
                     AssignmentRestrictionType.DEADLINE);
-            userAssignment.setDeadline(dto.deadline());
+            if (dto.deadline() != null)
+                userAssignment.setDeadline(dto.deadline());
         } else {
             userAssignment.setRestrictionType(
                     AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
-            userAssignment.setMinutesForAttempt(
-                    dto.minutesForAttempt());
+            if (dto.minutesForAttempt() != null)
+                userAssignment.setMinutesForAttempt(
+                        dto.minutesForAttempt());
         }
     }
 
@@ -409,17 +412,20 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
         if (dto.restrictionType() == AssignmentRestrictionType.N_ATTEMPTS.ordinal()) {
             defaultAssignmentRestriction.setAssignmentRestrictionType(
                     AssignmentRestrictionType.N_ATTEMPTS);
-            defaultAssignmentRestriction.setAttemptsRemaining(
-                    dto.attemptsRemaining());
+            if (dto.attemptsRemaining() != null)
+                defaultAssignmentRestriction.setAttemptsRemaining(
+                        dto.attemptsRemaining());
         } else if (dto.restrictionType() == AssignmentRestrictionType.DEADLINE.ordinal()) {
             defaultAssignmentRestriction.setAssignmentRestrictionType(
                     AssignmentRestrictionType.DEADLINE);
-            defaultAssignmentRestriction.setDeadline(dto.deadline());
+            if (dto.deadline() != null)
+                defaultAssignmentRestriction.setDeadline(dto.deadline());
         } else {
             defaultAssignmentRestriction.setAssignmentRestrictionType(
                     AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
-            defaultAssignmentRestriction.setMinutesForAttempt(
-                    dto.minutesForAttempt());
+            if (dto.minutesForAttempt() != null)
+                defaultAssignmentRestriction.setMinutesForAttempt(
+                        dto.minutesForAttempt());
         }
     }
 }

@@ -1,4 +1,4 @@
 package org.apiapplication.dto.subject;
 
-public record UpdateSubjectDto(int id, String name, Integer universityId) {
+public record UpdateSubjectDto(String name, Integer universityId) {
 }

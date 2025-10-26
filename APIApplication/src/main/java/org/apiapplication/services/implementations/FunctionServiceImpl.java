@@ -7,40 +7,45 @@ import org.apiapplication.dto.function.FunctionDto;
 import org.apiapplication.dto.function.UpdateFunctionDto;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.assignment.Function;
+import org.apiapplication.entities.assignment.FunctionMinMaxValue;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserPermission;
+import org.apiapplication.enums.FunctionResultType;
 import org.apiapplication.exceptions.entity.EntityCantBeDeletedException;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.entity.EntityWithNameAlreadyFoundException;
 import org.apiapplication.exceptions.function.FunctionSameExistsException;
+import org.apiapplication.exceptions.function.FunctionTextFormatIncorrectException;
 import org.apiapplication.exceptions.permission.PermissionException;
+import org.apiapplication.repositories.FunctionMinMaxValueRepository;
 import org.apiapplication.repositories.FunctionRepository;
 import org.apiapplication.repositories.SubjectRepository;
 import org.apiapplication.services.interfaces.FunctionService;
 import org.apiapplication.services.interfaces.PermissionService;
 import org.apiapplication.services.interfaces.SessionService;
+import org.apiapplication.utils.ExpressionParser;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Transactional
 public class FunctionServiceImpl implements FunctionService {
     private final FunctionRepository functionRepository;
     private final SubjectRepository subjectRepository;
+    private final FunctionMinMaxValueRepository functionMinMaxValueRepository;
 
     private final PermissionService permissionService;
     private final SessionService sessionService;
 
     public FunctionServiceImpl(FunctionRepository functionRepository,
                                SubjectRepository subjectRepository,
+                               FunctionMinMaxValueRepository functionMinMaxValueRepository,
                                PermissionService permissionService,
                                SessionService sessionService) {
         this.functionRepository = functionRepository;
         this.subjectRepository = subjectRepository;
+        this.functionMinMaxValueRepository = functionMinMaxValueRepository;
 
         this.permissionService = permissionService;
         this.sessionService = sessionService;
@@ -72,7 +77,7 @@ public class FunctionServiceImpl implements FunctionService {
     @Override
     public int add(AddFunctionDto dto) {
         Optional<Function> existingFunction = functionRepository.findAll().stream()
-                .filter(u -> u.getText().equals(dto.text()))
+                .filter(u -> u.getText().equalsIgnoreCase(dto.text()))
                 .findFirst();
 
         if (existingFunction.isPresent()) {
@@ -90,23 +95,45 @@ public class FunctionServiceImpl implements FunctionService {
             throw new PermissionException();
         }
 
+        checkFunctionText(dto.text(), dto.variablesCount());
+
         Function function = new Function();
         function.setText(dto.text());
-        function.setMinValues(dto.minValues());
-        function.setMaxValues(dto.maxValues());
+
+        List<FunctionMinMaxValue> functionMinMaxValues = new ArrayList<>();
+        for (double minValue : dto.minValues()) {
+            FunctionMinMaxValue functionMinMaxValue = new FunctionMinMaxValue();
+            functionMinMaxValue.setFunctionResultType(FunctionResultType.MIN);
+            functionMinMaxValue.setValue(minValue);
+            functionMinMaxValue.setFunction(function);
+
+            functionMinMaxValues.add(functionMinMaxValue);
+        }
+
+        for (double maxValue : dto.maxValues()) {
+            FunctionMinMaxValue functionMinMaxValue = new FunctionMinMaxValue();
+            functionMinMaxValue.setFunctionResultType(FunctionResultType.MAX);
+            functionMinMaxValue.setValue(maxValue);
+            functionMinMaxValue.setFunction(function);
+
+            functionMinMaxValues.add(functionMinMaxValue);
+        }
+
+        function.setFunctionMinMaxValues(functionMinMaxValues);
         function.setVariablesCount(dto.variablesCount());
         function.setSubject(subject);
 
+        functionMinMaxValueRepository.saveAll(functionMinMaxValues);
         functionRepository.save(function);
 
         return function.getId();
     }
 
     @Override
-    public void update(UpdateFunctionDto dto) {
-        Function existingFunction = functionRepository.findById(dto.id())
+    public void update(int id, UpdateFunctionDto dto) {
+        Function existingFunction = functionRepository.findById(id)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.FUNCTION,
-                        String.valueOf(dto.id())));
+                        String.valueOf(id)));
 
         if (!permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
                 existingFunction)) {
@@ -127,21 +154,53 @@ public class FunctionServiceImpl implements FunctionService {
             existingFunction.setSubject(subject);
         }
 
-        Optional<Function> functionWithSameName = functionRepository.findAll()
-                .stream()
-                .filter(f -> f.getText().equalsIgnoreCase(dto.text())
-                        && !f.getId().equals(dto.id()))
-                .findFirst();
+        if (dto.text() != null && !dto.text().isEmpty()) {
+            checkFunctionText(dto.text(), dto.variablesCount() != null ? dto.variablesCount()
+                    : existingFunction.getVariablesCount());
 
-        if (functionWithSameName.isPresent()) {
-            throw new FunctionSameExistsException();
+            Optional<Function> functionWithSameText = functionRepository.findAll()
+                    .stream()
+                    .filter(f -> f.getText().equalsIgnoreCase(dto.text())
+                            && !f.getId().equals(id))
+                    .findFirst();
+
+            if (functionWithSameText.isPresent()) {
+                throw new FunctionSameExistsException();
+            }
+
+            existingFunction.setText(dto.text());
         }
 
-        existingFunction.setText(dto.text());
-        existingFunction.setMinValues(dto.minValues());
-        existingFunction.setMaxValues(dto.maxValues());
-        existingFunction.setVariablesCount(dto.variablesCount());
+        List<FunctionMinMaxValue> functionMinMaxValues = new ArrayList<>();
 
+        if (!dto.minValues().isEmpty()) {
+            for (double minValue : dto.minValues()) {
+                FunctionMinMaxValue functionMinMaxValue = new FunctionMinMaxValue();
+                functionMinMaxValue.setFunctionResultType(FunctionResultType.MIN);
+                functionMinMaxValue.setValue(minValue);
+                functionMinMaxValue.setFunction(existingFunction);
+
+                functionMinMaxValues.add(functionMinMaxValue);
+            }
+        }
+        if (!dto.maxValues().isEmpty()) {
+            for (double maxValue : dto.maxValues()) {
+                FunctionMinMaxValue functionMinMaxValue = new FunctionMinMaxValue();
+                functionMinMaxValue.setFunctionResultType(FunctionResultType.MAX);
+                functionMinMaxValue.setValue(maxValue);
+                functionMinMaxValue.setFunction(existingFunction);
+
+                functionMinMaxValues.add(functionMinMaxValue);
+            }
+        }
+
+        existingFunction.setFunctionMinMaxValues(functionMinMaxValues);
+
+        if (dto.variablesCount() != null) {
+            existingFunction.setVariablesCount(dto.variablesCount());
+        }
+
+        functionMinMaxValueRepository.saveAll(functionMinMaxValues);
         functionRepository.save(existingFunction);
     }
 
@@ -167,7 +226,16 @@ public class FunctionServiceImpl implements FunctionService {
     private List<FunctionDto> getFunctionDtoFromFunction(List<Function> functions) {
         return functions.stream()
                 .map(f -> new FunctionDto(f.getId(), f.getText(), f.getVariablesCount(),
-                        f.getMinValues(), f.getMaxValues()))
+                        getMinMaxValuesForFunction(f, FunctionResultType.MIN),
+                        getMinMaxValuesForFunction(f, FunctionResultType.MAX)))
+                .toList();
+    }
+
+    private List<Double> getMinMaxValuesForFunction(Function function,
+                                                    FunctionResultType functionResultType) {
+        return function.getFunctionMinMaxValues().stream()
+                .filter(fmmv -> fmmv.getFunctionResultType() == functionResultType)
+                .map(FunctionMinMaxValue::getValue)
                 .toList();
     }
 
@@ -192,5 +260,17 @@ public class FunctionServiceImpl implements FunctionService {
             }
         }
         return functions;
+    }
+
+    private void checkFunctionText(String text, int variablesCount) {
+        try {
+            Map<String, Double> answerVariables = new HashMap<>();
+            for (int i = 0; i < variablesCount; i++) {
+                answerVariables.put("x" + (i + 1), 0D);
+            }
+            ExpressionParser.parse(text, answerVariables);
+        } catch (RuntimeException e) {
+            throw new FunctionTextFormatIncorrectException();
+        }
     }
 }

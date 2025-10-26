@@ -59,7 +59,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public int add(AddSubjectDto dto) {
         Optional<Subject> existingSubject = subjectRepository.findAll().stream()
-                .filter(u -> u.getName().equals(dto.name()))
+                .filter(u -> u.getName().equalsIgnoreCase(dto.name()))
                 .findFirst();
 
         if (existingSubject.isPresent()) {
@@ -87,10 +87,10 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void update(UpdateSubjectDto dto) {
-        Subject existingSubject = subjectRepository.findById(dto.id())
+    public void update(int id, UpdateSubjectDto dto) {
+        Subject existingSubject = subjectRepository.findById(id)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.SUBJECT,
-                        String.valueOf(dto.id())));
+                        String.valueOf(id)));
 
         if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
                 existingSubject)) {
@@ -103,27 +103,27 @@ public class SubjectServiceImpl implements SubjectService {
                     .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
                             String.valueOf(dto.universityId())));
 
-            if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-                if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
-                        university)) {
-                    throw new PermissionException();
-                }
+            if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
+                    university)) {
+                throw new PermissionException();
             }
 
             existingSubject.setUniversity(university);
         }
 
-        Optional<Subject> subjectWithSameName = subjectRepository.findAll()
-                .stream()
-                .filter(s -> s.getName().equals(dto.name())
-                        && !s.getId().equals(dto.id()))
-                .findFirst();
+        if (dto.name() != null && !dto.name().isEmpty()) {
+            Optional<Subject> subjectWithSameName = subjectRepository.findAll()
+                    .stream()
+                    .filter(s -> s.getName().equalsIgnoreCase(dto.name())
+                            && !s.getId().equals(id))
+                    .findFirst();
 
-        if (subjectWithSameName.isPresent()) {
-            throw new EntityWithNameAlreadyFoundException(EntityName.SUBJECT, dto.name());
+            if (subjectWithSameName.isPresent()) {
+                throw new EntityWithNameAlreadyFoundException(EntityName.SUBJECT, dto.name());
+            }
+
+            existingSubject.setName(dto.name());
         }
-
-        existingSubject.setName(dto.name());
 
         subjectRepository.save(existingSubject);
     }

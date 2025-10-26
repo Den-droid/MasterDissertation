@@ -50,9 +50,10 @@ public class MarkServiceImpl implements MarkService {
             throw new PermissionException();
         }
 
-        if (dto.id() > 0) {
-            mark = markRepository.findById(dto.id()).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.MARK, String.valueOf(dto.id()))
+        if (dto.markId() != null) {
+            mark = markRepository.findById(dto.markId()).orElseThrow(
+                    () -> new EntityWithIdNotFoundException(EntityName.MARK,
+                            String.valueOf(dto.markId()))
             );
             mark.setMark(dto.mark());
             mark.setComment(dto.comment());

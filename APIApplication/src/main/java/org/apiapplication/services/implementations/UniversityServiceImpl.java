@@ -57,7 +57,7 @@ public class UniversityServiceImpl implements UniversityService {
         }
 
         Optional<University> existingUniversity = universityRepository.findAll().stream()
-                .filter(u -> u.getName().equals(dto.name()))
+                .filter(u -> u.getName().equalsIgnoreCase(dto.name()))
                 .findFirst();
 
         if (existingUniversity.isPresent()) {
@@ -78,27 +78,29 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
-    public void update(UpdateUniversityDto dto) {
-        University existingUniversity = universityRepository.findById(dto.id())
+    public void update(int id, UpdateUniversityDto dto) {
+        University existingUniversity = universityRepository.findById(id)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
-                        String.valueOf(dto.id())));
+                        String.valueOf(id)));
 
         if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
                 existingUniversity)) {
             throw new PermissionException();
         }
 
-        Optional<University> universityWithSameName = universityRepository.findAll().stream()
-                .filter(u -> u.getName().equals(dto.name()) &&
-                        !u.getId().equals(dto.id()))
-                .findFirst();
+        if (dto.name() != null && !dto.name().isEmpty()) {
+            Optional<University> universityWithSameName = universityRepository.findAll().stream()
+                    .filter(u -> u.getName().equalsIgnoreCase(dto.name()) &&
+                            !u.getId().equals(id))
+                    .findFirst();
 
-        if (universityWithSameName.isPresent()) {
-            throw new EntityWithNameAlreadyFoundException(EntityName.UNIVERSITY,
-                    dto.name());
+            if (universityWithSameName.isPresent()) {
+                throw new EntityWithNameAlreadyFoundException(EntityName.UNIVERSITY,
+                        dto.name());
+            }
+
+            existingUniversity.setName(dto.name());
         }
-
-        existingUniversity.setName(dto.name());
 
         universityRepository.save(existingUniversity);
     }

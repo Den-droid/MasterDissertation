@@ -11,7 +11,7 @@ public interface FunctionService {
 
     int add(AddFunctionDto addFunctionDto);
 
-    void update(UpdateFunctionDto updateFunctionDto);
+    void update(int id, UpdateFunctionDto updateFunctionDto);
 
-    void delete(int functionId);
+    void delete(int id);
 }

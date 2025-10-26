@@ -1,8 +1,10 @@
 package org.apiapplication.controllers;
 
+import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.function.AddFunctionDto;
 import org.apiapplication.dto.function.FunctionDto;
 import org.apiapplication.dto.function.UpdateFunctionDto;
+import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.FunctionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,15 +34,28 @@ public class FunctionController {
         return ResponseEntity.ok(id);
     }
 
-    @PutMapping
-    public ResponseEntity<?> update(@RequestBody UpdateFunctionDto updateFunctionDto) {
-        functionService.update(updateFunctionDto);
+    @PutMapping("/{functionId}")
+    public ResponseEntity<?> update(@PathVariable String functionId,
+                                    @RequestBody UpdateFunctionDto updateFunctionDto) {
+        int functionIdInt;
+        try {
+            functionIdInt = Integer.parseInt(functionId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.FUNCTION, functionId);
+        }
+        functionService.update(functionIdInt, updateFunctionDto);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> delete(@RequestParam int functionId) {
-        functionService.delete(functionId);
+    @DeleteMapping("{functionId}")
+    public ResponseEntity<?> delete(@PathVariable String functionId) {
+        int functionIdInt;
+        try {
+            functionIdInt = Integer.parseInt(functionId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.FUNCTION, functionId);
+        }
+        functionService.delete(functionIdInt);
         return ResponseEntity.ok().build();
     }
 }

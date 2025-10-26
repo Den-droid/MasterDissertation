@@ -152,10 +152,10 @@ public class AssignmentServiceImpl implements AssignmentService {
         for (Function function : allFunctions) {
             for (Assignment assignment : allAssignments) {
                 if (assignment.getFunctionResultType().equals(FunctionResultType.MIN) &&
-                        function.getMinValues() != null && !function.getMinValues().isEmpty())
+                        !getMinMaxValuesForFunction(function, FunctionResultType.MIN).isEmpty())
                     possibleUserAssignments.add(new UserAssignment(user, function, assignment));
                 else if (assignment.getFunctionResultType().equals(FunctionResultType.MAX) &&
-                        function.getMaxValues() != null && !function.getMaxValues().isEmpty()) {
+                        !getMinMaxValuesForFunction(function, FunctionResultType.MAX).isEmpty()) {
                     possibleUserAssignments.add(new UserAssignment(user, function, assignment));
                 }
             }
@@ -276,16 +276,14 @@ public class AssignmentServiceImpl implements AssignmentService {
         Function function = userAssignment.getFunction();
         FunctionResultType functionResultType = userAssignment.getAssignment().getFunctionResultType();
 
-        String[] correctValues = (functionResultType == FunctionResultType.MIN ?
-                function.getMinValues() : function.getMaxValues())
-                .split("[;]");
+        List<Double> correctValues = getMinMaxValuesForFunction(function, functionResultType);
 
         Answer answer = new Answer();
         answer.setCorrect(false);
         userAssignment.setHasCorrectAnswer(false);
 
-        for (String correctValue : correctValues) {
-            if (Double.parseDouble(correctValue) == result) {
+        for (Double correctValue : correctValues) {
+            if (correctValue == result) {
                 answer.setCorrect(true);
                 userAssignment.setHasCorrectAnswer(true);
                 break;
@@ -363,5 +361,13 @@ public class AssignmentServiceImpl implements AssignmentService {
             }
         }
         return userAssignments;
+    }
+
+    private List<Double> getMinMaxValuesForFunction(Function function,
+                                                    FunctionResultType functionResultType) {
+        return function.getFunctionMinMaxValues().stream()
+                .filter(fmmv -> fmmv.getFunctionResultType() == functionResultType)
+                .map(FunctionMinMaxValue::getValue)
+                .toList();
     }
 }

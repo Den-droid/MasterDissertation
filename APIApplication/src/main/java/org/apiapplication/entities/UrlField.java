@@ -11,6 +11,7 @@ public class UrlField {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private boolean required;
+    private boolean multiple;
 
     @ManyToOne
     @JoinColumn(name = "url_id", referencedColumnName = "id")
@@ -19,6 +20,4 @@ public class UrlField {
     @ManyToOne
     @JoinColumn(name = "field_id", referencedColumnName = "id")
     private Field field;
-
-
 }

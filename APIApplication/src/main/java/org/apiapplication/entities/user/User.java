@@ -32,13 +32,13 @@ public class User {
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<Role> roles = new ArrayList<>();
+    private List<Role> roles;
 
     @OneToOne(mappedBy = "user")
     private UserInfo userInfo;
 
     @OneToMany(mappedBy = "user")
-    private List<UserAssignment> userAssignments = new ArrayList<>();
+    private List<UserAssignment> userAssignments;
 
     @OneToMany(mappedBy = "user")
     private List<UserPermission> userPermissions;

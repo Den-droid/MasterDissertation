@@ -16,4 +16,13 @@ public class FunctionControllerAdvice {
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage());
     }
+
+    @ExceptionHandler(value = FunctionTextFormatIncorrectException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseExceptionDto handleEntityException(FunctionTextFormatIncorrectException ex,
+                                                  WebRequest request) {
+        return new BaseExceptionDto(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage());
+    }
 }

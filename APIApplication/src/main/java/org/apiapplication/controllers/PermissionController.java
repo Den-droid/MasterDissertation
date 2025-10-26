@@ -1,6 +1,8 @@
 package org.apiapplication.controllers;
 
+import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.permission.PermissionDto;
+import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.PermissionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,15 +25,21 @@ public class PermissionController {
         return ResponseEntity.ok(permissionDtos);
     }
 
-    @PostMapping("/givePermission")
+    @PostMapping
     public ResponseEntity<?> givePermission(@RequestBody PermissionDto permissionDto) {
         permissionService.givePermission(permissionDto);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/removePermission")
-    public ResponseEntity<?> removePermission(@RequestParam int permissionId) {
-        permissionService.removePermission(permissionId);
+    @DeleteMapping("/{permissionId}")
+    public ResponseEntity<?> removePermission(@PathVariable String permissionId) {
+        int permissionIdInt;
+        try {
+            permissionIdInt = Integer.parseInt(permissionId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.USER_PERMISSION, permissionId);
+        }
+        permissionService.removePermission(permissionIdInt);
         return ResponseEntity.ok().build();
     }
 }

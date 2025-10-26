@@ -19,7 +19,4 @@ public class University {
 
     @OneToMany(mappedBy = "university")
     private List<Subject> subjects;
-
-    @OneToMany(mappedBy = "university", cascade = CascadeType.REMOVE)
-    private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions = new ArrayList<>();
 }

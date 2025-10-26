@@ -19,23 +19,29 @@ public class MarkController {
         this.markService = markService;
     }
 
-    @PutMapping("/assignments/{assignmentId}/putMark")
-    public ResponseEntity<?> mark(@PathVariable String assignmentId,
+    @PutMapping("/assignments/{userAssignmentId}/putMark")
+    public ResponseEntity<?> mark(@PathVariable String userAssignmentId,
                                   @RequestBody MarkDto markDto) {
-        int assignmentIdInt;
+        int userAssignmentIdInt;
         try {
-            assignmentIdInt = Integer.parseInt(assignmentId);
+            userAssignmentIdInt = Integer.parseInt(userAssignmentId);
         } catch (NumberFormatException e) {
-            throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, assignmentId);
+            throw new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT, userAssignmentId);
         }
-        markService.markAssignment(assignmentIdInt, markDto);
+        markService.markAssignment(userAssignmentIdInt, markDto);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/assignments/{userAssignmentId}/marks")
     public ResponseEntity<List<MarkDto>> getMarksForAssignments(
-            @PathVariable int userAssignmentId) {
-        List<MarkDto> assignmentsToMarkDto = markService.getByUserAssignmentId(userAssignmentId);
+            @PathVariable String userAssignmentId) {
+        int userAssignmentIdInt;
+        try {
+            userAssignmentIdInt = Integer.parseInt(userAssignmentId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT, userAssignmentId);
+        }
+        List<MarkDto> assignmentsToMarkDto = markService.getByUserAssignmentId(userAssignmentIdInt);
         return ResponseEntity.ok(assignmentsToMarkDto);
     }
 }

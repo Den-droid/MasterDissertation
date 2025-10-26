@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.apiapplication.enums.FieldType;
 
-import java.util.List;
-
 @Data
 @Entity
 @Table(name = "fields")
@@ -18,7 +16,4 @@ public class Field {
     private String label;
     private String description;
     private FieldType type;
-
-    @OneToMany(mappedBy = "field")
-    private List<UrlField> urlFields;
 }

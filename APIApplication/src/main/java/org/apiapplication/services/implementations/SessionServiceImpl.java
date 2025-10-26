@@ -26,7 +26,7 @@ public class SessionServiceImpl implements SessionService {
             return null;
 
         String email = userDetails.getEmail();
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UserWithEmailNotFoundException(email));
     }
 

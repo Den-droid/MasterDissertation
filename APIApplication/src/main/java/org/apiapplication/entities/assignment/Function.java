@@ -22,11 +22,11 @@ public class Function {
     @JoinColumn(name = "subject_id", referencedColumnName = "id")
     private Subject subject;
 
-    private String minValues;
-    private String maxValues;
-
     @OneToMany(mappedBy = "function")
     private List<UserAssignment> userAssignments;
+
+    @OneToMany(mappedBy = "function")
+    private List<FunctionMinMaxValue> functionMinMaxValues;
 
     @Override
     public boolean equals(Object o) {

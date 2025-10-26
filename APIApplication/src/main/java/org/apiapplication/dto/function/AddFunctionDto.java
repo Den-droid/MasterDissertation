@@ -1,5 +1,8 @@
 package org.apiapplication.dto.function;
 
-public record AddFunctionDto(String text, int variablesCount, String minValues,
-                             String maxValues, int subjectId) {
+import java.util.List;
+
+public record AddFunctionDto(String text, int variablesCount,
+                             List<Double> minValues,
+                             List<Double> maxValues, int subjectId) {
 }

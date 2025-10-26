@@ -47,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokensDto signIn(SignInDto dto) {
-        User user = userRepository.findByEmail(dto.email()).orElseThrow(
+        User user = userRepository.findByEmailIgnoreCase(dto.email()).orElseThrow(
                 UserWithEmailOrPasswordNotFoundException::new
         );
 
@@ -82,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String email = jwtUtils.getEmailFromRefreshToken(requestRefreshToken);
-        User user = userRepository.findByEmail(email).orElseThrow(
+        User user = userRepository.findByEmailIgnoreCase(email).orElseThrow(
                 TokenRefreshException::new);
 
         return getTokensDto(user);
@@ -90,7 +90,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void signUp(SignUpDto dto) {
-        Optional<User> optionalUser = userRepository.findByEmail(dto.email());
+        Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(dto.email());
         if (optionalUser.isPresent()) {
             throw new UserWithEmailExistsException(dto.email());
         }
@@ -131,7 +131,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void createForgotPassword(ForgotPasswordDto forgotPasswordDto) {
         Optional<User> user = userRepository
-                .findByEmail(forgotPasswordDto.email());
+                .findByEmailIgnoreCase(forgotPasswordDto.email());
 
         if (user.isPresent()) {
             user.get().setForgotPasswordToken(UUID.randomUUID().toString());

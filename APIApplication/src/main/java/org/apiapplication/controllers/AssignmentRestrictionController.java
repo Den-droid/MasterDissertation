@@ -1,8 +1,10 @@
 package org.apiapplication.controllers;
 
+import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.restriction.DefaultRestrictionDto;
 import org.apiapplication.dto.restriction.RestrictionDto;
 import org.apiapplication.dto.restriction.RestrictionTypeDto;
+import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.AssignmentRestrictionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,15 +37,22 @@ public class AssignmentRestrictionController {
         return ResponseEntity.ok(restrictionTypeDtos);
     }
 
-    @PutMapping("/setDefaultRestriction")
+    @PutMapping("/defaultRestrictions")
     public ResponseEntity<?> setDefaultRestriction(@RequestBody DefaultRestrictionDto restrictionDto) {
         assignmentRestrictionService.setDefaultRestriction(restrictionDto);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/deleteDefaultRestriction")
-    public ResponseEntity<?> deleteDefaultRestriction(@RequestParam int defaultRestrictionId) {
-        assignmentRestrictionService.deleteDefaultRestriction(defaultRestrictionId);
+    @DeleteMapping("/defaultRestrictions/{defaultRestrictionId}")
+    public ResponseEntity<?> deleteDefaultRestriction(@PathVariable String defaultRestrictionId) {
+        int defaultRestrictionIdInt;
+        try {
+            defaultRestrictionIdInt = Integer.parseInt(defaultRestrictionId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.DEFAULT_ASSIGNMENT_RESTRICTION,
+                    defaultRestrictionId);
+        }
+        assignmentRestrictionService.deleteDefaultRestriction(defaultRestrictionIdInt);
         return ResponseEntity.ok().build();
     }
 

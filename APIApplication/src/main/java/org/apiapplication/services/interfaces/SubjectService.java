@@ -11,7 +11,7 @@ public interface SubjectService {
 
     int add(AddSubjectDto addSubjectDto);
 
-    void update(UpdateSubjectDto updateSubjectDto);
+    void update(int subjectId, UpdateSubjectDto updateSubjectDto);
 
     void delete(int subjectId);
 }

@@ -1,8 +1,10 @@
 package org.apiapplication.controllers;
 
+import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.university.AddUniversityDto;
 import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.dto.university.UpdateUniversityDto;
+import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.UniversityService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,15 +33,28 @@ public class UniversityController {
         return ResponseEntity.ok(id);
     }
 
-    @PutMapping
-    public ResponseEntity<?> update(@RequestBody UpdateUniversityDto updateUniversityDto) {
-        universityService.update(updateUniversityDto);
+    @PutMapping("/{universityId}")
+    public ResponseEntity<?> update(@PathVariable String universityId,
+                                    @RequestBody UpdateUniversityDto updateUniversityDto) {
+        int universityIdInt;
+        try {
+            universityIdInt = Integer.parseInt(universityId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.UNIVERSITY, universityId);
+        }
+        universityService.update(universityIdInt, updateUniversityDto);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> delete(@RequestParam int universityId) {
-        universityService.delete(universityId);
+    @DeleteMapping("/{universityId}")
+    public ResponseEntity<?> delete(@PathVariable String universityId) {
+        int universityIdInt;
+        try {
+            universityIdInt = Integer.parseInt(universityId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.UNIVERSITY, universityId);
+        }
+        universityService.delete(universityIdInt);
         return ResponseEntity.ok().build();
     }
 }

@@ -41,10 +41,10 @@ public class UserAssignment {
     private LocalDateTime deadline;
 
     @OneToMany(mappedBy = "userAssignment")
-    private List<Answer> answers = new ArrayList<>();
+    private List<Answer> answers;
 
     @OneToMany(mappedBy = "userAssignment")
-    private List<Mark> marks = new ArrayList<>();
+    private List<Mark> marks;
 
     public UserAssignment() {
     }

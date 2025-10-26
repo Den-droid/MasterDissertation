@@ -2,10 +2,7 @@ package org.apiapplication.services.implementations;
 
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
-import org.apiapplication.dto.group.AddGroupDto;
-import org.apiapplication.dto.group.SetStudentsDto;
-import org.apiapplication.dto.group.SetSubjectsDto;
-import org.apiapplication.dto.group.UpdateGroupDto;
+import org.apiapplication.dto.group.*;
 import org.apiapplication.entities.Group;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.user.User;
@@ -19,6 +16,7 @@ import org.apiapplication.services.interfaces.GroupService;
 import org.apiapplication.services.interfaces.SessionService;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,18 +42,68 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public int add(AddGroupDto dto) {
-        if (!sessionService.isUserTeacher(sessionService.getCurrentUser())) {
+    public List<GroupDto> getForCurrentUser() {
+        User currentUser = sessionService.getCurrentUser();
+        if (!sessionService.isUserTeacher(currentUser)) {
             throw new PermissionException();
         }
+
+        return currentUser.getGroups().stream()
+                .map(g -> new GroupDto(
+                        g.getId(),
+                        g.getName(),
+                        g.getStudents().stream()
+                                .map(s -> new GroupStudentDto(s.getId(),
+                                        s.getUserInfo().getFirstName(),
+                                        s.getUserInfo().getLastName()))
+                                .toList(),
+                        g.getSubjects().stream()
+                                .map(s -> new GroupSubjectDto(s.getId(),
+                                        s.getName()))
+                                .toList()
+                ))
+                .toList();
+    }
+
+    @Override
+    public GroupDto getById(int id) {
+        User currentUser = sessionService.getCurrentUser();
+        if (!sessionService.isUserTeacher(currentUser))
+            throw new PermissionException();
+
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new EntityWithIdNotFoundException(
+                        EntityName.GROUP, String.valueOf(id)
+                ));
+
+        if (!group.getOwner().getId().equals(currentUser.getId()))
+            throw new PermissionException();
+
+        return new GroupDto(
+                group.getId(),
+                group.getName(),
+                group.getStudents().stream()
+                        .map(s -> new GroupStudentDto(s.getId(),
+                                s.getUserInfo().getFirstName(),
+                                s.getUserInfo().getLastName()))
+                        .toList(),
+                group.getSubjects().stream()
+                        .map(s -> new GroupSubjectDto(s.getId(),
+                                s.getName()))
+                        .toList());
+    }
+
+    @Override
+    public int add(AddGroupDto dto) {
+        if (!sessionService.isUserTeacher(sessionService.getCurrentUser()))
+            throw new PermissionException();
 
         Optional<Group> existingGroup = groupRepository.findAll().stream()
                 .filter(g -> g.getName().equalsIgnoreCase(dto.name()))
                 .findFirst();
 
-        if (existingGroup.isPresent()) {
+        if (existingGroup.isPresent())
             throw new EntityWithNameAlreadyFoundException(EntityName.GROUP, dto.name());
-        }
 
         Group group = new Group();
         group.setName(dto.name());
@@ -67,25 +115,24 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void update(UpdateGroupDto dto) {
-        Group group = groupRepository.findById(dto.id())
+    public void update(int id, UpdateGroupDto dto) {
+        Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.GROUP,
-                        String.valueOf(dto.id())));
+                        String.valueOf(id)));
 
-        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId())) {
+        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId()))
             throw new PermissionException();
-        }
 
         Optional<Group> existingGroup = groupRepository.findAll().stream()
                 .filter(g -> g.getName().equalsIgnoreCase(dto.name()) &&
-                        !g.getId().equals(dto.id()))
+                        !g.getId().equals(id))
                 .findFirst();
 
-        if (existingGroup.isPresent()) {
+        if (existingGroup.isPresent())
             throw new EntityWithNameAlreadyFoundException(EntityName.GROUP, dto.name());
-        }
 
-        group.setName(dto.name());
+        if (dto.name() != null && !dto.name().isEmpty())
+            group.setName(dto.name());
 
         groupRepository.save(group);
     }
@@ -96,40 +143,93 @@ public class GroupServiceImpl implements GroupService {
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.GROUP,
                         String.valueOf(id)));
 
-        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId())) {
+        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId()))
             throw new PermissionException();
-        }
 
         groupRepository.delete(group);
     }
 
     @Override
-    public void setStudents(SetStudentsDto dto) {
-        Group group = groupRepository.findById(dto.groupId())
+    public void setStudents(int groupId, SetStudentsDto dto) {
+        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.GROUP,
-                        String.valueOf(dto.groupId())));
+                        String.valueOf(groupId)));
 
-        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId())) {
+        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId()))
             throw new PermissionException();
-        }
 
-        List<User> users = userRepository.findAllById(dto.studentIds());
-        group.setStudents(users);
+        List<User> users = userRepository.findAllById(dto.userIds());
+        group.setStudents(new HashSet<>(users));
         groupRepository.save(group);
     }
 
     @Override
-    public void setSubjects(SetSubjectsDto dto) {
-        Group group = groupRepository.findById(dto.groupId())
+    public void addStudents(int groupId, SetStudentsDto dto) {
+        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.GROUP,
-                        String.valueOf(dto.groupId())));
+                        String.valueOf(groupId)));
 
-        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId())) {
+        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId()))
             throw new PermissionException();
-        }
+
+        List<User> users = userRepository.findAllById(dto.userIds());
+        group.getStudents().addAll(users);
+        groupRepository.save(group);
+    }
+
+    @Override
+    public void removeStudents(int groupId, SetStudentsDto dto) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.GROUP,
+                        String.valueOf(groupId)));
+
+        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId()))
+            throw new PermissionException();
+
+        List<User> users = userRepository.findAllById(dto.userIds());
+        users.forEach(group.getStudents()::remove);
+        groupRepository.save(group);
+    }
+
+    @Override
+    public void setSubjects(int groupId, SetSubjectsDto dto) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.GROUP,
+                        String.valueOf(groupId)));
+
+        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId()))
+            throw new PermissionException();
 
         List<Subject> subjects = subjectRepository.findAllById(dto.subjectIds());
-        group.setSubjects(subjects);
+        group.setSubjects(new HashSet<>(subjects));
+        groupRepository.save(group);
+    }
+
+    @Override
+    public void addSubjects(int groupId, SetSubjectsDto dto) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.GROUP,
+                        String.valueOf(groupId)));
+
+        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId()))
+            throw new PermissionException();
+
+        List<Subject> subjects = subjectRepository.findAllById(dto.subjectIds());
+        group.getSubjects().addAll(subjects);
+        groupRepository.save(group);
+    }
+
+    @Override
+    public void removeSubjects(int groupId, SetSubjectsDto dto) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.GROUP,
+                        String.valueOf(groupId)));
+
+        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId()))
+            throw new PermissionException();
+
+        List<Subject> subjects = subjectRepository.findAllById(dto.subjectIds());
+        subjects.forEach(group.getSubjects()::remove);
         groupRepository.save(group);
     }
 }
