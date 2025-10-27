@@ -21,7 +21,7 @@
     <div class="card p-3 border shadow-sm" style="width: 100%;">
       <h5>API запит</h5>
       <div class="d-flex gap-2 align-items-center mb-2">
-        <select class="form-select" style="width: 130px;" formControlName="method">
+        <select class="form-select" style="width: 20%;" formControlName="method">
           @for(method of methods; track method){
           <option [label]="method.label" [value]="method.method"></option>
           }
@@ -32,11 +32,6 @@
       @if (urlForm.get('url')?.errors?.['required'] &&
       (urlForm.get('url')?.touched || urlForm.get('url')?.dirty)) {
       <div class="text-danger mt-1">{{urlRequiredErrorMessage}}</div>
-      }
-
-      @if (urlForm.get('url')?.errors?.['isAuthUrl'] &&
-      (urlForm.get('url')?.touched || urlForm.get('url')?.dirty)) {
-      <div class="text-danger mt-1">{{authUrlErrorMessage}}</div>
       }
 
       @if (urlForm.get('method')?.errors?.['required'] &&
@@ -56,45 +51,50 @@
       style="width: 100%; display: flex; flex-direction: column; gap: 1rem; flex-shrink: 0;" formArrayName="fields">
       <h5>Поля запиту</h5>
 
-      @for (i of fieldsIndices; track i) {
+      @for (control of fieldsFormControls.controls; track control) {
       <div class="d-flex align-items-start mb-2">
-        <div style="width: 25%; flex-shrink: 0; padding-right: 20px;">
-          <label class="form-label mb-1">{{fields[i].label}} ({{fields[i].required ? 'обов\'язкове':
+        <div style="width: 30%; flex-shrink: 0; padding-right: 20px;">
+          <label class="form-label mb-1">{{fields[$index].label}} ({{fields[$index].required ? 'обов\'язкове':
             'опціональне'}}):</label>
-          <div style="font-size: 0.9rem; color: #555;">{{mapFieldTypeToLabel(fields[i].type)}}:
-            {{fields[i].description}}</div>
+          <div style="font-size: 0.9rem; color: #555;">{{mapFieldTypeToLabel(fields[$index].type)}}:
+            {{fields[$index].description}}</div>
         </div>
         <div style="flex-grow: 1;">
-          <input [type]="isDatetime(fields[i]) ? 'datetime-local':'text'" class="form-control"
-            [placeholder]="'Введіть ' + fields[i].label" [formControlName]="i" />
+          <input [type]="isDatetime(fields[$index]) ? 'datetime-local':'text'" class="form-control"
+            [placeholder]="'Введіть ' + fields[$index].label" [formControlName]="$index" #fieldInput />
 
-          @if (fieldsFormControls.at(i).errors?.['required'] &&
-          (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
+          @if (control.errors?.['required'] && (control.touched || control.dirty)) {
           <div class="text-danger mt-1">{{requiredErrorMessage}}</div>
           }
 
-          @if (fieldsFormControls.at(i).errors?.['isInteger'] &&
-          (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
+          @if (control.errors?.['isInteger'] && (control.touched || control.dirty)) {
           <div class="text-danger mt-1">{{notIntegerErrorMessage}}</div>
           }
 
-          @if (fieldsFormControls.at(i).errors?.['isDecimal'] &&
-          (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
+          @if (control.errors?.['isDecimal'] && (control.touched || control.dirty)) {
           <div class="text-danger mt-1">{{notDecimalErrorMessage}}</div>
           }
 
-          @if (fieldsFormControls.at(i).errors?.['isDatetime'] &&
-          (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
+          @if (control.errors?.['isDatetime'] && (control.touched || control.dirty)) {
           <div class="text-danger mt-1">{{notDatetimeErrorMessage}}</div>
-          }
-
-          @if (fieldsFormControls.at(i).errors?.['isBoolean'] &&
-          (fieldsFormControls.at(i).touched || fieldsFormControls.at(i).dirty)) {
-          <div class="text-danger mt-1">{{notBooleanErrorMessage}}</div>
           }
 
         </div>
       </div>
+      @if(fields[$index].multiple){
+      <div class="d-flex justify-content-center">
+        @if(isLastFieldWithName($index)){
+        <button type="button" class="btn btn-primary me-3" style="width: 20%;" (click)="addField($index)">
+          + Додати поле
+        </button>
+        }
+        @if(!isSingleFieldWithName($index)){
+        <button type="button" class="btn btn-danger" style="width: 20%;" (click)="removeField($index)">
+          - Видалити поле
+        </button>
+        }
+      </div>
+      }
       }
 
     </div>

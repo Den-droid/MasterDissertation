@@ -2,6 +2,7 @@ package org.apiapplication.services.implementations;
 
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.permission.PermissionDto;
 import org.apiapplication.dto.university.AddUniversityDto;
 import org.apiapplication.dto.university.UniversityDto;
@@ -51,7 +52,7 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
-    public int add(AddUniversityDto dto) {
+    public IdDto add(AddUniversityDto dto) {
         if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
             throw new PermissionException();
         }
@@ -74,7 +75,7 @@ public class UniversityServiceImpl implements UniversityService {
                 .forEach(u -> permissionService.givePermission(new PermissionDto(null, u.getId(),
                         university.getId(), null, null, null)));
 
-        return university.getId();
+        return new IdDto(university.getId());
     }
 
     @Override

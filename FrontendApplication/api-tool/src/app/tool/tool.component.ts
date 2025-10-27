@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { FieldService } from '../shared/services/field.service';
 import { UrlService } from '../shared/services/url.service';
@@ -6,7 +6,6 @@ import { ApiService } from '../shared/services/api.service';
 import { MethodTypeDto, UrlDto } from '../shared/models/url.model';
 import { FieldDto } from '../shared/models/field.model';
 import { FieldType, mapFieldTypeToLabel } from '../shared/constants/field-type.constant';
-import { booleanValidator } from '../shared/validators/boolean.validator';
 import { datetimeValidator } from '../shared/validators/datetime.validator';
 import { decimalValidator, integerValidator } from '../shared/validators/number.validator';
 import { mapMethodTypeToLabel, MethodType } from '../shared/constants/method-type.constant';
@@ -16,7 +15,6 @@ import { JsonPipe } from '@angular/common';
 import { toolErrorLabels } from '../shared/translations/tool.translation';
 import { AuthService } from '../shared/services/auth.service';
 import { Router } from '@angular/router';
-import { notAuthUrlValidator } from '../shared/validators/not-auth-url.validator';
 
 @Component({
   selector: 'app-tool',
@@ -28,6 +26,8 @@ export class ToolComponent {
     private apiService: ApiService, private fb: FormBuilder, private authService: AuthService,
     private router: Router) {
   }
+
+  @ViewChildren('fieldInput') fieldInputs!: QueryList<ElementRef>;
 
   fieldsForm!: FormGroup;
   urlForm!: FormGroup;
@@ -51,16 +51,16 @@ export class ToolComponent {
   notIntegerErrorMessage = toolErrorLabels['field-not-integer'];
   notDecimalErrorMessage = toolErrorLabels['field-not-decimal'];
   notDatetimeErrorMessage = toolErrorLabels['field-not-datetime'];
-  notBooleanErrorMessage = toolErrorLabels['field-not-boolean'];
   requiredErrorMessage = toolErrorLabels['field-required'];
-  authUrlErrorMessage = toolErrorLabels['auth-url'];
 
   urlRequiredErrorMessage = toolErrorLabels['url-required'];
   methodRequiredErrorMessage = toolErrorLabels['method-required'];
 
+  scrollTargetId!: string;
+
   ngOnInit() {
     this.urlForm = this.fb.group({
-      url: ['', [Validators.required, notAuthUrlValidator()]],
+      url: ['', [Validators.required]],
       method: ['', Validators.required]
     });
 
@@ -103,10 +103,6 @@ export class ToolComponent {
 
   get fieldsFormControls(): FormArray {
     return this.fieldsForm.get('fields') as FormArray;
-  }
-
-  get fieldsIndices(): number[] {
-    return Array(this.fieldsFormControls.length).fill(0).map((_, i) => i);
   }
 
   getUrlDtoByUrl() {
@@ -161,13 +157,22 @@ export class ToolComponent {
       this.validateForm(this.fieldsForm);
 
       if (this.fieldsForm.invalid) {
+        const firstInvalidIndex = this.fieldsFormControls.controls.findIndex(c => c.invalid);
+        this.scrollToTarget(firstInvalidIndex);
         return;
       }
     }
 
-    let queryOrBody = {};
+    let queryOrBody : Record<string, any[]> = {};
     for (let i = 0; i < this.fields.length; i++) {
-      Object.assign(queryOrBody, { [this.fields[i].name]: this.fieldsFormControls.at(i).value })
+      if (this.fields[i].multiple === true) {
+        Object.assign(queryOrBody, {
+          [this.fields[i].name]: [...(queryOrBody[this.fields[i].name] || []),
+          this.fieldsFormControls.at(i).value]
+        })
+      } else {
+        Object.assign(queryOrBody, { [this.fields[i].name]: this.fieldsFormControls.at(i).value })
+      }
     }
 
     this.showResponse = true;
@@ -185,6 +190,18 @@ export class ToolComponent {
     })
   }
 
+  addField(index: number) {
+    const field = this.fields[index];
+    const nextItemIndex = index + 1;
+    this.fields.splice(nextItemIndex, 0, field);
+    this.fieldsFormControls.insert(nextItemIndex, new FormControl('', this.getValidatorsForField(field)));
+  }
+
+  removeField(index: number) {
+    this.fields.splice(index, 1);
+    this.fieldsFormControls.removeAt(index);
+  }
+
   logout() {
     this.authService.logout();
     this.router.navigateByUrl("/apitool/auth/signin");
@@ -196,9 +213,6 @@ export class ToolComponent {
       validators.push(Validators.required)
 
     switch (fieldDto.type) {
-      case FieldType.BOOLEAN:
-        validators.push(booleanValidator());
-        break;
       case FieldType.DATETIME:
         validators.push(datetimeValidator());
         break;
@@ -236,5 +250,28 @@ export class ToolComponent {
 
   mapFieldTypeToLabel(fieldType: FieldType) {
     return mapFieldTypeToLabel(fieldType);
+  }
+
+  scrollToTarget(index: number) {
+    const el = this.fieldInputs.get(index)?.nativeElement;
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el?.focus();
+  }
+
+  isLastFieldWithName(index: number) {
+    if (index === this.fields.length - 1)
+      return true;
+    return this.fields[index + 1].name !== this.fields[index].name;
+  }
+
+  isSingleFieldWithName(index: number) {
+    if (index === this.fields.length - 1) {
+      return this.fields[index - 1].name !== this.fields[index].name;
+    }
+    else if (index === 0) {
+      return this.fields[index + 1].name !== this.fields[index].name;
+    }
+    return this.fields[index - 1].name !== this.fields[index].name &&
+      this.fields[index + 1].name !== this.fields[index].name;
   }
 }

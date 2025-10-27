@@ -1,5 +1,6 @@
 package org.apiapplication.services.interfaces;
 
+import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.group.*;
 
 import java.util.List;
@@ -9,7 +10,7 @@ public interface GroupService {
 
     GroupDto getById(int id);
 
-    int add(AddGroupDto addGroupDto);
+    IdDto add(AddGroupDto addGroupDto);
 
     void update(int groupId, UpdateGroupDto updateGroupDto);
 

@@ -2,6 +2,7 @@ package org.apiapplication.services.implementations;
 
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.subject.AddSubjectDto;
 import org.apiapplication.dto.subject.SubjectDto;
 import org.apiapplication.dto.subject.UpdateSubjectDto;
@@ -57,7 +58,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public int add(AddSubjectDto dto) {
+    public IdDto add(AddSubjectDto dto) {
         Optional<Subject> existingSubject = subjectRepository.findAll().stream()
                 .filter(u -> u.getName().equalsIgnoreCase(dto.name()))
                 .findFirst();
@@ -83,7 +84,7 @@ public class SubjectServiceImpl implements SubjectService {
 
         subjectRepository.save(subject);
 
-        return subject.getId();
+        return new IdDto(subject.getId());
     }
 
     @Override

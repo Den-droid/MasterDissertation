@@ -1,6 +1,7 @@
 package org.apiapplication.controllers;
 
 import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.subject.AddSubjectDto;
 import org.apiapplication.dto.subject.SubjectDto;
 import org.apiapplication.dto.subject.UpdateSubjectDto;
@@ -29,9 +30,9 @@ public class SubjectController {
     }
 
     @PostMapping
-    public ResponseEntity<?> add(@RequestBody AddSubjectDto addSubjectDto) {
-        int id = subjectService.add(addSubjectDto);
-        return ResponseEntity.ok(id);
+    public ResponseEntity<IdDto> add(@RequestBody AddSubjectDto addSubjectDto) {
+        IdDto idDto = subjectService.add(addSubjectDto);
+        return ResponseEntity.ok(idDto);
     }
 
     @PutMapping("/{subjectId}")

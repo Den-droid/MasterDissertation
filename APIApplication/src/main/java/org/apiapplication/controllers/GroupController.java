@@ -1,6 +1,7 @@
 package org.apiapplication.controllers;
 
 import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.group.*;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.GroupService;
@@ -38,9 +39,9 @@ public class GroupController {
     }
 
     @PostMapping
-    private ResponseEntity<Integer> add(@RequestBody AddGroupDto addGroupDto) {
-        int id = groupService.add(addGroupDto);
-        return ResponseEntity.ok(id);
+    private ResponseEntity<IdDto> add(@RequestBody AddGroupDto addGroupDto) {
+        IdDto idDto = groupService.add(addGroupDto);
+        return ResponseEntity.ok(idDto);
     }
 
     @PutMapping("/{groupId}")

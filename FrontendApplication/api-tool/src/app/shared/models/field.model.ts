@@ -7,7 +7,8 @@ export class FieldDto {
     public label: string,
     public description: string,
     public type: FieldType,
-    public required: boolean
+    public required: boolean,
+    public multiple: boolean
   ) {
   }
 }

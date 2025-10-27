@@ -85,6 +85,7 @@ public class PermissionServiceImpl implements PermissionService {
         List<UserPermission> userPermissions = user.getUserPermissions();
 
         Optional<UserPermission> userPermission = userPermissions.stream()
+                .filter(up -> up.getUserAssignment() != null)
                 .filter(up -> up.getUserAssignment().getId().equals(userAssignment.getId()))
                 .findFirst();
 
@@ -102,6 +103,7 @@ public class PermissionServiceImpl implements PermissionService {
         List<UserPermission> userPermissions = user.getUserPermissions();
 
         Optional<UserPermission> userPermission = userPermissions.stream()
+                .filter(up -> up.getFunction() != null)
                 .filter(up -> up.getFunction().getId().equals(function.getId()))
                 .findFirst();
 
@@ -119,6 +121,7 @@ public class PermissionServiceImpl implements PermissionService {
         List<UserPermission> userPermissions = user.getUserPermissions();
 
         Optional<UserPermission> userPermission = userPermissions.stream()
+                .filter(up -> up.getSubject() != null)
                 .filter(up -> up.getSubject().getId().equals(subject.getId()))
                 .findFirst();
 
@@ -136,6 +139,7 @@ public class PermissionServiceImpl implements PermissionService {
         List<UserPermission> userPermissions = user.getUserPermissions();
 
         Optional<UserPermission> userPermission = userPermissions.stream()
+                .filter(up -> up.getUniversity() != null)
                 .filter(up -> up.getUniversity().getId().equals(university.getId()))
                 .findFirst();
 

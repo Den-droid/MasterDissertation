@@ -2,6 +2,7 @@ package org.apiapplication.services.implementations;
 
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.function.AddFunctionDto;
 import org.apiapplication.dto.function.FunctionDto;
 import org.apiapplication.dto.function.UpdateFunctionDto;
@@ -75,7 +76,7 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public int add(AddFunctionDto dto) {
+    public IdDto add(AddFunctionDto dto) {
         Optional<Function> existingFunction = functionRepository.findAll().stream()
                 .filter(u -> u.getText().equalsIgnoreCase(dto.text()))
                 .findFirst();
@@ -126,7 +127,7 @@ public class FunctionServiceImpl implements FunctionService {
         functionMinMaxValueRepository.saveAll(functionMinMaxValues);
         functionRepository.save(function);
 
-        return function.getId();
+        return new IdDto(function.getId());
     }
 
     @Override

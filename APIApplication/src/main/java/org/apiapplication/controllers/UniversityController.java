@@ -1,6 +1,7 @@
 package org.apiapplication.controllers;
 
 import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.university.AddUniversityDto;
 import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.dto.university.UpdateUniversityDto;
@@ -28,9 +29,9 @@ public class UniversityController {
     }
 
     @PostMapping
-    public ResponseEntity<?> add(@RequestBody AddUniversityDto addUniversityDto) {
-        int id = universityService.add(addUniversityDto);
-        return ResponseEntity.ok(id);
+    public ResponseEntity<IdDto> add(@RequestBody AddUniversityDto addUniversityDto) {
+        IdDto idDto = universityService.add(addUniversityDto);
+        return ResponseEntity.ok(idDto);
     }
 
     @PutMapping("/{universityId}")

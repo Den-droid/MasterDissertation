@@ -2,6 +2,7 @@ package org.apiapplication.services.implementations;
 
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.group.*;
 import org.apiapplication.entities.Group;
 import org.apiapplication.entities.Subject;
@@ -94,7 +95,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public int add(AddGroupDto dto) {
+    public IdDto add(AddGroupDto dto) {
         if (!sessionService.isUserTeacher(sessionService.getCurrentUser()))
             throw new PermissionException();
 
@@ -111,7 +112,7 @@ public class GroupServiceImpl implements GroupService {
 
         groupRepository.save(group);
 
-        return group.getId();
+        return new IdDto(group.getId());
     }
 
     @Override

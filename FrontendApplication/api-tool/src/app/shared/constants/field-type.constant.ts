@@ -1,12 +1,11 @@
 export enum FieldType {
-  INTEGER, DECIMAL, STRING, BOOLEAN, DATETIME, ENUM
+  INTEGER, DECIMAL, STRING, DATETIME, ENUM
 }
 
 export enum FieldTypeLabel {
   INTEGER = "int32",
   DECIMAL = "float",
   STRING = "varchar",
-  BOOLEAN = 'boolean',
   DATETIME = 'datetime',
   ENUM = 'int16'
 }

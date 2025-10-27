@@ -1,6 +1,7 @@
 package org.apiapplication.controllers;
 
 import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.function.AddFunctionDto;
 import org.apiapplication.dto.function.FunctionDto;
 import org.apiapplication.dto.function.UpdateFunctionDto;
@@ -29,9 +30,9 @@ public class FunctionController {
     }
 
     @PostMapping
-    public ResponseEntity<?> add(@RequestBody AddFunctionDto addFunctionDto) {
-        int id = functionService.add(addFunctionDto);
-        return ResponseEntity.ok(id);
+    public ResponseEntity<IdDto> add(@RequestBody AddFunctionDto addFunctionDto) {
+        IdDto idDto = functionService.add(addFunctionDto);
+        return ResponseEntity.ok(idDto);
     }
 
     @PutMapping("/{functionId}")
