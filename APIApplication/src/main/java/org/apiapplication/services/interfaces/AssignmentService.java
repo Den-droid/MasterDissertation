@@ -8,6 +8,8 @@ import java.util.List;
 public interface AssignmentService {
     AssignmentDto getById(int userAssignmentId);
 
+    List<UserAssignmentDto> getForCurrentUser();
+
     List<UserAssignmentDto> getByUser(int userId);
 
     void assign(AssignDto assignDto);

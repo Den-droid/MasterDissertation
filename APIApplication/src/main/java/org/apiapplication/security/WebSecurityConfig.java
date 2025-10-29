@@ -58,7 +58,8 @@ public class WebSecurityConfig {
 
     private final String[] studentTeacherUrls = {
             "/api/assignments/*/answers",
-            "/api/assignments/*/marks"
+            "/api/assignments/*/marks",
+            "/api/assignments/getForCurrentUser"
     };
 
     private final String[] adminTeacherUrls = {

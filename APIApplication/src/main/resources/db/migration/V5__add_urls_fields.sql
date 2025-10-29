@@ -1,11 +1,12 @@
 INSERT INTO urls (url, description, method)
-VALUES ('/api/assignments/getByUserId', 'Отримати список завдань користувача за його ідентифікатором', 0),
+VALUES ('/api/assignments', 'Отримати список завдань користувача за його ідентифікатором', 0),
        ('/api/assignments/{userAssignmentId}', 'Отримати завдання користувача за ідентифікатором', 0),
        ('/api/assignments/assign', 'Призначити завдання користувачу', 1),
        ('/api/assignments/{userAssignmentId}/startContinue', 'Розпочати або продовжити виконання завдання', 2),
        ('/api/assignments/{userAssignmentId}/finish', 'Завершити виконання завдання', 2),
        ('/api/assignments/{userAssignmentId}/giveAnswer', 'Надіслати відповідь на завдання', 1),
        ('/api/assignments/{userAssignmentId}/answers', 'Отримати список відповідей користувача на завдання', 0),
+       ('/api/assignments/getForCurrentUser', 'Отримати список завдань доступних для поточного користувача', 0),
        ('/api/fields', 'Отримати список полів для вказаного URL', 0),
        ('/api/assignments/{userAssignmentId}/putMark', 'Оцінити виконане завдання', 2),
        ('/api/assignments/{userAssignmentId}/marks', 'Отримати всі оцінки для завдання', 0),
@@ -17,13 +18,14 @@ VALUES ('/api/assignments/getByUserId', 'Отримати список завд�
                                                         'для завдання', 0),
        ('/api/functions', 'Отримати список функцій', 0),
        ('/api/assignmentRestrictions/defaultPermissions', 'Задати обмеження ' ||
-                                                'по замовчуванню для виконання завдання', 2),
+                                                          'по замовчуванню для виконання завдання', 2),
        ('/api/permissions', 'Надати доступ користувачу до ресурсів', 1),
        ('/api/assignmentRestrictions/setRestriction', 'Задати обмеження для ' ||
                                                       'виконання завдання', 2),
        ('/api/permissions/{permissionId}', 'Забрати доступ на ресурс', 3),
        ('/api/assignmentRestrictions/defaultRestriction/{defaultRestrictionId}', 'Видалити ' ||
-                                                    'обмеження для завдання по замовчуванню', 3),
+                                                                                 'обмеження для завдання по замовчуванню',
+        3),
        ('/api/universities', 'Додати університет', 1),
        ('/api/universities/{universityId}', 'Оновити університет', 2),
        ('/api/universities/{universityId}', 'Видалити університет', 3),
@@ -39,7 +41,7 @@ VALUES ('/api/assignments/getByUserId', 'Отримати список завд�
        ('/api/users', 'Отримати дані про користувачів', 0),
        ('/api/groups/getForCurrentUser', 'Отримати список груп, якими ' ||
                                          'володіє поточний користувач', 0),
-       ('/api/groups/{id}', 'Отримати групу за ідентифікатором',0),
+       ('/api/groups/{id}', 'Отримати групу за ідентифікатором', 0),
        ('/api/groups', 'Створити групу', 1),
        ('/api/groups/{groupId}', 'Оновити групу', 2),
        ('/api/groups/{groupId}', 'Видалити групу', 3),
@@ -113,32 +115,46 @@ values ((select id from urls where url = '/api/assignments/getByUserId'),
        ((select id from urls where url = '/api/functions' and method = 0),
         (select id from fields where name = 'subjectId'),
         false, false),
-       ((select id from urls where url = '/api/assignmentRestrictions/defaultRestrictions'
-                             and method = 2),
+       ((select id
+         from urls
+         where url = '/api/assignmentRestrictions/defaultRestrictions'
+           and method = 2),
         (select id from fields where name = 'restrictionType'),
         true, false),
-       ((select id from urls where url = '/api/assignmentRestrictions/defaultRestrictions'
-                               and method = 2),
+       ((select id
+         from urls
+         where url = '/api/assignmentRestrictions/defaultRestrictions'
+           and method = 2),
         (select id from fields where name = 'functionId'),
         false, false),
-       ((select id from urls where url = '/api/assignmentRestrictions/defaultRestrictions'
-                               and method = 2),
+       ((select id
+         from urls
+         where url = '/api/assignmentRestrictions/defaultRestrictions'
+           and method = 2),
         (select id from fields where name = 'subjectId'),
         false, false),
-       ((select id from urls where url = '/api/assignmentRestrictions/defaultRestrictions'
-                               and method = 2),
+       ((select id
+         from urls
+         where url = '/api/assignmentRestrictions/defaultRestrictions'
+           and method = 2),
         (select id from fields where name = 'universityId'),
         false, false),
-       ((select id from urls where url = '/api/assignmentRestrictions/defaultRestrictions'
-                               and method = 2),
+       ((select id
+         from urls
+         where url = '/api/assignmentRestrictions/defaultRestrictions'
+           and method = 2),
         (select id from fields where name = 'attemptsRemaining'),
         false, false),
-       ((select id from urls where url = '/api/assignmentRestrictions/defaultRestrictions'
-                               and method = 2),
+       ((select id
+         from urls
+         where url = '/api/assignmentRestrictions/defaultRestrictions'
+           and method = 2),
         (select id from fields where name = 'minutesForAttempt'),
         false, false),
-       ((select id from urls where url = '/api/assignmentRestrictions/defaultRestrictions'
-                               and method = 2),
+       ((select id
+         from urls
+         where url = '/api/assignmentRestrictions/defaultRestrictions'
+           and method = 2),
         (select id from fields where name = 'deadline'),
         false, false),
        ((select id from urls where url = '/api/assignmentRestrictions/setRestriction'),
@@ -167,7 +183,7 @@ values ((select id from urls where url = '/api/assignments/getByUserId'),
         false, false);
 
 insert into url_fields(url_id, field_id, required, multiple)
-values((select id from urls where url = '/api/permissions' and method = 1),
+values ((select id from urls where url = '/api/permissions' and method = 1),
         (select id from fields where name = 'userId'),
         true, false),
        ((select id from urls where url = '/api/permissions' and method = 1),

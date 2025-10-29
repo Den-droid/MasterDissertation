@@ -126,6 +126,10 @@ export class ToolComponent {
           this.fields = [];
           this.showResponse = false;
         }
+      },
+      complete: () => {
+        this.fields = [];
+        this.showResponse = false;
       }
     })
   }
@@ -163,7 +167,7 @@ export class ToolComponent {
       }
     }
 
-    let queryOrBody : Record<string, any[]> = {};
+    let queryOrBody: Record<string, any[]> = {};
     for (let i = 0; i < this.fields.length; i++) {
       if (this.fields[i].multiple === true) {
         Object.assign(queryOrBody, {
@@ -178,11 +182,15 @@ export class ToolComponent {
     this.showResponse = true;
     this.apiService.sendRequest(this.urlForm.value.url, this.urlForm.value.method, queryOrBody).subscribe({
       next: (resp: HttpResponse<any>) => {
+        console.log(resp);
         this.responseStatus = resp.status;
         if (resp.body)
           this.response = resp.body;
+        else
+          this.response = null;
       },
       error: (err) => {
+        console.log(err);
         this.responseStatus = err.status;
         if (err.error)
           this.response = err.error;

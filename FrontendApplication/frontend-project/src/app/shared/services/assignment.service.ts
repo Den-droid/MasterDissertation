@@ -18,7 +18,7 @@ export class AssignmentService {
     const options = {
       params: new HttpParams().set('userId', userId.toString())
     };
-    return this.httpClient.get<UserAssignmentDto[]>(`${this.url}/getByUserId`, options);
+    return this.httpClient.get<UserAssignmentDto[]>(`${this.url}`, options);
   }
 
   getById(userAssignmentId: number): Observable<AssignmentDto> {

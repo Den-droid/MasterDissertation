@@ -21,7 +21,7 @@
     <div class="card p-3 border shadow-sm" style="width: 100%;">
       <h5>API запит</h5>
       <div class="d-flex gap-2 align-items-center mb-2">
-        <select class="form-select" style="width: 20%;" formControlName="method">
+        <select class="form-select" style="width: 10%;" formControlName="method">
           @for(method of methods; track method){
           <option [label]="method.label" [value]="method.method"></option>
           }

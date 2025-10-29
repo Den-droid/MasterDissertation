@@ -67,9 +67,8 @@ public class AssignmentServiceImpl implements AssignmentService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (sessionService.isUserAdmin(sessionService.getCurrentUser()) ||
-                !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
-                        userAssignment)) {
+        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                userAssignment)) {
             throw new PermissionException();
         }
 
@@ -133,6 +132,12 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .toList();
 
         return userAssignmentDtos;
+    }
+
+    @Override
+    public List<UserAssignmentDto> getForCurrentUser() {
+        User user = sessionService.getCurrentUser();
+        return getByUser(user.getId());
     }
 
     @Override
@@ -255,8 +260,10 @@ public class AssignmentServiceImpl implements AssignmentService {
                 userAssignment.getDeadline().isBefore(LocalDateTime.now())) {
             throw new AttemptAfterDeadlineException(userAssignment.getDeadline());
         } else if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES) &&
-                userAssignment.getLastAttemptTime().plusMinutes(userAssignment.getMinutesForAttempt())
-                        .isAfter(LocalDateTime.now())) {
+                (userAssignment.getLastAttemptTime() != null &&
+                        userAssignment.getLastAttemptTime().plusMinutes(userAssignment.getMinutesForAttempt())
+                                .isAfter(LocalDateTime.now()))
+        ) {
             throw new AttemptLimitReachedException(userAssignment.getLastAttemptTime()
                     .plusMinutes(userAssignment.getMinutesForAttempt()));
         }

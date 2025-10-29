@@ -252,8 +252,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                     .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
                             String.valueOf(dto.userAssignmentId())));
 
-            if (!sessionService.isUserTeacher(sessionService.getCurrentUser()) ||
-                    !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+            if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
                             userAssignment)) {
                 throw new PermissionException();
             }
@@ -264,8 +263,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                     .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.FUNCTION,
                             String.valueOf(dto.functionId())));
 
-            if (!sessionService.isUserTeacher(sessionService.getCurrentUser()) ||
-                    !permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
+            if (!permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
                             function)) {
                 throw new PermissionException();
             }
@@ -276,8 +274,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                     .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.SUBJECT,
                             String.valueOf(dto.subjectId())));
 
-            if (!sessionService.isUserTeacher(sessionService.getCurrentUser()) ||
-                    !permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
+            if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
                             subject)) {
                 throw new PermissionException();
             }
@@ -290,8 +287,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                     .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
                             String.valueOf(dto.universityId())));
 
-            if (!sessionService.isUserTeacher(sessionService.getCurrentUser()) ||
-                    !permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
+            if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
                             university)) {
                 throw new PermissionException();
             }
