@@ -84,8 +84,7 @@ public class UniversityServiceImpl implements UniversityService {
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
                         String.valueOf(id)));
 
-        if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
-                existingUniversity)) {
+        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
             throw new PermissionException();
         }
 
@@ -113,8 +112,7 @@ public class UniversityServiceImpl implements UniversityService {
                         EntityName.UNIVERSITY, String.valueOf(universityId)
                 ));
 
-        if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
-                university)) {
+        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
             throw new PermissionException();
         }
 

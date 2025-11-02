@@ -7,6 +7,9 @@ import { CommonModule, Location } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RoleLabel, RoleName } from '../../shared/constants/roles.constant';
 import { authLabels } from '../../shared/translations/auth.translation';
+import { UniversityService } from '../../shared/services/university.service';
+import { UniversityDto } from '../../shared/models/university.model';
+import { universityLabels } from '../../shared/translations/university.translation';
 
 @Component({
   selector: 'app-auth-signUp',
@@ -19,6 +22,9 @@ export class SignUpComponent implements OnInit {
   error = false;
   errorMessage = '';
 
+  roles: string[] = [];
+  universities: UniversityDto[] = [];
+
   firstNameRequired = authLabels['first-name-required'];
   lastNameRequired = authLabels['last-name-required'];
   emailRequired = authLabels['email-address-required'];
@@ -29,15 +35,22 @@ export class SignUpComponent implements OnInit {
   confirmPasswordRequired = authLabels['confirm-password-required'];
   passwordNotMatchConfirm = authLabels['password-not-match-confirm'];
   roleRequired = authLabels['role-required'];
+  universityRequired = universityLabels['selection-required'];
 
   constructor(private readonly router: Router, private readonly authService: AuthService,
-    private fb: FormBuilder, private location: Location
+    private fb: FormBuilder, private location: Location, private readonly universityService: UniversityService
   ) {
 
   }
 
   ngOnInit(): void {
     this.uuid = uuidv4();
+    this.roles.push(RoleName.STUDENT, RoleName.TEACHER);
+    this.universityService.getAll().subscribe({
+      next: (universitiesDto: UniversityDto[]) => {
+        this.universities = this.universities.concat(universitiesDto);
+      }
+    })
 
     this.form = this.fb.group(
       {
@@ -53,7 +66,8 @@ export class SignUpComponent implements OnInit {
           ],
         ],
         confirmPassword: ['', [Validators.required]],
-        role: ['', [Validators.required]]
+        role: ['', [Validators.required]],
+        university: ['', [Validators.required]]
       },
       { validators: this.passwordMatchValidator }
     );
@@ -67,7 +81,7 @@ export class SignUpComponent implements OnInit {
     }
 
     let signUpDto = new SignUpDto(this.form.value.email, this.form.value.password,
-      this.form.value.firstName, this.form.value.lastName, RoleName.STUDENT);
+      this.form.value.firstName, this.form.value.lastName, this.form.value.role, this.form.value.university);
 
     this.authService.signUp(signUpDto).subscribe({
       error: (error: any) => {
@@ -95,6 +109,13 @@ export class SignUpComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+  }
+
+  getRoleLabel(roleName: string) {
+    const key = Object.keys(RoleName).find(
+      k => RoleName[k as keyof typeof RoleName] === roleName
+    );
+    return RoleLabel[key as keyof typeof RoleLabel];
   }
 
   goBack() {

@@ -9,6 +9,7 @@ import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.assignment.UserAssignment;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserPermission;
+import org.apiapplication.enums.UserRole;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.*;
@@ -167,6 +168,10 @@ public class PermissionServiceImpl implements PermissionService {
         UserAssignment userAssignment = null;
 
         if (dto.universityId() != null) {
+            if (user.getRoles().get(0).getName().equals(UserRole.TEACHER)) {
+                throw new PermissionException();
+            }
+
             university = universityRepository.findById(dto.universityId()).orElseThrow(
                     () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
                             String.valueOf(dto.universityId()))

@@ -59,6 +59,15 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Override
     public IdDto add(AddSubjectDto dto) {
+        University university = universityRepository
+                .findById(dto.universityId())
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
+                        String.valueOf(dto.universityId())));
+
+        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
+            throw new PermissionException();
+        }
+
         Optional<Subject> existingSubject = subjectRepository.findAll().stream()
                 .filter(u -> u.getName().equalsIgnoreCase(dto.name()))
                 .findFirst();
@@ -66,16 +75,6 @@ public class SubjectServiceImpl implements SubjectService {
         if (existingSubject.isPresent()) {
             throw new EntityWithNameAlreadyFoundException(EntityName.SUBJECT,
                     dto.name());
-        }
-
-        University university = universityRepository
-                .findById(dto.universityId())
-                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
-                        String.valueOf(dto.universityId())));
-
-        if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
-                university)) {
-            throw new PermissionException();
         }
 
         Subject subject = new Subject();

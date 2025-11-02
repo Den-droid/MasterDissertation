@@ -8,8 +8,10 @@ import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserInfo;
 import org.apiapplication.enums.UserRole;
 import org.apiapplication.exceptions.auth.*;
+import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.entity.EntityWithNameNotFoundException;
 import org.apiapplication.repositories.RoleRepository;
+import org.apiapplication.repositories.UniversityRepository;
 import org.apiapplication.repositories.UserInfoRepository;
 import org.apiapplication.repositories.UserRepository;
 import org.apiapplication.security.jwt.JwtUtils;
@@ -28,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserInfoRepository userInfoRepository;
+    private final UniversityRepository universityRepository;
 
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
@@ -35,11 +38,13 @@ public class AuthServiceImpl implements AuthService {
     public AuthServiceImpl(UserRepository userRepository,
                            RoleRepository roleRepository,
                            UserInfoRepository userInfoRepository,
+                           UniversityRepository universityRepository,
                            JwtUtils jwtUtils,
                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userInfoRepository = userInfoRepository;
+        this.universityRepository = universityRepository;
 
         this.jwtUtils = jwtUtils;
         this.passwordEncoder = passwordEncoder;
@@ -105,6 +110,10 @@ public class AuthServiceImpl implements AuthService {
         userInfo.setLastName(dto.lastName());
         userInfo.setApiKey(generateApiKey());
         userInfo.setUser(user);
+        userInfo.setUniversity(universityRepository.findById(dto.universityId()).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
+                        String.valueOf(dto.universityId()))
+        ));
 
         List<Role> roles = new ArrayList<>();
         Role userRole = roleRepository.findByName(UserRole.valueOf(dto.role()))

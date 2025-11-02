@@ -25,6 +25,9 @@
         <div class="col-md-4">
           <label for="role" class="form-label">Роль</label>
           <select id="role" class="form-select" formControlName="role">
+            @for(role of roles; track role) {
+            <option [value]="role">{{getRoleLabel(role)}}</option>
+            }
           </select>
           @if (f['role'].errors?.['required'] && (f['role'].touched || f['role'].dirty)) {
           <div class="text-danger mt-1">{{roleRequired}}</div>
@@ -33,6 +36,18 @@
       </div>
 
       <div class="mb-3 mt-3">
+        <label for="university" class="form-label">Університет</label>
+        <select id="university" class="form-select" formControlName="university">
+          @for(university of universities; track university) {
+          <option [value]="university.id">{{university.name}}</option>
+          }
+        </select>
+        @if (f['university'].errors?.['required'] && (f['university'].touched || f['university'].dirty)) {
+        <div class="text-danger mt-1">{{universityRequired}}</div>
+        }
+      </div>
+
+      <div class="mb-3">
         <label for="email" class="form-label">Електронна пошта</label>
         <input type="email" id="email" class="form-control" formControlName="email" />
         @if (f['email'].errors?.['required'] && (f['email'].touched || f['email'].dirty)) {

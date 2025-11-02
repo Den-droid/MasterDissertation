@@ -10,7 +10,7 @@ export class TokensDto {
 
 export class SignUpDto {
   constructor(public email: string, public password: string, public firstName: string, public lastName: string,
-    public role: string
+    public role: string, public universityId: number
   ) { }
 }
 
@@ -24,4 +24,9 @@ export class ChangePasswordDto {
 
 export class RefreshTokenDto {
   constructor(public refreshToken: string) { }
+}
+
+export class RoleDto {
+  constructor(public id: number, public name: string) {
+  }
 }

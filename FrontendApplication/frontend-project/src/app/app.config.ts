@@ -22,9 +22,9 @@ const routes: Routes = [
       if (authService.isStudent()) {
         return '/student/assignments';
       } else if (authService.isTeacher()) {
-        return '';
+        return '/teacher/assignments';
       } else if (authService.isAdmin()) {
-        return '';
+        return '/users';
       }
 
       return '/auth/signin';

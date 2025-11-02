@@ -2,6 +2,7 @@ package org.apiapplication.entities.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.apiapplication.entities.University;
 
 @Entity
 @Table(name = "user_info")
@@ -24,4 +25,8 @@ public class UserInfo {
     @MapsId
     @JoinColumn(name = "id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "university_id", referencedColumnName = "id")
+    private University university;
 }

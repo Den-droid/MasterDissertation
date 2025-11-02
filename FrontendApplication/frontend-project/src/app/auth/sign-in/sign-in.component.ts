@@ -57,8 +57,10 @@ export class SignInComponent {
       complete: () => {
         if (this.authService.isStudent())
           this.router.navigate([`/student/assignments`]);
-        if (this.authService.isAdmin())
-          this.router.navigate([`/user/apikey`]);
+        else if (this.authService.isAdmin())
+          this.router.navigate([`/users`]);
+        else if (this.authService.isTeacher())
+          this.router.navigate([`/teacher/assignments`]);
       }
     });
   }
