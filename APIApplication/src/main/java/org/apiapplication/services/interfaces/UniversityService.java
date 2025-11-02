@@ -8,7 +8,9 @@ import org.apiapplication.dto.university.UpdateUniversityDto;
 import java.util.List;
 
 public interface UniversityService {
-    List<UniversityDto> getAll();
+    UniversityDto getUniversityById(int id);
+
+    List<UniversityDto> get();
 
     IdDto add(AddUniversityDto addUniversityDto);
 

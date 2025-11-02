@@ -8,6 +8,8 @@ import org.apiapplication.dto.subject.UpdateSubjectDto;
 import java.util.List;
 
 public interface SubjectService {
+    SubjectDto getSubjectById(int id);
+
     List<SubjectDto> get(Integer universityId);
 
     IdDto add(AddSubjectDto addSubjectDto);

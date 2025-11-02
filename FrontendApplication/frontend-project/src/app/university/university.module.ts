@@ -1,17 +1,17 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { studentTitles } from '../shared/translations/student.translation';
-import { StudentAssignmentsComponent } from './assignments/student-assignments.component';
+import { UniversityListComponent } from './university-list/university-list.component';
+import { universityPageTitles } from '../shared/translations/university.translation';
 
-const studentRoutes: Routes = [
-  { path: "assignments", component: StudentAssignmentsComponent, title: studentTitles.assignments }
+const universityRoutes: Routes = [
+  { path: "", component: UniversityListComponent, title: universityPageTitles.universities }
 ]
 
 @NgModule({
   imports: [
-    RouterModule.forChild(studentRoutes)
+    RouterModule.forChild(universityRoutes)
   ],
   exports: [RouterModule],
   bootstrap: []
 })
-export class UnviersityModule { }
+export class UniversityModule { }

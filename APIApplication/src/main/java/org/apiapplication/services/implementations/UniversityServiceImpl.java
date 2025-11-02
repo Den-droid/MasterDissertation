@@ -8,43 +8,62 @@ import org.apiapplication.dto.university.AddUniversityDto;
 import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.dto.university.UpdateUniversityDto;
 import org.apiapplication.entities.University;
+import org.apiapplication.entities.user.User;
+import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.enums.UserRole;
 import org.apiapplication.exceptions.entity.EntityCantBeDeletedException;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.entity.EntityWithNameAlreadyFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.UniversityRepository;
+import org.apiapplication.repositories.UserPermissionRepository;
 import org.apiapplication.repositories.UserRepository;
 import org.apiapplication.services.interfaces.PermissionService;
 import org.apiapplication.services.interfaces.SessionService;
 import org.apiapplication.services.interfaces.UniversityService;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
 public class UniversityServiceImpl implements UniversityService {
     private final UniversityRepository universityRepository;
     private final UserRepository userRepository;
+    private final UserPermissionRepository userPermissionRepository;
 
     private final SessionService sessionService;
     private final PermissionService permissionService;
 
     public UniversityServiceImpl(UniversityRepository universityRepository,
                                  UserRepository userRepository,
+                                 UserPermissionRepository userPermissionRepository,
                                  SessionService sessionService,
                                  PermissionService permissionService) {
         this.universityRepository = universityRepository;
         this.userRepository = userRepository;
+        this.userPermissionRepository = userPermissionRepository;
         this.sessionService = sessionService;
         this.permissionService = permissionService;
     }
 
     @Override
-    public List<UniversityDto> getAll() {
-        List<UniversityDto> universityDtos = universityRepository.findAll().stream()
+    public UniversityDto getUniversityById(int id) {
+        University university = universityRepository.findById(id).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY, String.valueOf(id))
+        );
+
+        return new UniversityDto(university.getId(), university.getName());
+    }
+
+    @Override
+    public List<UniversityDto> get() {
+        Set<University> universities = getForUser(sessionService.getCurrentUser());
+
+        List<UniversityDto> universityDtos = universities.stream()
                 .map(u -> new UniversityDto(u.getId(), u.getName()))
                 .toList();
 
@@ -120,6 +139,19 @@ public class UniversityServiceImpl implements UniversityService {
             throw new EntityCantBeDeletedException();
         }
 
+        userPermissionRepository.deleteAll(university.getUserPermissions());
         universityRepository.delete(university);
+    }
+
+    public Set<University> getForUser(User user) {
+        Set<University> universities = new HashSet<>();
+        List<UserPermission> userPermissions = user.getUserPermissions();
+
+        for (UserPermission userPermission : userPermissions) {
+            if (userPermission.getUniversity() != null) {
+                universities.add(userPermission.getUniversity());
+            }
+        }
+        return universities;
     }
 }

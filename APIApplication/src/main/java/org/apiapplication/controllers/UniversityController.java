@@ -22,9 +22,15 @@ public class UniversityController {
         this.universityService = universityService;
     }
 
+    @GetMapping("/{universityId}")
+    public ResponseEntity<UniversityDto> getById(@PathVariable int universityId) {
+        UniversityDto universityDto = universityService.getUniversityById(universityId);
+        return ResponseEntity.ok().body(universityDto);
+    }
+
     @GetMapping
     public ResponseEntity<List<UniversityDto>> getAllUniversities() {
-        List<UniversityDto> universityDtoList = universityService.getAll();
+        List<UniversityDto> universityDtoList = universityService.get();
         return ResponseEntity.ok().body(universityDtoList);
     }
 

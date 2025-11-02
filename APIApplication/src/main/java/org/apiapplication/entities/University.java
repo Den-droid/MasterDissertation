@@ -3,6 +3,7 @@ package org.apiapplication.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
+import org.apiapplication.entities.user.UserPermission;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,4 +20,7 @@ public class University {
 
     @OneToMany(mappedBy = "university")
     private List<Subject> subjects;
+
+    @OneToMany(mappedBy = "university")
+    private List<UserPermission> userPermissions;
 }

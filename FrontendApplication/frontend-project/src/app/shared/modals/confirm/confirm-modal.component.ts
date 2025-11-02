@@ -1,0 +1,14 @@
+import { Component, Input } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+
+@Component({
+  selector: 'app-modal-confirm',
+  templateUrl: './confirm-modal.component.html',
+})
+export class ConfirmModalComponent {
+  @Input() title = '';
+  @Input() content = '';
+
+  constructor(public activeModal: NgbActiveModal) { 
+  }
+}

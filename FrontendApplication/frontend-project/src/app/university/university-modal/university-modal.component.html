@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <h5 class="modal-title">{{ title }}</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+</div>
+
+<form [formGroup]="form">
+    <div class="modal-body">
+        <label for="modalInput" class="form-label">Введіть назву:</label>
+        <input type="text" id="modalInput" class="form-control" [value]="inputValue" formControlName="name" />
+        @if (f['name'].errors?.['required'] && (f['name'].touched || f['name'].dirty)) {
+        <div class="text-danger mt-1">{{ requiredMessage }}</div>
+        }
+        @if(errorMessage){
+        <div class="alert alert-danger mt-3">
+            {{ errorMessage }}
+        </div>
+        }
+    </div>
+</form>
+
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
+        Скасувати
+    </button>
+    <button type="button" class="btn btn-primary" (click)="save()">
+        Зберегти
+    </button>
+</div>

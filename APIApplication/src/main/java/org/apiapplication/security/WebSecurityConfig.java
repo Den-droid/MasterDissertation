@@ -64,11 +64,16 @@ public class WebSecurityConfig {
 
     private final String[] adminTeacherUrls = {
             "/api/functions",
+            "/api/functions/*",
             "/api/assignmentRestrictions/setDefaultRestriction",
             "/api/assignmentRestrictions/setRestriction",
             "/api/assignmentRestrictions/removeDefaultRestriction",
             "/api/assignmentRestrictions/defaultRestrictions",
-            "/api/permissions"
+            "/api/permissions",
+            "/api/subjects",
+            "/api/subjects/*",
+            "/api/universities",
+            "/api/universities/*"
     };
 
     private final String[] userUrls = {
@@ -77,11 +82,6 @@ public class WebSecurityConfig {
             "/api/fields",
             "/api/urls/methods",
             "/api/assignmentRestrictions/restrictionTypes"
-    };
-
-    public final String[] publicUrls = {
-            "/api/subjects",
-            "/api/universities"
     };
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,
@@ -136,7 +136,6 @@ public class WebSecurityConfig {
                                 .requestMatchers(userUrls).hasAnyRole(UserRole.ADMIN.name(),
                                         UserRole.TEACHER.name(), UserRole.STUDENT.name())
                                 .requestMatchers(authUrl).permitAll()
-                                .requestMatchers(publicUrls).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .authenticationManager(authenticationManager(http, userDetailsService))

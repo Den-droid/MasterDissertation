@@ -22,13 +22,7 @@ public class AssignmentController {
 
     @GetMapping()
     public ResponseEntity<List<UserAssignmentDto>> getByUserId(@RequestParam Integer userId) {
-        List<UserAssignmentDto> userAssignmentsDto = assignmentService.getByUser(userId);
-        return ResponseEntity.ok(userAssignmentsDto);
-    }
-
-    @GetMapping("/getForCurrentUser")
-    public ResponseEntity<List<UserAssignmentDto>> getForCurrentUser() {
-        List<UserAssignmentDto> userAssignmentsDto = assignmentService.getForCurrentUser();
+        List<UserAssignmentDto> userAssignmentsDto = assignmentService.get(userId);
         return ResponseEntity.ok(userAssignmentsDto);
     }
 

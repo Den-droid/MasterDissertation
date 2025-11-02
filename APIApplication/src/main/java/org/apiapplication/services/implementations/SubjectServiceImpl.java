@@ -6,52 +6,74 @@ import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.subject.AddSubjectDto;
 import org.apiapplication.dto.subject.SubjectDto;
 import org.apiapplication.dto.subject.UpdateSubjectDto;
+import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
+import org.apiapplication.entities.user.User;
+import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.exceptions.entity.EntityCantBeDeletedException;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.entity.EntityWithNameAlreadyFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.SubjectRepository;
 import org.apiapplication.repositories.UniversityRepository;
+import org.apiapplication.repositories.UserPermissionRepository;
 import org.apiapplication.services.interfaces.PermissionService;
 import org.apiapplication.services.interfaces.SessionService;
 import org.apiapplication.services.interfaces.SubjectService;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
 public class SubjectServiceImpl implements SubjectService {
     private final SubjectRepository subjectRepository;
     private final UniversityRepository universityRepository;
+    private final UserPermissionRepository userPermissionRepository;
 
     private final SessionService sessionService;
     private final PermissionService permissionService;
 
     public SubjectServiceImpl(SubjectRepository subjectRepository,
                               UniversityRepository universityRepository,
+                              UserPermissionRepository userPermissionRepository,
                               SessionService sessionService,
                               PermissionService permissionService) {
         this.subjectRepository = subjectRepository;
         this.universityRepository = universityRepository;
+        this.userPermissionRepository = userPermissionRepository;
         this.sessionService = sessionService;
         this.permissionService = permissionService;
     }
 
     @Override
+    public SubjectDto getSubjectById(int id) {
+        return getSubjectDtoFromSubjects(List.of(subjectRepository.findById(id).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.SUBJECT, String.valueOf(id))
+        ))).get(0);
+    }
+
+    @Override
     public List<SubjectDto> get(Integer universityId) {
-        List<Subject> subjects;
+        User user = sessionService.getCurrentUser();
+        List<Subject> subjects = getForUser(user).stream().toList();
+
         if (universityId != null) {
             University university = universityRepository.findById(universityId).orElseThrow(
                     () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
                             String.valueOf(universityId)));
 
-            subjects = university.getSubjects();
-        } else {
-            subjects = subjectRepository.findAll();
+            if (!permissionService.userCanAccessUniversity(user, university)) {
+                throw new PermissionException();
+            }
+
+            subjects = subjects.stream()
+                    .filter(s -> s.getUniversity().equals(university))
+                    .toList();
         }
 
         return getSubjectDtoFromSubjects(subjects);
@@ -144,12 +166,29 @@ public class SubjectServiceImpl implements SubjectService {
             throw new EntityCantBeDeletedException();
         }
 
+        userPermissionRepository.deleteAll(subject.getUserPermissions());
         subjectRepository.delete(subject);
     }
 
     private List<SubjectDto> getSubjectDtoFromSubjects(List<Subject> subjects) {
         return subjects.stream()
-                .map(s -> new SubjectDto(s.getId(), s.getName()))
+                .map(s -> new SubjectDto(s.getId(), s.getName(), new UniversityDto(
+                        s.getUniversity().getId(), s.getUniversity().getName()
+                )))
                 .toList();
+    }
+
+    public Set<Subject> getForUser(User user) {
+        Set<Subject> subjects = new HashSet<>();
+        List<UserPermission> userPermissions = user.getUserPermissions();
+
+        for (UserPermission userPermission : userPermissions) {
+            if (userPermission.getUniversity() != null) {
+                subjects.addAll(userPermission.getUniversity().getSubjects());
+            } else if (userPermission.getSubject() != null) {
+                subjects.add(userPermission.getSubject());
+            }
+        }
+        return subjects;
     }
 }

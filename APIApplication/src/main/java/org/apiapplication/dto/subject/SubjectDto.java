@@ -1,4 +1,6 @@
 package org.apiapplication.dto.subject;
 
-public record SubjectDto(int id, String name) {
+import org.apiapplication.dto.university.UniversityDto;
+
+public record SubjectDto(int id, String name, UniversityDto university) {
 }

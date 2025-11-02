@@ -1,32 +1,32 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { baseUrl } from "../constants/url.constant";
 import { Observable } from "rxjs";
-import { AddUniversityDto, UpdateUniversityDto, UniversityDto } from "../models/university.model";
+import { baseUrl } from "../constants/url.constant";
 import { IdDto } from "../models/common.model";
+import { AddSubjectDto, UpdateSubjectDto, SubjectDto } from "../models/subject.model";
 
 @Injectable({
     providedIn: 'root'
 })
-export class UniversityService {
-    private url: string = baseUrl + "/universities";
+export class SubjectsService {
+    private url: string = baseUrl + "/subjects";
 
     constructor(private readonly httpClient: HttpClient) {
     }
 
-    getAll(): Observable<UniversityDto[]> {
-        return this.httpClient.get<UniversityDto[]>(`${this.url}`);
+    getAll(): Observable<SubjectDto[]> {
+        return this.httpClient.get<SubjectDto[]>(`${this.url}`);
     }
 
-    getById(id: number): Observable<UniversityDto> {
-        return this.httpClient.get<UniversityDto>(`${this.url}/${id}`);
+    getById(id: number): Observable<SubjectDto> {
+        return this.httpClient.get<SubjectDto>(`${this.url}/${id}`);
     }
 
-    add(dto: AddUniversityDto): Observable<IdDto> {
+    add(dto: AddSubjectDto): Observable<IdDto> {
         return this.httpClient.post<IdDto>(`${this.url}`, dto);
     }
 
-    update(id: number, dto: UpdateUniversityDto): Observable<any> {
+    update(id: number, dto: UpdateSubjectDto): Observable<any> {
         return this.httpClient.put<any>(`${this.url}/${id}`, dto);
     }
 

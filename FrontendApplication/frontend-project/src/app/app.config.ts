@@ -13,6 +13,10 @@ import { AuthService } from './shared/services/auth.service';
 import { StudentComponent } from './student/student.component';
 import { UserComponent } from './user/user.component';
 import { studentTeacherGuard } from './shared/guards/student-teacher.guard';
+import { UniversityComponent } from './university/university.component';
+import { adminGuard } from './shared/guards/admin.guard';
+import { adminTeacherGuard } from './shared/guards/admin-teacher.guard';
+import { SubjectComponent } from './subjects/subject.component';
 
 const routes: Routes = [
   {
@@ -47,12 +51,22 @@ const routes: Routes = [
   {
     path: "assignments", component: AssignmentsComponent,
     loadChildren: () => import('./assignments/assignments.module').then(m => m.AssignmentsModule),
-    canActivate: [studentTeacherGuard]
+    canActivate: [authenticatedGuard]
   },
   {
     path: "user", component: UserComponent,
     loadChildren: () => import('./user/user.module').then(m => m.UserModule),
     canActivate: [authenticatedGuard]
+  },
+  {
+    path: "universities", component: UniversityComponent,
+    loadChildren: () => import('./university/university.module').then(m => m.UniversityModule),
+    canActivate: [adminGuard]
+  },
+  {
+    path: "subjects", component: SubjectComponent,
+    loadChildren: () => import('./subjects/subject.module').then(m => m.SubjectModule),
+    canActivate: [adminTeacherGuard]
   },
   { path: '**', redirectTo: '/error/404', pathMatch: 'full' }
 ]

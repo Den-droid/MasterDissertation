@@ -87,12 +87,18 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public List<UserAssignmentDto> getByUser(int userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(userId))
-        );
-
+    public List<UserAssignmentDto> get(Integer userId) {
         List<UserAssignment> assignments;
+        User user;
+
+        if (userId == null) {
+            user = sessionService.getCurrentUser();
+        } else {
+            user = userRepository.findById(userId).orElseThrow(
+                    () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(userId))
+            );
+        }
+
         Role role = user.getRoles().get(0);
 
         if (role.getName().equals(UserRole.STUDENT)) {
@@ -132,12 +138,6 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .toList();
 
         return userAssignmentDtos;
-    }
-
-    @Override
-    public List<UserAssignmentDto> getForCurrentUser() {
-        User user = sessionService.getCurrentUser();
-        return getByUser(user.getId());
     }
 
     @Override

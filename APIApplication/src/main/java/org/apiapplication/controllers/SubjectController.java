@@ -22,6 +22,12 @@ public class SubjectController {
         this.subjectService = subjectService;
     }
 
+    @GetMapping("/{subjectId}")
+    public ResponseEntity<SubjectDto> getById(@PathVariable int subjectId) {
+        SubjectDto subjectDto = subjectService.getSubjectById(subjectId);
+        return ResponseEntity.ok().body(subjectDto);
+    }
+
     @GetMapping
     public ResponseEntity<List<SubjectDto>> get(@RequestParam(required = false)
                                                 Integer universityId) {

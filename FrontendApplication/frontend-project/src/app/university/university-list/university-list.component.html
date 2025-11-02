@@ -1,0 +1,51 @@
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-4">
+            <i class="fa-solid fa-school me-2"></i> Університети
+        </h1>
+        <button class="btn btn-primary" (click)="openAddModal()">
+            <i class="fa-solid fa-plus me-2"></i> Створити університет
+        </button>
+    </div>
+
+    <div class="mb-3">
+        <input type="text" class="form-control" placeholder="Пошук університету..." [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange($event)" />
+    </div>
+
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered align-middle text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>Назва</th>
+                    <th>Дія</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (universities.length === 0) {
+                <td colspan="2" class="text-center">
+                    <strong>Університетів не знайдено</strong>
+                </td>
+                } @else if (filteredUniversities.length === 0) {
+                <td colspan="2" class="text-center">
+                    <strong>Університетів за пошуковим запитом не знайдено</strong>
+                </td>
+                }
+                @for (university of filteredUniversities; track university.id) {
+                <tr>
+                    <td>{{university.name}}</td>
+                    <td> 
+                        <button class="btn btn-sm btn-warning me-2" (click)="openEditModal(university.id)">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" (click)="deleteUniversity(university.id)">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
