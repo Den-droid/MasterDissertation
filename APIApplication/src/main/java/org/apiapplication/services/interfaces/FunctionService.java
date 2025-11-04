@@ -8,6 +8,8 @@ import org.apiapplication.dto.function.UpdateFunctionDto;
 import java.util.List;
 
 public interface FunctionService {
+    FunctionDto getFunctionById(int id);
+
     List<FunctionDto> get(Integer subjectId);
 
     IdDto add(AddFunctionDto addFunctionDto);

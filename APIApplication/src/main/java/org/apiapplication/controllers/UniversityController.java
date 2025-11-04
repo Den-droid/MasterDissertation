@@ -23,8 +23,14 @@ public class UniversityController {
     }
 
     @GetMapping("/{universityId}")
-    public ResponseEntity<UniversityDto> getById(@PathVariable int universityId) {
-        UniversityDto universityDto = universityService.getUniversityById(universityId);
+    public ResponseEntity<UniversityDto> getById(@PathVariable String universityId) {
+        int universityIdInt;
+        try {
+            universityIdInt = Integer.parseInt(universityId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.UNIVERSITY, universityId);
+        }
+        UniversityDto universityDto = universityService.getUniversityById(universityIdInt);
         return ResponseEntity.ok().body(universityDto);
     }
 

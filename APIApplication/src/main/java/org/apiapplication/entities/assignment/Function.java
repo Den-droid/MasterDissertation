@@ -3,6 +3,7 @@ package org.apiapplication.entities.assignment;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.apiapplication.entities.Subject;
+import org.apiapplication.entities.user.UserPermission;
 
 import java.util.List;
 
@@ -27,6 +28,9 @@ public class Function {
 
     @OneToMany(mappedBy = "function")
     private List<FunctionMinMaxValue> functionMinMaxValues;
+
+    @OneToMany(mappedBy = "function")
+    private List<UserPermission> userPermissions;
 
     @Override
     public boolean equals(Object o) {

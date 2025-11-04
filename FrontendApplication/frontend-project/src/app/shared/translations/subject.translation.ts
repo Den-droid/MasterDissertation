@@ -1,5 +1,5 @@
 export const subjectLabels = {
-    "selection-required": "Вибір університету є обов'язковим",
+    "selection-required": "Університет є обов'язковим",
     "name-required": "Назва є обов'язковою"
 }
 

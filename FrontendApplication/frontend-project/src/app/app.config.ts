@@ -7,16 +7,15 @@ import { AuthComponent } from './auth/auth.component';
 import { ErrorComponent } from './error/error.component';
 import { authenticatedGuard } from './shared/guards/authenticated.guard';
 import { studentGuard } from './shared/guards/student.guard';
-import { teacherGuard } from './shared/guards/teacher.guard';
-import { authorizeInterceptor } from './shared/interceptors/authorize.interceptor';
 import { AuthService } from './shared/services/auth.service';
 import { StudentComponent } from './student/student.component';
 import { UserComponent } from './user/user.component';
-import { studentTeacherGuard } from './shared/guards/student-teacher.guard';
 import { UniversityComponent } from './university/university.component';
 import { adminGuard } from './shared/guards/admin.guard';
 import { adminTeacherGuard } from './shared/guards/admin-teacher.guard';
 import { SubjectComponent } from './subjects/subject.component';
+import { FunctionComponent } from './function/function.component';
+import { authorizeInterceptor } from './shared/interceptors/authorize.interceptor';
 
 const routes: Routes = [
   {
@@ -66,6 +65,11 @@ const routes: Routes = [
   {
     path: "subjects", component: SubjectComponent,
     loadChildren: () => import('./subjects/subject.module').then(m => m.SubjectModule),
+    canActivate: [adminTeacherGuard]
+  },
+  {
+    path: "functions", component: FunctionComponent,
+    loadChildren: () => import('./function/function.module').then(m => m.FunctionModule),
     canActivate: [adminTeacherGuard]
   },
   { path: '**', redirectTo: '/error/404', pathMatch: 'full' }

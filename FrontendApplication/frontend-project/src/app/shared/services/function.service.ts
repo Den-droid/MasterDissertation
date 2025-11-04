@@ -3,30 +3,30 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { baseUrl } from "../constants/url.constant";
 import { IdDto } from "../models/common.model";
-import { AddSubjectDto, UpdateSubjectDto, SubjectDto } from "../models/subject.model";
+import { AddFunctionDto, FunctionDto, UpdateFunctionDto } from "../models/function.model";
 
 @Injectable({
     providedIn: 'root'
 })
-export class SubjectService {
-    private url: string = baseUrl + "/subjects";
+export class FunctionService {
+    private url: string = baseUrl + "/functions";
 
     constructor(private readonly httpClient: HttpClient) {
     }
 
-    getAll(): Observable<SubjectDto[]> {
-        return this.httpClient.get<SubjectDto[]>(`${this.url}`);
+    getAll(): Observable<FunctionDto[]> {
+        return this.httpClient.get<FunctionDto[]>(`${this.url}`);
     }
 
-    getById(id: number): Observable<SubjectDto> {
-        return this.httpClient.get<SubjectDto>(`${this.url}/${id}`);
+    getById(id: number): Observable<FunctionDto> {
+        return this.httpClient.get<FunctionDto>(`${this.url}/${id}`);
     }
 
-    add(dto: AddSubjectDto): Observable<IdDto> {
+    add(dto: AddFunctionDto): Observable<IdDto> {
         return this.httpClient.post<IdDto>(`${this.url}`, dto);
     }
 
-    update(id: number, dto: UpdateSubjectDto): Observable<any> {
+    update(id: number, dto: UpdateFunctionDto): Observable<any> {
         return this.httpClient.put<any>(`${this.url}/${id}`, dto);
     }
 

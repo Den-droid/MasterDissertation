@@ -6,7 +6,10 @@ import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.function.AddFunctionDto;
 import org.apiapplication.dto.function.FunctionDto;
 import org.apiapplication.dto.function.UpdateFunctionDto;
+import org.apiapplication.dto.subject.SubjectDto;
+import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.entities.Subject;
+import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.assignment.FunctionMinMaxValue;
 import org.apiapplication.entities.user.User;
@@ -21,6 +24,7 @@ import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.FunctionMinMaxValueRepository;
 import org.apiapplication.repositories.FunctionRepository;
 import org.apiapplication.repositories.SubjectRepository;
+import org.apiapplication.repositories.UserPermissionRepository;
 import org.apiapplication.services.interfaces.FunctionService;
 import org.apiapplication.services.interfaces.PermissionService;
 import org.apiapplication.services.interfaces.SessionService;
@@ -35,6 +39,7 @@ public class FunctionServiceImpl implements FunctionService {
     private final FunctionRepository functionRepository;
     private final SubjectRepository subjectRepository;
     private final FunctionMinMaxValueRepository functionMinMaxValueRepository;
+    private final UserPermissionRepository userPermissionRepository;
 
     private final PermissionService permissionService;
     private final SessionService sessionService;
@@ -42,14 +47,24 @@ public class FunctionServiceImpl implements FunctionService {
     public FunctionServiceImpl(FunctionRepository functionRepository,
                                SubjectRepository subjectRepository,
                                FunctionMinMaxValueRepository functionMinMaxValueRepository,
+                               UserPermissionRepository userPermissionRepository,
                                PermissionService permissionService,
                                SessionService sessionService) {
         this.functionRepository = functionRepository;
         this.subjectRepository = subjectRepository;
         this.functionMinMaxValueRepository = functionMinMaxValueRepository;
+        this.userPermissionRepository = userPermissionRepository;
 
         this.permissionService = permissionService;
         this.sessionService = sessionService;
+    }
+
+    @Override
+    public FunctionDto getFunctionById(int id) {
+        return getFunctionDtoFromFunction(List.of(
+                functionRepository.findById(id).orElseThrow(
+                        () -> new EntityWithIdNotFoundException(EntityName.FUNCTION, String.valueOf(id)))
+        )).get(0);
     }
 
     @Override
@@ -221,15 +236,23 @@ public class FunctionServiceImpl implements FunctionService {
             throw new EntityCantBeDeletedException();
         }
 
+        userPermissionRepository.deleteAll(function.getUserPermissions());
         functionRepository.delete(function);
     }
 
     private List<FunctionDto> getFunctionDtoFromFunction(List<Function> functions) {
         return functions.stream()
-                .map(f -> new FunctionDto(f.getId(), f.getText(), f.getVariablesCount(),
-                        getMinMaxValuesForFunction(f, FunctionResultType.MIN),
-                        getMinMaxValuesForFunction(f, FunctionResultType.MAX)))
-                .toList();
+                .map(f -> {
+                    Subject subject = f.getSubject();
+                    University university = subject.getUniversity();
+                    UniversityDto universityDto = new UniversityDto(university.getId(), university.getName());
+                    SubjectDto subjectDto = new SubjectDto(subject.getId(), subject.getName(), universityDto);
+
+                    return new FunctionDto(f.getId(), f.getText(), f.getVariablesCount(),
+                            getMinMaxValuesForFunction(f, FunctionResultType.MIN),
+                            getMinMaxValuesForFunction(f, FunctionResultType.MAX),
+                            subjectDto);
+                }).toList();
     }
 
     private List<Double> getMinMaxValuesForFunction(Function function,

@@ -23,8 +23,14 @@ public class SubjectController {
     }
 
     @GetMapping("/{subjectId}")
-    public ResponseEntity<SubjectDto> getById(@PathVariable int subjectId) {
-        SubjectDto subjectDto = subjectService.getSubjectById(subjectId);
+    public ResponseEntity<SubjectDto> getById(@PathVariable String subjectId) {
+        int subjectIdInt;
+        try {
+            subjectIdInt = Integer.parseInt(subjectId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.SUBJECT, subjectId);
+        }
+        SubjectDto subjectDto = subjectService.getSubjectById(subjectIdInt);
         return ResponseEntity.ok().body(subjectDto);
     }
 

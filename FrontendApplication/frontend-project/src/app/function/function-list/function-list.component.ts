@@ -7,57 +7,59 @@ import { ConfirmModalComponent } from '../../shared/modals/confirm/confirm-modal
 import { modalText } from '../../shared/translations/common.translation';
 import { SubjectDto } from '../../shared/models/subject.model';
 import { SubjectService } from '../../shared/services/subject.service';
-import { SubjectModalComponent } from '../subject-modal/subject-modal.component';
-import { subjectModal } from '../../shared/translations/subject.translation';
-import { AuthService } from '../../shared/services/auth.service';
 import { ActionType } from '../../shared/constants/action-type';
 import { UniversityService } from '../../shared/services/university.service';
 import { UniversityDto } from '../../shared/models/university.model';
+import { FunctionService } from '../../shared/services/function.service';
+import { FunctionDto } from '../../shared/models/function.model';
+import { FunctionModalComponent } from '../function-modal/function-modal.component';
+import { functionModal } from '../../shared/translations/function.translation';
+import { JoinPipe } from "../../shared/pipes/join.pipe";
 
 @Component({
-  selector: 'app-subject-list',
-  templateUrl: './subject-list.component.html',
-  imports: [FormsModule]
+  selector: 'app-function-list',
+  templateUrl: './function-list.component.html',
+  imports: [FormsModule, JoinPipe]
 })
-export class SubjectListComponent implements OnInit {
-  subjects: SubjectDto[] = [];
-  filteredSubjects: SubjectDto[] = [];
-  editedSubject!: SubjectDto;
+export class FunctionListComponent implements OnInit {
+  functions: FunctionDto[] = [];
+  filteredFunctions: FunctionDto[] = [];
+  editedFunction!: FunctionDto;
 
   searchQuery: string = '';
   searchSubject: Subject<string> = new Subject<string>();
 
-  constructor(private modalService: NgbModal, private subjectService: SubjectService, private authService: AuthService,
-    private universityService: UniversityService
+  constructor(private modalService: NgbModal, private subjectService: SubjectService,
+    private universityService: UniversityService, private functionService: FunctionService
   ) { }
 
   ngOnInit(): void {
-    this.getSubjects();
+    this.getFunctions();
 
     this.searchSubject.pipe(
       debounceTime(500)
     ).subscribe(value => {
-      this.filteredSubjects = this.subjects.filter(u =>
-        u.name.toLowerCase().includes(value.toLowerCase())
+      this.filteredFunctions = this.functions.filter(f =>
+        f.text.toLowerCase().includes(value.toLowerCase())
       );
     });
   }
 
-  getSubjectById(id: number) {
-    return this.subjectService.getById(id);
+  getFunctionById(id: number) {
+    return this.functionService.getById(id);
   }
 
-  getSubjects() {
-    this.subjectService.getAll().subscribe({
-      next: (subjectsDto: SubjectDto[]) => {
-        this.subjects = subjectsDto;
-        this.filteredSubjects = subjectsDto;
+  getFunctions() {
+    this.functionService.getAll().subscribe({
+      next: (functionsDto: FunctionDto[]) => {
+        this.functions = functionsDto;
+        this.filteredFunctions = functionsDto;
       }
     })
   }
 
   openAddModal() {
-    const modalRef = this.modalService.open(SubjectModalComponent, {
+    const modalRef = this.modalService.open(FunctionModalComponent, {
       centered: true,
       backdrop: 'static',
       keyboard: false
@@ -65,7 +67,7 @@ export class SubjectListComponent implements OnInit {
 
     const errorSubject = new Subject<string>();
 
-    modalRef.componentInstance.title = subjectModal['add-title'];
+    modalRef.componentInstance.title = functionModal['add-title'];
     modalRef.componentInstance.errorSubject$ = errorSubject;
     modalRef.componentInstance.actionType = ActionType.CREATE;
 
@@ -75,15 +77,21 @@ export class SubjectListComponent implements OnInit {
       }
     })
 
+    this.subjectService.getAll().subscribe({
+      next: (subjects: SubjectDto[]) => {
+        modalRef.componentInstance.subjects = subjects;
+      }
+    })
+
     modalRef.componentInstance.saveAttempt.subscribe(
       (result: any) => {
-        this.subjectService.add(result).subscribe({
+        this.functionService.add(result).subscribe({
           error: (error: any) => {
             errorSubject.next(error.error.message);
           },
           complete: () => {
             modalRef.close();
-            this.getSubjects();
+            this.getFunctions();
           }
         })
       }
@@ -91,15 +99,15 @@ export class SubjectListComponent implements OnInit {
   }
 
   openEditModal(id: number) {
-    const modalRef = this.modalService.open(SubjectModalComponent, {
+    const modalRef = this.modalService.open(FunctionModalComponent, {
       centered: true,
       backdrop: 'static',
       keyboard: false
     });
 
-    this.getSubjectById(id).subscribe({
-      next: (subject: SubjectDto) => {
-        modalRef.componentInstance.inputValue = subject;
+    this.getFunctionById(id).subscribe({
+      next: (functionDto: FunctionDto) => {
+        modalRef.componentInstance.inputValue = functionDto;
       }
     })
 
@@ -109,28 +117,34 @@ export class SubjectListComponent implements OnInit {
       }
     })
 
+    this.subjectService.getAll().subscribe({
+      next: (subjects: SubjectDto[]) => {
+        modalRef.componentInstance.subjects = subjects;
+      }
+    })
+
     const errorSubject = new Subject<string>();
 
-    modalRef.componentInstance.title = subjectModal['edit-title'];
+    modalRef.componentInstance.title = functionModal['edit-title'];
     modalRef.componentInstance.errorSubject$ = errorSubject;
     modalRef.componentInstance.actionType = ActionType.UPDATE;
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (result: any) => {
-        this.subjectService.update(id, result).subscribe({
+        this.functionService.update(id, result).subscribe({
           error: (error: any) => {
             errorSubject.next(error.error.message);
           },
           complete: () => {
             modalRef.close();
-            this.getSubjects();
+            this.getFunctions();
           }
         })
       }
     );
   }
 
-  deleteSubject(id: number) {
+  deleteFunction(id: number) {
     const modalRef = this.modalService.open(ConfirmModalComponent, {
       centered: true,
       backdrop: 'static',
@@ -151,24 +165,19 @@ export class SubjectListComponent implements OnInit {
             });
 
             deleteErrorModalRef.componentInstance.content = error.error.message;
-            deleteErrorModalRef.componentInstance.title = subjectModal['delete-error'];
+            deleteErrorModalRef.componentInstance.title = functionModal['delete-error'];
           },
           complete: () => {
-            this.getSubjects();
+            this.getFunctions();
           }
         })
       }
+    ).catch(
+      () => { return; }
     )
-      .catch(
-        () => { return; }
-      )
   }
 
   onSearchChange(value: string) {
     this.searchSubject.next(value);
-  }
-
-  isAdmin() {
-    return this.authService.isAdmin();
   }
 }

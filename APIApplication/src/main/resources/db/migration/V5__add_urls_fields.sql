@@ -33,6 +33,7 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/subjects', 'Додати тему', 1),
        ('/api/subjects/{subjectId}', 'Оновити тему', 2),
        ('/api/subjects/{subjectId}', 'Видалити тему', 3),
+       ('/api/functions/{functionId}', 'Отримати функцію по ідентифікатору', 0),
        ('/api/functions', 'Додати функцію', 1),
        ('/api/functions/{functionId}', 'Оновити функцію', 2),
        ('/api/functions/{functionId}', 'Видалити функцію', 3),

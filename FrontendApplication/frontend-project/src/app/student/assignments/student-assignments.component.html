@@ -58,15 +58,17 @@
           </td>
           <td><span class="badge bg-success">{{getAssignmentStatusString(activeAssignment)}}</span></td>
           <td>
-            <button class="btn btn-sm btn-outline-info me-2" (click)="goToAnswersPage(activeAssignment)">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-info" (click)="startContinueAssignment(activeAssignment)">
-              <i class="fa-solid" [ngClass]="{
+            <div class="d-flex justify-content-center gap-1">
+              <button class="btn btn-sm btn-outline-info me-2" (click)="goToAnswersPage(activeAssignment)">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-info" (click)="startContinueAssignment(activeAssignment)">
+                <i class="fa-solid" [ngClass]="{
                 'fa-play': isAssignedStatus(activeAssignment),
                 'fa-forward': isInProgressStatus(activeAssignment)
                 }"></i>
-            </button>
+              </button>
+            </div>
           </td>
         </tr>
         }

@@ -22,6 +22,18 @@ public class FunctionController {
         this.functionService = functionService;
     }
 
+    @GetMapping("/{functionId}")
+    public ResponseEntity<FunctionDto> getById(@PathVariable String functionId) {
+        int functionIdInt;
+        try {
+            functionIdInt = Integer.parseInt(functionId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.FUNCTION, functionId);
+        }
+        FunctionDto functionDto = functionService.getFunctionById(functionIdInt);
+        return ResponseEntity.ok(functionDto);
+    }
+
     @GetMapping
     public ResponseEntity<List<FunctionDto>> get(@RequestParam(required = false)
                                                  Integer subjectId) {

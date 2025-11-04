@@ -1,0 +1,93 @@
+<div class="modal-header">
+    <h5 class="modal-title">{{ title }}</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+</div>
+
+<form [formGroup]="form">
+    <div class="modal-body">
+        <label for="modalInput" class="form-label">Введіть текст:</label>
+        <input type="text" id="modalInputText" class="form-control" [value]="inputValue?.text" formControlName="text" />
+        @if (f['text'].errors?.['required'] && (f['text'].touched || f['text'].dirty)) {
+        <div class="text-danger mt-1">{{ functionRequiredMessage }}</div>
+        }
+        <div class="mt-3">
+            <label for="modalInput" class="form-label">Введіть кількість змінних:</label>
+            <input type="text" id="modalInputVariablesCount" class="form-control" [value]="inputValue?.variablesCount"
+                formControlName="variablesCount" />
+            @if (f['variablesCount'].errors?.['required'] && (f['variablesCount'].touched || f['variablesCount'].dirty))
+            {
+            <div class="text-danger mt-1">{{ variablesCountRequiredMessage }}</div>
+            }
+            @if (f['variablesCount'].errors?.['isInteger'] && (f['variablesCount'].touched ||
+            f['variablesCount'].dirty))
+            {
+            <div class="text-danger mt-1">{{ integerRequiredMessage }}</div>
+            }
+        </div>
+        <div class="mt-3">
+            <div class="d-flex justify-content-center">
+                @if(isLastFieldWithName($index)){
+                <button type="button" class="btn btn-primary me-3" style="width: 20%;" (click)="addField($index)">
+                    + Додати поле
+                </button>
+                }
+                @if(!isSingleFieldWithName($index)){
+                <button type="button" class="btn btn-danger" style="width: 20%;" (click)="removeField($index)">
+                    - Видалити поле
+                </button>
+                }
+            </div>
+        </div>
+        <div class="mt-3">
+            <div class="d-flex justify-content-center">
+                @if(isLastFieldWithName($index)){
+                <button type="button" class="btn btn-primary me-3" style="width: 20%;" (click)="addField($index)">
+                    + Додати поле
+                </button>
+                }
+                @if(!isSingleFieldWithName($index)){
+                <button type="button" class="btn btn-danger" style="width: 20%;" (click)="removeField($index)">
+                    - Видалити поле
+                </button>
+                }
+            </div>
+        </div>
+        <div class="mt-3">
+            <label for="university" class="form-label">Університет</label>
+            <select id="university" class="form-select" formControlName="university">
+                <option value="">-- Немає --</option>
+                @for(university of universities; track university.id) {
+                <option [value]="university.id" [selected]="isUniversitySelected(university.id)">{{university.name}}
+                </option>
+                }
+            </select>
+        </div>
+        <div class="mt-3">
+            <label for="subject" class="form-label">Предмет</label>
+            <select id="subject" class="form-select" formControlName="subject">
+                @for(subject of displayedSubjects; track subject.id) {
+                <option [value]="subject.id" [selected]="isSubjectSelected(subject.id)">{{subject.name}}
+                </option>
+                }
+            </select>
+            @if (f['subject'].errors?.['required'] && (f['subject'].touched || f['subject'].dirty)) {
+            <div class="text-danger mt-1">{{subjectRequiredMessage}}</div>
+            }
+        </div>
+        @if(errorMessage){
+        <div class="alert alert-danger mt-3">
+            {{ errorMessage }}
+        </div>
+        }
+    </div>
+</form>
+
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
+        Скасувати
+    </button>
+    <button type="button" class="btn btn-primary" (click)="save()">
+        Зберегти
+    </button>
+</div>
