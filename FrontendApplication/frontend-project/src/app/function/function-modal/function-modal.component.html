@@ -4,14 +4,14 @@
 </div>
 
 <form [formGroup]="form">
-    <div class="modal-body">
-        <label for="modalInput" class="form-label">Введіть текст:</label>
+    <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+        <label for="modalInputText" class="form-label">Введіть текст:</label>
         <input type="text" id="modalInputText" class="form-control" [value]="inputValue?.text" formControlName="text" />
         @if (f['text'].errors?.['required'] && (f['text'].touched || f['text'].dirty)) {
         <div class="text-danger mt-1">{{ functionRequiredMessage }}</div>
         }
         <div class="mt-3">
-            <label for="modalInput" class="form-label">Введіть кількість змінних:</label>
+            <label for="modalInputVariablesCount" class="form-label">Введіть кількість змінних:</label>
             <input type="text" id="modalInputVariablesCount" class="form-control" [value]="inputValue?.variablesCount"
                 formControlName="variablesCount" />
             @if (f['variablesCount'].errors?.['required'] && (f['variablesCount'].touched || f['variablesCount'].dirty))
@@ -24,33 +24,63 @@
             <div class="text-danger mt-1">{{ integerRequiredMessage }}</div>
             }
         </div>
-        <div class="mt-3">
-            <div class="d-flex justify-content-center">
-                @if(isLastFieldWithName($index)){
-                <button type="button" class="btn btn-primary me-3" style="width: 20%;" (click)="addField($index)">
-                    + Додати поле
-                </button>
+        <div class="mt-3" formGroupName="minValues">
+            @for(minValue of getMinValues(); track minValue){
+            <div>
+                <label [for]="'modalInputMinValue'+$index" class="form-label">Введіть мінімальне значення:</label>
+                <input type="text" [id]="'modalInputMinValue'+$index" class="form-control"
+                    [formControlName]="getMinFormControlName($index)" />
+                @if (f['minValues'].get(getMinFormControlName($index))?.errors?.['isDecimal'] &&
+                (f['minValues'].get(getMinFormControlName($index))?.touched ||
+                f['minValues'].get(getMinFormControlName($index))?.dirty))
+                {
+                <div class="text-danger mt-1">{{ decimalRequiredMessage }}</div>
                 }
-                @if(!isSingleFieldWithName($index)){
-                <button type="button" class="btn btn-danger" style="width: 20%;" (click)="removeField($index)">
-                    - Видалити поле
-                </button>
+                @if(isLastMaxValue($index) || !isSingleMaxValue($index)){
+                <div class="d-flex justify-content-center mt-2">
+                    @if(isLastMinValue($index)){
+                    <button type="button" class="btn btn-primary me-3" style="width: 40%;" (click)="addMinValue()">
+                        + Додати поле
+                    </button>
+                    }
+                    @if(!isSingleMinValue($index)){
+                    <button type="button" class="btn btn-danger" style="width: 40%;" (click)="removeMinValue($index)">
+                        - Видалити поле
+                    </button>
+                    }
+                </div>
                 }
             </div>
+            }
         </div>
-        <div class="mt-3">
-            <div class="d-flex justify-content-center">
-                @if(isLastFieldWithName($index)){
-                <button type="button" class="btn btn-primary me-3" style="width: 20%;" (click)="addField($index)">
-                    + Додати поле
-                </button>
+        <div class="mt-3" formGroupName="maxValues">
+            @for(maxValue of getMaxValues(); track maxValue){
+            <div>
+                <label [for]="'modalInputMaxValue'+$index" class="form-label">Введіть максимальне значення:</label>
+                <input type="text" [id]="'modalInputMaxValue'+$index" class="form-control"
+                    [formControlName]="getMaxFormControlName($index)" />
+                @if (f['maxValues'].get(getMaxFormControlName($index))?.errors?.['isDecimal'] &&
+                (f['maxValues'].get(getMaxFormControlName($index))?.touched ||
+                f['maxValues'].get(getMaxFormControlName($index))?.dirty))
+                {
+                <div class="text-danger mt-1">{{ decimalRequiredMessage }}</div>
                 }
-                @if(!isSingleFieldWithName($index)){
-                <button type="button" class="btn btn-danger" style="width: 20%;" (click)="removeField($index)">
-                    - Видалити поле
-                </button>
+                @if(isLastMaxValue($index) || !isSingleMaxValue($index)){
+                <div class="d-flex justify-content-center mt-2">
+                    @if(isLastMaxValue($index)){
+                    <button type="button" class="btn btn-primary me-3" style="width: 40%;" (click)="addMaxValue()">
+                        + Додати поле
+                    </button>
+                    }
+                    @if(!isSingleMaxValue($index)){
+                    <button type="button" class="btn btn-danger" style="width: 40%;" (click)="removeMaxValue($index)">
+                        - Видалити поле
+                    </button>
+                    }
+                </div>
                 }
             </div>
+            }
         </div>
         <div class="mt-3">
             <label for="university" class="form-label">Університет</label>
