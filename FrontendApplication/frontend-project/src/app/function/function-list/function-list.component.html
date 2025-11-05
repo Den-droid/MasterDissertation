@@ -43,8 +43,8 @@
                     <td>{{function.maxValues.length > 0 ? (function.maxValues | join:', ') : 'Немає'}}</td>
                     <td>{{function.subject.name + ' (' + function.subject.university.name + ')'}}</td>
                     <td>
-                        <div class="d-flex justify-content-center gap-1">
-                            <button class="btn btn-sm btn-warning me-2" (click)="openEditModal(function.id)">
+                        <div class="d-flex justify-content-around">
+                            <button class="btn btn-sm btn-warning" (click)="openEditModal(function.id)">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
                             <button class="btn btn-sm btn-danger" (click)="deleteFunction(function.id)">

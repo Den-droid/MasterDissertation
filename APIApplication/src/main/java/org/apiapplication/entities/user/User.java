@@ -34,6 +34,9 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
+    @ManyToMany(mappedBy = "students")
+    private List<Group> groups;
+
     @OneToOne(mappedBy = "user")
     private UserInfo userInfo;
 
@@ -42,9 +45,6 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<UserPermission> userPermissions;
-
-    @ManyToMany(mappedBy = "students")
-    private List<Group> groups;
 
     @Override
     public boolean equals(Object o) {

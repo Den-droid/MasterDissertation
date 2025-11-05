@@ -1,8 +1,8 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { baseUrl } from "../constants/url.constant";
-import { ApiKeyDto } from "../models/user.model";
+import { ApiKeyDto, UserDto } from "../models/user.model";
 import { JWTTokenService } from "./jwt-token.service";
 
 @Injectable({
@@ -14,7 +14,25 @@ export class UserService {
   constructor(private readonly httpClient: HttpClient, private readonly jwtService: JWTTokenService) {
   }
 
+  get(userId: number): Observable<UserDto[]> {
+    if (userId === -1) {
+      return this.httpClient.get<UserDto[]>(`${this.url}`)
+    } else {
+      const params = new HttpParams()
+        .set('userId', userId);
+      return this.httpClient.get<UserDto[]>(`${this.url}`, { params })
+    }
+  }
+
   getApiKey(userId: number): Observable<ApiKeyDto> {
     return this.httpClient.put<ApiKeyDto>(`${this.url}/${userId}/apiKey`, null)
+  }
+
+  approve(userId: number): Observable<any> {
+    return this.httpClient.put<ApiKeyDto>(`${this.url}/${userId}/approve`, null)
+  }
+
+  reject(userId: number): Observable<any> {
+    return this.httpClient.put<ApiKeyDto>(`${this.url}/${userId}/reject`, null)
   }
 }

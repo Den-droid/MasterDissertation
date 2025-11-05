@@ -52,7 +52,9 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/groups/{groupId}/setStudents', 'Задати студентів групи', 2),
        ('/api/groups/{groupId}/addSubjects', 'Додати предмети до групи', 2),
        ('/api/groups/{groupId}/removeSubjects', 'Видалити предмети з групи', 2),
-       ('/api/groups/{groupId}/setSubjects', 'Задати предмети для групи', 2);
+       ('/api/groups/{groupId}/setSubjects', 'Задати предмети для групи', 2),
+       ('/api/users/{userId}/approve', 'Підтвердити користувача', 2),
+       ('/api/users/{userId}/reject', 'Відхилити користувача', 2);
 
 INSERT INTO fields (name, label, description, type)
 VALUES ('userId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор користувача', 0),

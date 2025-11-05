@@ -9,13 +9,14 @@ import { authenticatedGuard } from './shared/guards/authenticated.guard';
 import { studentGuard } from './shared/guards/student.guard';
 import { AuthService } from './shared/services/auth.service';
 import { StudentComponent } from './student/student.component';
-import { UserComponent } from './user/user.component';
 import { UniversityComponent } from './university/university.component';
 import { adminGuard } from './shared/guards/admin.guard';
 import { adminTeacherGuard } from './shared/guards/admin-teacher.guard';
 import { SubjectComponent } from './subjects/subject.component';
 import { FunctionComponent } from './function/function.component';
 import { authorizeInterceptor } from './shared/interceptors/authorize.interceptor';
+import { UsersComponent } from './users/users.component';
+import { UserComponent } from './user/user.component';
 
 const routes: Routes = [
   {
@@ -71,6 +72,11 @@ const routes: Routes = [
     path: "functions", component: FunctionComponent,
     loadChildren: () => import('./function/function.module').then(m => m.FunctionModule),
     canActivate: [adminTeacherGuard]
+  },
+  {
+    path: "users", component: UsersComponent,
+    loadChildren: () => import('./users/users.module').then(m => m.UsersModule),
+    canActivate: [adminGuard]
   },
   { path: '**', redirectTo: '/error/404', pathMatch: 'full' }
 ]

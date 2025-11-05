@@ -58,7 +58,7 @@
           </td>
           <td><span class="badge bg-success">{{getAssignmentStatusString(activeAssignment)}}</span></td>
           <td>
-            <div class="d-flex justify-content-center gap-1">
+            <div class="d-flex justify-content-around">
               <button class="btn btn-sm btn-outline-info me-2" (click)="goToAnswersPage(activeAssignment)">
                 <i class="fa-solid fa-eye"></i>
               </button>
@@ -100,9 +100,11 @@
           <td>{{finishedAssignment.mark == -1 ? 'Немає' : finishedAssignment.mark}}</td>
           <td>{{finishedAssignment.comment.length == 0 ? 'Немає' : finishedAssignment.comment}}</td>
           <td>
-            <button class="btn btn-sm btn-outline-info" (click)="goToAnswersPage(finishedAssignment)">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+            <div class="d-flex justify-content-around">
+              <button class="btn btn-sm btn-outline-info" (click)="goToAnswersPage(finishedAssignment)">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
           </td>
         </tr>
         }

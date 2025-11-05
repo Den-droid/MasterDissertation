@@ -37,4 +37,28 @@ public class UserController {
         ApiKeyDto newApiKeyDto = userService.getApiKey(userIdInt);
         return ResponseEntity.ok(newApiKeyDto);
     }
+
+    @PutMapping("/{userId}/approve")
+    public ResponseEntity<?> approve(@PathVariable String userId) {
+        int userIdInt;
+        try {
+            userIdInt = Integer.parseInt(userId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.USER, userId);
+        }
+        userService.approve(userIdInt);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{userId}/reject")
+    public ResponseEntity<?> reject(@PathVariable String userId) {
+        int userIdInt;
+        try {
+            userIdInt = Integer.parseInt(userId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.USER, userId);
+        }
+        userService.reject(userIdInt);
+        return ResponseEntity.ok().build();
+    }
 }

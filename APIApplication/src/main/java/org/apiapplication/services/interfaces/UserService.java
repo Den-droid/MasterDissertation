@@ -9,4 +9,8 @@ public interface UserService {
     List<UserDto> get(Integer userId);
 
     ApiKeyDto getApiKey(int userId);
+
+    void approve(int userId);
+
+    void reject(int userId);
 }

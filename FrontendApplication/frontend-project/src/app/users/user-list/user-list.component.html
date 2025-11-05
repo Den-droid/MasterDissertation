@@ -1,0 +1,62 @@
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-4">
+            <i class="fa-solid fa-user me-2"></i> Користувачі
+        </h1>
+    </div>
+
+    <div class="mb-3">
+        <input type="text" class="form-control" placeholder="Пошук користувача..." [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange($event)" />
+    </div>
+
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered align-middle text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>Ім'я</th>
+                    <th>Електронна адреса</th>
+                    <th>Роль</th>
+                    <th>Університет</th>
+                    <th>Статус</th>
+                    <th>Дія</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (users.length === 0) {
+                <td colspan="6" class="text-center">
+                    <strong>Користувачів не знайдено</strong>
+                </td>
+                } @else if (filteredUsers.length === 0) {
+                <td colspan="6" class="text-center">
+                    <strong>Користувачів за пошуковим запитом не знайдено</strong>
+                </td>
+                }
+                @for (user of filteredUsers; track user.id) {
+                <tr>
+                    <td>{{user.firstName + ' ' + user.lastName}}</td>
+                    <td>{{user.email}}</td>
+                    <td>{{getRoleLabel(user.role)}}</td>
+                    <td>{{user.university.name}}</td>
+                    <td>{{user.isApproved ? 'Підтверджений':'Відхилений'}}</td>
+                    <td>
+                        <div class="d-flex justify-content-around">
+                            @if(user.isApproved){
+                            <button class="btn btn-sm btn-danger" (click)="reject(user.id)">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                            }
+                            @else{
+                            <button class="btn btn-sm btn-success" (click)="approve(user.id)">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                            }
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
