@@ -50,19 +50,7 @@ public class GroupServiceImpl implements GroupService {
         }
 
         return currentUser.getGroups().stream()
-                .map(g -> new GroupDto(
-                        g.getId(),
-                        g.getName(),
-                        g.getStudents().stream()
-                                .map(s -> new GroupStudentDto(s.getId(),
-                                        s.getUserInfo().getFirstName(),
-                                        s.getUserInfo().getLastName()))
-                                .toList(),
-                        g.getSubjects().stream()
-                                .map(s -> new GroupSubjectDto(s.getId(),
-                                        s.getName()))
-                                .toList()
-                ))
+                .map(this::getGroupDto)
                 .toList();
     }
 
@@ -80,18 +68,7 @@ public class GroupServiceImpl implements GroupService {
         if (!group.getOwner().getId().equals(currentUser.getId()))
             throw new PermissionException();
 
-        return new GroupDto(
-                group.getId(),
-                group.getName(),
-                group.getStudents().stream()
-                        .map(s -> new GroupStudentDto(s.getId(),
-                                s.getUserInfo().getFirstName(),
-                                s.getUserInfo().getLastName()))
-                        .toList(),
-                group.getSubjects().stream()
-                        .map(s -> new GroupSubjectDto(s.getId(),
-                                s.getName()))
-                        .toList());
+        return getGroupDto(group);
     }
 
     @Override
@@ -232,5 +209,20 @@ public class GroupServiceImpl implements GroupService {
         List<Subject> subjects = subjectRepository.findAllById(dto.subjectIds());
         subjects.forEach(group.getSubjects()::remove);
         groupRepository.save(group);
+    }
+
+    private GroupDto getGroupDto(Group group) {
+        return new GroupDto(
+                group.getId(),
+                group.getName(),
+                group.getStudents().stream()
+                        .map(s -> new GroupStudentDto(s.getId(),
+                                s.getUserInfo().getFirstName(),
+                                s.getUserInfo().getLastName()))
+                        .toList(),
+                group.getSubjects().stream()
+                        .map(s -> new GroupSubjectDto(s.getId(),
+                                s.getName()))
+                        .toList());
     }
 }

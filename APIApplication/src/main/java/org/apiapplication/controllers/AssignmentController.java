@@ -44,6 +44,12 @@ public class AssignmentController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/assignToGroup")
+    public ResponseEntity<?> assignToGroup(@RequestBody AssignGroupDto assignGroupDto) {
+        assignmentService.assign(assignGroupDto);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/{userAssignmentId}/startContinue")
     public ResponseEntity<?> startContinue(@PathVariable String userAssignmentId) {
         int userAssignmentIdInt;

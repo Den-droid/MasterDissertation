@@ -40,8 +40,8 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/permissions', 'Отримати права користувача', 0),
        ('/api/users', 'Отримати дані про користувачів', 0),
        ('/api/groups', 'Отримати список груп, якими ' ||
-                                         'володіє поточний користувач', 0),
-       ('/api/groups/{id}', 'Отримати групу за ідентифікатором', 0),
+                       'володіє поточний користувач', 0),
+       ('/api/groups/{groupId}', 'Отримати групу за ідентифікатором', 0),
        ('/api/groups', 'Створити групу', 1),
        ('/api/groups/{groupId}', 'Оновити групу', 2),
        ('/api/groups/{groupId}', 'Видалити групу', 3),
@@ -52,7 +52,8 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/groups/{groupId}/removeSubjects', 'Видалити предмети з групи', 2),
        ('/api/groups/{groupId}/setSubjects', 'Задати предмети для групи', 2),
        ('/api/users/{userId}/approve', 'Підтвердити користувача', 2),
-       ('/api/users/{userId}/reject', 'Відхилити користувача', 2);
+       ('/api/users/{userId}/reject', 'Відхилити користувача', 2),
+       ('/api/assignments/assignToGroup', 'Призначити завдання групі', 1);
 
 INSERT INTO fields (name, label, description, type)
 VALUES ('userId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор користувача', 0),
@@ -81,12 +82,16 @@ VALUES ('userId', 'Ідентифікатор', 'Унікальний число
        ('variablesCount', 'Кількість змінних у функції', 'Кількість змінних у функції', 0),
        ('markId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор оцінки', 0),
        ('userIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор користувача', 0),
-       ('subjectId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор предмету', 0);
+       ('subjectIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор предмету', 0),
+       ('groupId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор групи', 0);
 
 insert into url_fields(url_id, field_id, required, multiple)
-values ((select id from urls where url = '/api/assignments/assign'),
-        (select id from fields where name = 'userId'),
+values ((select id from urls where url = '/api/assignments/assignToGroup'),
+        (select id from fields where name = 'groupId'),
         true, false),
+       ((select id from urls where url = '/api/assignments/assign'),
+        (select id from fields where name = 'subjectIds'),
+        true, true),
        ((select id from urls where url = '/api/assignments/{userAssignmentId}/giveAnswer'),
         (select id from fields where name = 'answer'),
         true, false),

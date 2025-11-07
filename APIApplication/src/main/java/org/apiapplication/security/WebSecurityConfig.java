@@ -47,7 +47,10 @@ public class WebSecurityConfig {
     };
 
     private final String[] teacherUrls = {
-            "/api/assignments/*/putMark"
+            "/api/assignments/*/putMark",
+            "/api/groups",
+            "/api/groups/*",
+            "/api/assignments/assignToGroup"
     };
 
     private final String[] adminUrls = {

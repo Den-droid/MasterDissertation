@@ -6,6 +6,8 @@ import org.apiapplication.dto.answer.AnswerDto;
 import org.apiapplication.dto.assignment.*;
 import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.dto.user.UserDto;
+import org.apiapplication.entities.Group;
+import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.assignment.*;
 import org.apiapplication.entities.user.Role;
 import org.apiapplication.entities.user.User;
@@ -32,30 +34,29 @@ import java.util.*;
 @Service
 @Transactional
 public class AssignmentServiceImpl implements AssignmentService {
-    private final UserRepository userRepository;
-    private final FunctionRepository functionRepository;
     private final UserAssignmentRepository userAssignmentRepository;
     private final AssignmentRepository assignmentRepository;
     private final AnswerRepository answerRepository;
+    private final SubjectRepository subjectRepository;
+    private final GroupRepository groupRepository;
 
     private final PermissionService permissionService;
     private final AssignmentRestrictionService assignmentRestrictionService;
     private final SessionService sessionService;
 
-    public AssignmentServiceImpl(UserRepository userRepository,
-                                 FunctionRepository functionRepository,
-                                 UserAssignmentRepository userAssignmentRepository,
+    public AssignmentServiceImpl(UserAssignmentRepository userAssignmentRepository,
                                  AssignmentRepository assignmentRepository,
                                  AnswerRepository answerRepository,
+                                 SubjectRepository subjectRepository, GroupRepository groupRepository,
                                  PermissionService permissionService,
                                  AssignmentRestrictionService
                                          assignmentRestrictionService,
                                  SessionService sessionService) {
-        this.userRepository = userRepository;
-        this.functionRepository = functionRepository;
         this.userAssignmentRepository = userAssignmentRepository;
         this.assignmentRepository = assignmentRepository;
         this.answerRepository = answerRepository;
+        this.subjectRepository = subjectRepository;
+        this.groupRepository = groupRepository;
 
         this.permissionService = permissionService;
         this.assignmentRestrictionService = assignmentRestrictionService;
@@ -138,64 +139,103 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new PermissionException();
         }
 
-        User user = userRepository.findById(dto.userId()).orElseThrow(
-                () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(dto.userId()))
-        );
+        User user = sessionService.getCurrentUser();
 
-        List<Function> allFunctions = functionRepository.findAll();
+        subjectRepository.findAll().stream()
+                .filter(s -> dto.subjectIds().contains(s.getId()))
+                .map(Subject::getUniversity)
+                .filter(u -> !user.getUserInfo().getUniversity().equals(u))
+                .findFirst()
+                .orElseThrow(PermissionException::new);
+
+        List<Subject> subjects = subjectRepository.findAll().stream()
+                .filter(s -> dto.subjectIds().contains(s.getId()))
+                .toList();
+
+        assign(List.of(user), subjects);
+    }
+
+    @Override
+    public void assign(AssignGroupDto dto) {
+        User currentUser = sessionService.getCurrentUser();
+
+        Group group = groupRepository.findById(dto.groupId())
+                .orElseThrow(() -> new EntityWithIdNotFoundException(
+                        EntityName.GROUP, String.valueOf(dto.groupId())
+                ));
+
+        if (!group.getOwner().getId().equals(currentUser.getId()))
+            throw new PermissionException();
+
+        List<Subject> subjects = group.getSubjects().stream().toList();
+
+        assign(group.getStudents().stream().toList(), subjects);
+    }
+
+    private void assign(List<User> users, List<Subject> subjects) {
+        List<UserAssignment> allUserAssignments = new ArrayList<>();
+
+        List<Function> allFunctions = subjects.stream()
+                .flatMap(f -> f.getFunctions().stream())
+                .toList();
         List<Assignment> allAssignments = assignmentRepository.findAll();
-        List<UserAssignment> possibleUserAssignments = new ArrayList<>();
 
-        for (Function function : allFunctions) {
-            for (Assignment assignment : allAssignments) {
-                if (assignment.getFunctionResultType().equals(FunctionResultType.MIN) &&
-                        !getMinMaxValuesForFunction(function, FunctionResultType.MIN).isEmpty())
-                    possibleUserAssignments.add(new UserAssignment(user, function, assignment));
-                else if (assignment.getFunctionResultType().equals(FunctionResultType.MAX) &&
-                        !getMinMaxValuesForFunction(function, FunctionResultType.MAX).isEmpty()) {
-                    possibleUserAssignments.add(new UserAssignment(user, function, assignment));
+        for (User user : users) {
+            List<UserAssignment> possibleUserAssignments = new ArrayList<>();
+
+            for (Function function : allFunctions) {
+                for (Assignment assignment : allAssignments) {
+                    if (assignment.getFunctionResultType().equals(FunctionResultType.MIN) &&
+                            !getMinMaxValuesForFunction(function, FunctionResultType.MIN).isEmpty())
+                        possibleUserAssignments.add(new UserAssignment(user, function, assignment));
+                    else if (assignment.getFunctionResultType().equals(FunctionResultType.MAX) &&
+                            !getMinMaxValuesForFunction(function, FunctionResultType.MAX).isEmpty()) {
+                        possibleUserAssignments.add(new UserAssignment(user, function, assignment));
+                    }
                 }
             }
+
+            if (possibleUserAssignments.isEmpty())
+                throw new NoAvailableAssignmentsException();
+
+            List<UserAssignment> userAssignments = user.getUserAssignments();
+            possibleUserAssignments.removeAll(userAssignments);
+
+            Random random = new Random();
+            int possibleFunctionsCount = possibleUserAssignments.size();
+            int possibleFunctionIndex = random.nextInt(possibleFunctionsCount);
+
+            UserAssignment userAssignment = new UserAssignment();
+            userAssignment.setAssignment(possibleUserAssignments.get(possibleFunctionIndex).getAssignment());
+            userAssignment.setUser(user);
+            userAssignment.setFunction(possibleUserAssignments.get(possibleFunctionIndex).getFunction());
+            userAssignment.setHasCorrectAnswer(false);
+            userAssignment.setStatus(AssignmentStatus.ASSIGNED);
+
+            DefaultAssignmentRestriction defaultAssignmentRestriction =
+                    assignmentRestrictionService.getDefaultRestrictionForFunction(userAssignment.getFunction());
+
+            if (defaultAssignmentRestriction == null) {
+                defaultAssignmentRestriction = assignmentRestrictionService.getDefaultRestriction();
+            }
+
+            if (defaultAssignmentRestriction.getAssignmentRestrictionType()
+                    .equals(AssignmentRestrictionType.N_ATTEMPTS)) {
+                userAssignment.setRestrictionType(AssignmentRestrictionType.N_ATTEMPTS);
+                userAssignment.setAttemptsRemaining(defaultAssignmentRestriction.getAttemptsRemaining());
+            } else if (defaultAssignmentRestriction.getAssignmentRestrictionType()
+                    .equals(AssignmentRestrictionType.DEADLINE)) {
+                userAssignment.setRestrictionType(AssignmentRestrictionType.DEADLINE);
+                userAssignment.setDeadline(defaultAssignmentRestriction.getDeadline());
+            } else {
+                userAssignment.setRestrictionType(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
+                userAssignment.setMinutesForAttempt(defaultAssignmentRestriction.getMinutesForAttempt());
+            }
+
+            allUserAssignments.add(userAssignment);
         }
 
-        if (possibleUserAssignments.isEmpty())
-            throw new NoAvailableAssignmentsException();
-
-        List<UserAssignment> userAssignments = user.getUserAssignments();
-        possibleUserAssignments.removeAll(userAssignments);
-
-        Random random = new Random();
-        int possibleFunctionsCount = possibleUserAssignments.size();
-        int possibleFunctionIndex = random.nextInt(possibleFunctionsCount);
-
-        UserAssignment userAssignment = new UserAssignment();
-        userAssignment.setAssignment(possibleUserAssignments.get(possibleFunctionIndex).getAssignment());
-        userAssignment.setUser(user);
-        userAssignment.setFunction(possibleUserAssignments.get(possibleFunctionIndex).getFunction());
-        userAssignment.setHasCorrectAnswer(false);
-        userAssignment.setStatus(AssignmentStatus.ASSIGNED);
-
-        DefaultAssignmentRestriction defaultAssignmentRestriction =
-                assignmentRestrictionService.getDefaultRestrictionForFunction(userAssignment.getFunction());
-
-        if (defaultAssignmentRestriction == null) {
-            defaultAssignmentRestriction = assignmentRestrictionService.getDefaultRestriction();
-        }
-
-        if (defaultAssignmentRestriction.getAssignmentRestrictionType()
-                .equals(AssignmentRestrictionType.N_ATTEMPTS)) {
-            userAssignment.setRestrictionType(AssignmentRestrictionType.N_ATTEMPTS);
-            userAssignment.setAttemptsRemaining(defaultAssignmentRestriction.getAttemptsRemaining());
-        } else if (defaultAssignmentRestriction.getAssignmentRestrictionType()
-                .equals(AssignmentRestrictionType.DEADLINE)) {
-            userAssignment.setRestrictionType(AssignmentRestrictionType.DEADLINE);
-            userAssignment.setDeadline(defaultAssignmentRestriction.getDeadline());
-        } else {
-            userAssignment.setRestrictionType(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
-            userAssignment.setMinutesForAttempt(defaultAssignmentRestriction.getMinutesForAttempt());
-        }
-
-        userAssignmentRepository.save(userAssignment);
+        userAssignmentRepository.saveAll(allUserAssignments);
     }
 
     @Override

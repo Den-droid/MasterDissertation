@@ -12,6 +12,8 @@ public interface AssignmentService {
 
     void assign(AssignDto assignDto);
 
+    void assign(AssignGroupDto assignGroupDto);
+
     void startContinue(int userAssignmentId);
 
     void finish(int userAssignmentId);

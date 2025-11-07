@@ -1,4 +1,6 @@
 package org.apiapplication.dto.assignment;
 
-public record AssignDto(int userId) {
+import java.util.List;
+
+public record AssignDto(List<Integer> subjectIds) {
 }
