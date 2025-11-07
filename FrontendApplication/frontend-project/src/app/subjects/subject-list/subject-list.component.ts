@@ -217,10 +217,7 @@ export class SubjectListComponent implements OnInit {
       keyboard: false
     });
 
-    const errorSubject = new Subject<string>();
-
     modalRef.componentInstance.title = restrictionModalHeaders['non-default'];
-    modalRef.componentInstance.errorSubject$ = errorSubject;
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {

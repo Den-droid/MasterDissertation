@@ -196,9 +196,9 @@ export class FunctionListComponent implements OnInit {
           if (dto[0].functionId == null) {
             modalRef.componentInstance.isInputRestrictionTypeDifferent = true;
             if (dto[0].universityId != null) {
-              modalRef.componentInstance.inputRestritionTypeLevel = DefaultRestrictionLevel.SUBJECT;
-            } else {
               modalRef.componentInstance.inputRestritionTypeLevel = DefaultRestrictionLevel.UNIVERSITY;
+            } else {
+              modalRef.componentInstance.inputRestritionTypeLevel = DefaultRestrictionLevel.SUBJECT;
             }
           }
           modalRef.componentInstance.inputValue = new ModalRestrictionDto(dto[0].restrictionType,
@@ -231,10 +231,7 @@ export class FunctionListComponent implements OnInit {
       keyboard: false
     });
 
-    const errorSubject = new Subject<string>();
-
     modalRef.componentInstance.title = restrictionModalHeaders['non-default'];
-    modalRef.componentInstance.errorSubject$ = errorSubject;
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
