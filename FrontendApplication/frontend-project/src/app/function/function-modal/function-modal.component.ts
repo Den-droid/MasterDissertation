@@ -20,18 +20,13 @@ export class FunctionModalComponent {
   @Input() errorSubject$!: Subject<string>;
   @Input() actionType!: ActionType;
 
-  private _inputValue!: FunctionDto;
   @Input()
   set inputValue(val: FunctionDto) {
-    this._inputValue = val;
-    this.selectedSubject = val.subject;
-    this.selectedUniversity = val.subject.university;
-
     if (this.form) {
       this.form.get('text')?.setValue(val.text);
       this.form.get('variablesCount')?.setValue(val.variablesCount);
-      this.form.get('subject')?.setValue(val.subject.id);
       this.form.get('university')?.setValue(val.subject.university.id);
+      this.form.get('subject')?.setValue(val.subject.id);
 
       if (val.minValues.length > 0) {
         (this.form.get('minValues') as FormGroup).get('0')?.setValue(val.minValues[0]);
@@ -50,9 +45,6 @@ export class FunctionModalComponent {
       }
     }
   }
-  get inputValue() {
-    return this._inputValue;
-  }
 
   private _universities: UniversityDto[] = [];
   @Input()
@@ -67,7 +59,11 @@ export class FunctionModalComponent {
   @Input()
   set subjects(val: SubjectDto[]) {
     this._subjects = val;
-    this.displayedSubjects = val;
+    if (this.form.value.university) {
+      this.displayedSubjects = val.filter(s => s.university.id == this.form.value.university);
+    } else {
+      this.displayedSubjects = val;
+    }
   }
   get subjects() {
     return this._subjects;
@@ -76,9 +72,6 @@ export class FunctionModalComponent {
   @Output() saveAttempt = new EventEmitter();
 
   displayedSubjects!: SubjectDto[];
-
-  selectedUniversity!: UniversityDto;
-  selectedSubject!: SubjectDto;
 
   functionRequiredMessage = functionLabels['text-required'];
   subjectRequiredMessage = functionLabels['subject-selection-required'];
@@ -111,22 +104,15 @@ export class FunctionModalComponent {
     (this.form.get('maxValues') as FormGroup).addControl('0', new FormControl('', decimalValidator()));
 
     this.form.get('university')?.valueChanges.subscribe({
-      next: (value: any) => {
-        if (value && Number.parseInt(value)) {
-          this.displayedSubjects = this.subjects.filter(s => s.university.id == value);
-          if (this.selectedSubject &&
-            this.displayedSubjects.filter(ds => ds.id == this.selectedSubject.id).length === 0) {
+      next: (value: string) => {
+        if (Number.parseInt(value) == -1) {
+          this.displayedSubjects = this.subjects;
+        } else {
+          this.displayedSubjects = this.subjects.filter(s => s.university.id == Number.parseInt(value));
+          if (this.displayedSubjects.filter(ds => ds.id == this.form.value.subject).length === 0) {
             this.form.get('subject')?.setValue('');
           }
-        } else {
-          this.displayedSubjects = this.subjects;
         }
-      }
-    })
-
-    this.form.get('subject')?.valueChanges.subscribe({
-      next: (value: number) => {
-        this.selectedSubject = this.subjects.filter(s => s.id == value)[0];
       }
     })
   }
@@ -175,17 +161,13 @@ export class FunctionModalComponent {
     }
   }
 
-  isUniversitySelected(id: number) {
-    return this.selectedUniversity && this.selectedUniversity.id === id;
-  }
-
-  isSubjectSelected(id: number) {
-    return this.selectedSubject && this.selectedSubject.id === id;
-  }
-
   removeMaxValue(index: number) {
     const group = (this.form.get('maxValues') as FormGroup);
-    group.removeControl(Object.keys(group.controls)[index]);
+    if (Object.keys(group.controls).length === 1) {
+      group.get(Object.keys(group.controls)[index])?.setValue('');
+    } else {
+      group.removeControl(Object.keys(group.controls)[index]);
+    }
   }
 
   addMaxValue() {
@@ -198,7 +180,12 @@ export class FunctionModalComponent {
 
   removeMinValue(index: number) {
     const group = (this.form.get('minValues') as FormGroup);
-    group.removeControl(Object.keys(group.controls)[index]);
+    if (Object.keys(group.controls).length === 1) {
+      group.get(Object.keys(group.controls)[index])?.setValue('');
+    }
+    else {
+      group.removeControl(Object.keys(group.controls)[index]);
+    }
   }
 
   addMinValue() {
@@ -209,22 +196,10 @@ export class FunctionModalComponent {
     ));
   }
 
-  isSingleMaxValue(index: number) {
-    const group = (this.form.get('maxValues') as FormGroup);
-    const controlNames = Object.keys(group.controls);
-    return controlNames.length === 1 && index === 0;
-  }
-
   isLastMaxValue(index: number) {
     const group = (this.form.get('maxValues') as FormGroup);
     const controlNames = Object.keys(group.controls);
     return controlNames.length - 1 === index;
-  }
-
-  isSingleMinValue(index: number) {
-    const group = (this.form.get('minValues') as FormGroup);
-    const controlNames = Object.keys(group.controls);
-    return controlNames.length === 1 && index === 0;
   }
 
   isLastMinValue(index: number) {

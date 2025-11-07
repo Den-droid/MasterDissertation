@@ -187,36 +187,98 @@ public class FunctionServiceImpl implements FunctionService {
             existingFunction.setText(dto.text());
         }
 
-        List<FunctionMinMaxValue> functionMinMaxValues = new ArrayList<>();
+        List<FunctionMinMaxValue> functionMinMaxValues = existingFunction.getFunctionMinMaxValues();
+        List<FunctionMinMaxValue> minMaxValuesToAdd = new ArrayList<>();
+        List<FunctionMinMaxValue> minMaxValuesToRemove = new ArrayList<>();
 
         if (!dto.minValues().isEmpty()) {
+            List<Double> minValues = new ArrayList<>(
+                    functionMinMaxValues.stream()
+                            .filter(mv ->
+                                    mv.getFunctionResultType().equals(FunctionResultType.MIN))
+                            .map(FunctionMinMaxValue::getValue)
+                            .toList());
+
             for (double minValue : dto.minValues()) {
+                if (minValues.contains(minValue)) {
+                    continue;
+                }
+
                 FunctionMinMaxValue functionMinMaxValue = new FunctionMinMaxValue();
                 functionMinMaxValue.setFunctionResultType(FunctionResultType.MIN);
                 functionMinMaxValue.setValue(minValue);
                 functionMinMaxValue.setFunction(existingFunction);
 
-                functionMinMaxValues.add(functionMinMaxValue);
+                minMaxValuesToAdd.add(functionMinMaxValue);
+                minValues.add(minValue);
             }
+
+            List<FunctionMinMaxValue> functionMinValues = functionMinMaxValues.stream()
+                    .filter(mv ->
+                            mv.getFunctionResultType().equals(FunctionResultType.MIN))
+                    .toList();
+
+            for (FunctionMinMaxValue fmmv : functionMinValues) {
+                if (!dto.minValues().contains(fmmv.getValue())) {
+                    minMaxValuesToRemove.add(fmmv);
+                }
+            }
+        } else {
+            List<FunctionMinMaxValue> functionMaxValues = functionMinMaxValues.stream()
+                    .filter(mv ->
+                            mv.getFunctionResultType().equals(FunctionResultType.MIN))
+                    .toList();
+
+            minMaxValuesToRemove.addAll(functionMaxValues);
         }
+
         if (!dto.maxValues().isEmpty()) {
+            List<Double> maxValues = new ArrayList<>(
+                    functionMinMaxValues.stream()
+                            .filter(mv ->
+                                    mv.getFunctionResultType().equals(FunctionResultType.MAX))
+                            .map(FunctionMinMaxValue::getValue)
+                            .toList());
+
             for (double maxValue : dto.maxValues()) {
+                if (maxValues.contains(maxValue)) {
+                    continue;
+                }
+
                 FunctionMinMaxValue functionMinMaxValue = new FunctionMinMaxValue();
                 functionMinMaxValue.setFunctionResultType(FunctionResultType.MAX);
                 functionMinMaxValue.setValue(maxValue);
                 functionMinMaxValue.setFunction(existingFunction);
 
-                functionMinMaxValues.add(functionMinMaxValue);
+                minMaxValuesToAdd.add(functionMinMaxValue);
+                maxValues.add(maxValue);
             }
-        }
 
-        existingFunction.setFunctionMinMaxValues(functionMinMaxValues);
+            List<FunctionMinMaxValue> functionMaxValues = functionMinMaxValues.stream()
+                    .filter(mv ->
+                            mv.getFunctionResultType().equals(FunctionResultType.MAX))
+                    .toList();
+
+            for (FunctionMinMaxValue fmmv : functionMaxValues) {
+                if (!dto.maxValues().contains(fmmv.getValue())) {
+                    minMaxValuesToRemove.add(fmmv);
+                }
+            }
+        } else {
+            List<FunctionMinMaxValue> functionMaxValues = functionMinMaxValues.stream()
+                    .filter(mv ->
+                            mv.getFunctionResultType().equals(FunctionResultType.MAX))
+                    .toList();
+
+            minMaxValuesToRemove.addAll(functionMaxValues);
+        }
 
         if (dto.variablesCount() != null) {
             existingFunction.setVariablesCount(dto.variablesCount());
         }
 
-        functionMinMaxValueRepository.saveAll(functionMinMaxValues);
+        functionMinMaxValueRepository.deleteAll(minMaxValuesToRemove);
+        functionMinMaxValueRepository.saveAll(minMaxValuesToAdd);
         functionRepository.save(existingFunction);
     }
 
