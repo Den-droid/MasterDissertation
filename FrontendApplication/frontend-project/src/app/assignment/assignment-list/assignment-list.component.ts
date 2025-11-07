@@ -52,8 +52,7 @@ export class AssignmentListComponent {
   }
 
   getAssignmentsByUserId() {
-    let userId = parseToNumber(this.jwtService.getId());
-    this.assignmentService.getByUserId(userId).subscribe({
+    this.assignmentService.get().subscribe({
       next: (userAssignmentDtos: UserAssignmentDto[]) => {
         this.assignments = [];
         for (const userAssignmentDto of userAssignmentDtos) {

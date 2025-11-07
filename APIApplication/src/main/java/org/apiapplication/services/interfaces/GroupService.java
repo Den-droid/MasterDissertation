@@ -6,7 +6,7 @@ import org.apiapplication.dto.group.*;
 import java.util.List;
 
 public interface GroupService {
-    List<GroupDto> getForCurrentUser();
+    List<GroupDto> get();
 
     GroupDto getById(int id);
 

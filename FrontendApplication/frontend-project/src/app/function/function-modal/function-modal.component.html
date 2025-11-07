@@ -6,14 +6,13 @@
 <form [formGroup]="form">
     <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
         <label for="modalInputText" class="form-label">Введіть текст:</label>
-        <input type="text" id="modalInputText" class="form-control" [value]="inputValue?.text" formControlName="text" />
+        <input type="text" id="modalInputText" class="form-control" formControlName="text" />
         @if (f['text'].errors?.['required'] && (f['text'].touched || f['text'].dirty)) {
         <div class="text-danger mt-1">{{ functionRequiredMessage }}</div>
         }
         <div class="mt-2">
             <label for="modalInputVariablesCount" class="form-label">Введіть кількість змінних:</label>
-            <input type="text" id="modalInputVariablesCount" class="form-control" [value]="inputValue?.variablesCount"
-                formControlName="variablesCount" />
+            <input type="text" id="modalInputVariablesCount" class="form-control" formControlName="variablesCount" />
             @if (f['variablesCount'].errors?.['required'] && (f['variablesCount'].touched || f['variablesCount'].dirty))
             {
             <div class="text-danger mt-1">{{ variablesCountRequiredMessage }}</div>

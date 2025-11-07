@@ -13,11 +13,8 @@ export class AssignmentService {
   constructor(private readonly httpClient: HttpClient) {
   }
 
-  getByUserId(userId: number): Observable<UserAssignmentDto[]> {
-    const options = {
-      params: new HttpParams().set('userId', userId.toString())
-    };
-    return this.httpClient.get<UserAssignmentDto[]>(`${this.url}`, options);
+  get(): Observable<UserAssignmentDto[]> {
+    return this.httpClient.get<UserAssignmentDto[]>(`${this.url}`);
   }
 
   getById(userAssignmentId: number): Observable<AssignmentDto> {

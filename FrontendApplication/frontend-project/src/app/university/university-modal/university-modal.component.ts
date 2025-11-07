@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { universityLabels } from '../../shared/translations/university.translation';
@@ -13,16 +13,11 @@ export class UniversityModalComponent {
   @Input() title = '';
   @Input() errorSubject$!: Subject<string>;
 
-  private _inputValue = '';
   @Input()
   set inputValue(val: string) {
-    this._inputValue = val;
     if (this.form) {
       this.form.get('name')?.setValue(val);
     }
-  }
-  get inputValue() {
-    return this._inputValue;
   }
 
   @Output() saveAttempt = new EventEmitter<string>();
@@ -41,7 +36,7 @@ export class UniversityModalComponent {
     });
 
     this.form = this.fb.group({
-      name: [this._inputValue, [Validators.required]]
+      name: ['', [Validators.required]]
     });
   }
 

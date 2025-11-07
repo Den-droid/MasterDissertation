@@ -39,7 +39,7 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
         'Отримати обмеження для завдань по замовчуванню', 0),
        ('/api/permissions', 'Отримати права користувача', 0),
        ('/api/users', 'Отримати дані про користувачів', 0),
-       ('/api/groups/getForCurrentUser', 'Отримати список груп, якими ' ||
+       ('/api/groups', 'Отримати список груп, якими ' ||
                                          'володіє поточний користувач', 0),
        ('/api/groups/{id}', 'Отримати групу за ідентифікатором', 0),
        ('/api/groups', 'Створити групу', 1),
@@ -84,10 +84,7 @@ VALUES ('userId', 'Ідентифікатор', 'Унікальний число
        ('subjectId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор предмету', 0);
 
 insert into url_fields(url_id, field_id, required, multiple)
-values ((select id from urls where url = '/api/assignments/getByUserId'),
-        (select id from fields where name = 'userId'),
-        true, false),
-       ((select id from urls where url = '/api/assignments/assign'),
+values ((select id from urls where url = '/api/assignments/assign'),
         (select id from fields where name = 'userId'),
         true, false),
        ((select id from urls where url = '/api/assignments/{userAssignmentId}/giveAnswer'),

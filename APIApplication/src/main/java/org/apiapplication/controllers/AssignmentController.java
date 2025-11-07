@@ -21,8 +21,8 @@ public class AssignmentController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<UserAssignmentDto>> getByUserId(@RequestParam Integer userId) {
-        List<UserAssignmentDto> userAssignmentsDto = assignmentService.get(userId);
+    public ResponseEntity<List<UserAssignmentDto>> getByUserId() {
+        List<UserAssignmentDto> userAssignmentsDto = assignmentService.get();
         return ResponseEntity.ok(userAssignmentsDto);
     }
 

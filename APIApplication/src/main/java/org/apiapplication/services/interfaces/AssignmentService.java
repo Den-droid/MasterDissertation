@@ -8,7 +8,7 @@ import java.util.List;
 public interface AssignmentService {
     AssignmentDto getById(int userAssignmentId);
 
-    List<UserAssignmentDto> get(Integer userId);
+    List<UserAssignmentDto> get();
 
     void assign(AssignDto assignDto);
 

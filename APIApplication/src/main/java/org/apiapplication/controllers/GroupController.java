@@ -32,9 +32,9 @@ public class GroupController {
         return ResponseEntity.ok(groupDto);
     }
 
-    @GetMapping("/getForCurrentUser")
-    public ResponseEntity<List<GroupDto>> getForCurrentUser() {
-        List<GroupDto> groupDtos = groupService.getForCurrentUser();
+    @GetMapping
+    public ResponseEntity<List<GroupDto>> get() {
+        List<GroupDto> groupDtos = groupService.get();
         return ResponseEntity.ok(groupDtos);
     }
 

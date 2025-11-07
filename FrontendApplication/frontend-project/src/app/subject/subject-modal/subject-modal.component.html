@@ -6,7 +6,7 @@
 <form [formGroup]="form">
     <div class="modal-body">
         <label for="modalInput" class="form-label">Введіть назву:</label>
-        <input type="text" id="modalInput" class="form-control" [value]="inputValue?.name" formControlName="name" />
+        <input type="text" id="modalInput" class="form-control" formControlName="name" />
         @if (f['name'].errors?.['required'] && (f['name'].touched || f['name'].dirty)) {
         <div class="text-danger mt-1">{{ subjectRequiredMessage }}</div>
         }
@@ -14,7 +14,7 @@
             <label for="university" class="form-label">Університет</label>
             <select id="university" class="form-select" formControlName="university">
                 @for(university of universities; track university) {
-                <option [value]="university.id" [selected]="isUniversitySelected(university.id)">{{university.name}}
+                <option [value]="university.id">{{university.name}}
                 </option>
                 }
             </select>

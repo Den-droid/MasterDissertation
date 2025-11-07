@@ -18,18 +18,12 @@ export class SubjectModalComponent {
   @Input() errorSubject$!: Subject<string>;
   @Input() actionType!: ActionType;
 
-  private _inputValue!: SubjectDto;
   @Input()
   set inputValue(val: SubjectDto) {
-    this._inputValue = val;
-    this.selectedUniversity = val.university;
     if (this.form) {
       this.form.get('name')?.setValue(val.name);
       this.form.get('university')?.setValue(val.university.id);
     }
-  }
-  get inputValue() {
-    return this._inputValue;
   }
 
   private _universities: UniversityDto[] = [];
@@ -42,8 +36,6 @@ export class SubjectModalComponent {
   }
 
   @Output() saveAttempt = new EventEmitter();
-
-  selectedUniversity!: UniversityDto;
 
   subjectRequiredMessage = subjectLabels['name-required'];
   universityRequiredMessage = universityLabels['selection-required'];
@@ -60,7 +52,7 @@ export class SubjectModalComponent {
     });
 
     this.form = this.fb.group({
-      name: [this._inputValue, [Validators.required]],
+      name: ['', [Validators.required]],
       university: ['', [Validators.required]]
     });
   }
@@ -88,9 +80,5 @@ export class SubjectModalComponent {
       this.form.markAllAsTouched();
       return;
     }
-  }
-
-  isUniversitySelected(id: number) {
-    return this.selectedUniversity && this.selectedUniversity.id === id;
   }
 }

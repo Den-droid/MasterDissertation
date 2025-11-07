@@ -43,7 +43,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<GroupDto> getForCurrentUser() {
+    public List<GroupDto> get() {
         User currentUser = sessionService.getCurrentUser();
         if (!sessionService.isUserTeacher(currentUser)) {
             throw new PermissionException();

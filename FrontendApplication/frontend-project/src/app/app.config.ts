@@ -2,7 +2,6 @@ import { ApplicationConfig, inject, provideBrowserGlobalErrorListeners, provideZ
 import { provideRouter, Routes } from '@angular/router';
 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { AssignmentsComponent } from './assignments/assignments.component';
 import { AuthComponent } from './auth/auth.component';
 import { ErrorComponent } from './error/error.component';
 import { authenticatedGuard } from './shared/guards/authenticated.guard';
@@ -10,11 +9,12 @@ import { AuthService } from './shared/services/auth.service';
 import { UniversityComponent } from './university/university.component';
 import { adminGuard } from './shared/guards/admin.guard';
 import { adminTeacherGuard } from './shared/guards/admin-teacher.guard';
-import { SubjectComponent } from './subjects/subject.component';
 import { FunctionComponent } from './function/function.component';
 import { authorizeInterceptor } from './shared/interceptors/authorize.interceptor';
 import { UsersComponent } from './users/users.component';
 import { UserComponent } from './user/user.component';
+import { AssignmentsComponent } from './assignment/assignments.component';
+import { SubjectComponent } from './subject/subject.component';
 
 const routes: Routes = [
   {
@@ -43,7 +43,7 @@ const routes: Routes = [
   },
   {
     path: "assignments", component: AssignmentsComponent,
-    loadChildren: () => import('./assignments/assignments.module').then(m => m.AssignmentsModule),
+    loadChildren: () => import('./assignment/assignments.module').then(m => m.AssignmentsModule),
     canActivate: [authenticatedGuard]
   },
   {
@@ -58,7 +58,7 @@ const routes: Routes = [
   },
   {
     path: "subjects", component: SubjectComponent,
-    loadChildren: () => import('./subjects/subject.module').then(m => m.SubjectModule),
+    loadChildren: () => import('./subject/subject.module').then(m => m.SubjectModule),
     canActivate: [adminTeacherGuard]
   },
   {

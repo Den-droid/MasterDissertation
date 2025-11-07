@@ -89,25 +89,13 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public List<UserAssignmentDto> get(Integer userId) {
+    public List<UserAssignmentDto> get() {
         List<UserAssignment> assignments;
-        User user;
-
-        if (userId == null) {
-            user = sessionService.getCurrentUser();
-        } else {
-            user = userRepository.findById(userId).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(userId))
-            );
-        }
+        User user = sessionService.getCurrentUser();
 
         Role role = user.getRoles().get(0);
 
         if (role.getName().equals(UserRole.STUDENT)) {
-            if (!sessionService.isCurrentUser(userId)) {
-                throw new PermissionException();
-            }
-
             assignments = user.getUserAssignments();
         } else {
             assignments = getByUser(user).stream().toList();
