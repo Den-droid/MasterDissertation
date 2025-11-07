@@ -2,6 +2,7 @@ package org.apiapplication.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
 import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.user.UserPermission;
 
@@ -23,6 +24,9 @@ public class Subject {
 
     @OneToMany(mappedBy = "subject")
     private List<UserPermission> userPermissions;
+
+    @OneToMany(mappedBy = "subject")
+    private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions;
 
     @ManyToOne
     @JoinColumn(name = "university_id", referencedColumnName = "id")

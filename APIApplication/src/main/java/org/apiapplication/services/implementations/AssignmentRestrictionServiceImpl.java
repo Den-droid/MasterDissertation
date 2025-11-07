@@ -10,6 +10,7 @@ import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
 import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.assignment.UserAssignment;
+import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.enums.AssignmentRestrictionType;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
@@ -51,7 +52,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
     }
 
     @Override
-    public List<DefaultRestrictionDto> get(Integer functionId, Integer subjectId, Integer universityId) {
+    public List<DefaultRestrictionDto> getDefault(Integer functionId, Integer subjectId, Integer universityId) {
         if (functionId != null) {
             Function function = functionRepository.findById(functionId)
                     .orElseThrow(() -> new EntityWithIdNotFoundException(
@@ -63,11 +64,12 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                 throw new PermissionException();
             }
 
-            List<DefaultAssignmentRestriction> defaultAssignmentRestrictions = new ArrayList<>();
-            defaultAssignmentRestrictions.add(getDefaultRestrictionForFunction(function));
-            return defaultAssignmentRestrictions.stream()
-                    .map(this::getDefaultAssignmentRestrictionDto)
-                    .toList();
+            DefaultAssignmentRestriction restriction = getDefaultRestrictionForFunction(function);
+            if (restriction != null) {
+                return List.of(getDefaultAssignmentRestrictionDto(restriction));
+            } else {
+                return List.of();
+            }
         } else if (subjectId != null) {
             Subject subject = subjectRepository.findById(subjectId)
                     .orElseThrow(() -> new EntityWithIdNotFoundException(
@@ -79,11 +81,12 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                 throw new PermissionException();
             }
 
-            List<DefaultAssignmentRestriction> defaultAssignmentRestrictions = new ArrayList<>();
-            defaultAssignmentRestrictions.add(getDefaultRestrictionForSubject(subject));
-            return defaultAssignmentRestrictions.stream()
-                    .map(this::getDefaultAssignmentRestrictionDto)
-                    .toList();
+            DefaultAssignmentRestriction restriction = getDefaultRestrictionForSubject(subject);
+            if (restriction != null) {
+                return List.of(getDefaultAssignmentRestrictionDto(restriction));
+            } else {
+                return List.of();
+            }
         } else if (universityId != null) {
             University university = universityRepository.findById(universityId)
                     .orElseThrow(() -> new EntityWithIdNotFoundException(
@@ -95,22 +98,37 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                 throw new PermissionException();
             }
 
-            List<DefaultAssignmentRestriction> defaultAssignmentRestrictions = new ArrayList<>();
-            defaultAssignmentRestrictions.add(getDefaultRestrictionForUniversity(university));
-            return defaultAssignmentRestrictions.stream()
-                    .map(this::getDefaultAssignmentRestrictionDto)
-                    .toList();
-        } else {
-            if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-                throw new PermissionException();
+            DefaultAssignmentRestriction restriction = getDefaultRestrictionForUniversity(university);
+            if (restriction != null) {
+                return List.of(getDefaultAssignmentRestrictionDto(restriction));
+            } else {
+                return List.of();
             }
-
-            List<DefaultAssignmentRestriction> defaultAssignmentRestrictions =
-                    defaultAssignmentRestrictionRepository.findAll();
-            return defaultAssignmentRestrictions.stream()
+        } else {
+            List<UserPermission> permissions = sessionService.getCurrentUser().getUserPermissions();
+            return permissions.stream()
+                    .map(p -> {
+                        if (p.getUniversity() != null) {
+                            return p.getUniversity().getDefaultAssignmentRestrictions();
+                        } else if (p.getSubject() != null) {
+                            return p.getSubject().getDefaultAssignmentRestrictions();
+                        } else {
+                            return p.getFunction().getDefaultAssignmentRestrictions();
+                        }
+                    })
+                    .flatMap(Collection::stream)
                     .map(this::getDefaultAssignmentRestrictionDto)
                     .toList();
         }
+    }
+
+    @Override
+    public RestrictionDto getCurrent(Integer userAssignmentId) {
+        UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId)
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
+                        String.valueOf(userAssignmentId)));
+
+        return getAssignmentRestrictionDto(userAssignment);
     }
 
     @Override
@@ -215,26 +233,29 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
             return;
         }
 
-        DefaultAssignmentRestriction defaultAssignmentRestriction =
-                new DefaultAssignmentRestriction();
-        defaultAssignmentRestriction.setFunction(function);
-        defaultAssignmentRestriction.setSubject(subject);
-        defaultAssignmentRestriction.setUniversity(university);
+        DefaultAssignmentRestriction defaultAssignmentRestriction;
 
         Optional<DefaultAssignmentRestriction> existingRestriction =
                 defaultAssignmentRestrictionRepository.findAll().stream()
                         .filter(dar ->
-                                dar.getUniversity().getId().equals(dto.universityId()) &&
-                                        dar.getSubject().getId().equals(dto.subjectId()) &&
-                                        dar.getFunction().getId().equals(dto.functionId()))
+                                (dar.getUniversity() != null &&
+                                        dar.getUniversity().getId().equals(dto.universityId())) ||
+                                        (dar.getSubject() != null &&
+                                                dar.getSubject().getId().equals(dto.subjectId())) ||
+                                        (dar.getFunction() != null &&
+                                                dar.getFunction().getId().equals(dto.functionId())))
                         .findFirst();
 
         if (existingRestriction.isPresent()) {
             defaultAssignmentRestriction = existingRestriction.get();
+        } else {
+            defaultAssignmentRestriction = new DefaultAssignmentRestriction();
+            defaultAssignmentRestriction.setFunction(function);
+            defaultAssignmentRestriction.setSubject(subject);
+            defaultAssignmentRestriction.setUniversity(university);
         }
 
         setAssignmentRestriction(dto, defaultAssignmentRestriction);
-
         defaultAssignmentRestrictionRepository.save(defaultAssignmentRestriction);
     }
 
@@ -253,7 +274,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                             String.valueOf(dto.userAssignmentId())));
 
             if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
-                            userAssignment)) {
+                    userAssignment)) {
                 throw new PermissionException();
             }
 
@@ -264,7 +285,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                             String.valueOf(dto.functionId())));
 
             if (!permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
-                            function)) {
+                    function)) {
                 throw new PermissionException();
             }
 
@@ -275,7 +296,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                             String.valueOf(dto.subjectId())));
 
             if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
-                            subject)) {
+                    subject)) {
                 throw new PermissionException();
             }
 
@@ -288,7 +309,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                             String.valueOf(dto.universityId())));
 
             if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
-                            university)) {
+                    university)) {
                 throw new PermissionException();
             }
 
@@ -310,34 +331,6 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
     }
 
     @Override
-    public void deleteDefaultRestriction(int defaultRestrictionId) {
-        DefaultAssignmentRestriction defaultAssignmentRestriction =
-                defaultAssignmentRestrictionRepository.findById(defaultRestrictionId)
-                        .orElseThrow(() -> new EntityWithIdNotFoundException(
-                                EntityName.DEFAULT_ASSIGNMENT_RESTRICTION,
-                                String.valueOf(defaultRestrictionId)));
-
-        if (defaultAssignmentRestriction.getFunction() != null) {
-            if (!permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
-                    defaultAssignmentRestriction.getFunction())) {
-                throw new PermissionException();
-            }
-        } else if (defaultAssignmentRestriction.getSubject() != null) {
-            if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),
-                    defaultAssignmentRestriction.getSubject())) {
-                throw new PermissionException();
-            }
-        } else if (defaultAssignmentRestriction.getUniversity() != null) {
-            if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
-                    defaultAssignmentRestriction.getUniversity())) {
-                throw new PermissionException();
-            }
-        }
-
-        defaultAssignmentRestrictionRepository.delete(defaultAssignmentRestriction);
-    }
-
-    @Override
     public List<RestrictionTypeDto> getRestrictionTypes() {
         if (sessionService.getCurrentUser() == null) {
             throw new PermissionException();
@@ -356,11 +349,20 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                         defaultAssignmentRestriction.getFunction().getId() : null,
                 defaultAssignmentRestriction.getSubject() != null ?
                         defaultAssignmentRestriction.getSubject().getId() : null,
-                defaultAssignmentRestriction.getUniversity().getId() != null ?
+                defaultAssignmentRestriction.getUniversity() != null ?
                         defaultAssignmentRestriction.getUniversity().getId() : null,
                 defaultAssignmentRestriction.getAttemptsRemaining(),
                 defaultAssignmentRestriction.getMinutesForAttempt(),
                 defaultAssignmentRestriction.getDeadline()
+        );
+    }
+
+    private RestrictionDto getAssignmentRestrictionDto(UserAssignment userAssignment) {
+        return new RestrictionDto(userAssignment.getRestrictionType().ordinal(),
+                null, null, null, userAssignment.getId(),
+                userAssignment.getAttemptsRemaining(),
+                userAssignment.getMinutesForAttempt(),
+                userAssignment.getDeadline()
         );
     }
 

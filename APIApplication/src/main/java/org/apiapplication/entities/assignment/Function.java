@@ -32,6 +32,9 @@ public class Function {
     @OneToMany(mappedBy = "function")
     private List<UserPermission> userPermissions;
 
+    @OneToMany(mappedBy = "function")
+    private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

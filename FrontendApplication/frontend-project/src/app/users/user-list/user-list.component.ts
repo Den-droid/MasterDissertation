@@ -37,7 +37,7 @@ export class UserListComponent implements OnInit {
   }
 
   getUsers() {
-    this.userService.get(-1).subscribe({
+    this.userService.get().subscribe({
       next: (usersDto: UserDto[]) => {
         this.users = usersDto;
         this.filteredUsers = usersDto;

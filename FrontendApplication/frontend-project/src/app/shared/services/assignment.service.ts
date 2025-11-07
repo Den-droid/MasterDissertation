@@ -2,8 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { baseUrl } from "../constants/url.constant";
-import { UserAssignmentDto, AssignmentDto, AssignmentAnswerDto, AssignmentResponseDto, AssignDto } from "../models/assignment.model";
-import { AnswerDto } from "../models/answer.model";
+import { UserAssignmentDto, AssignmentDto, AssignmentAnswerDto, AssignmentResponseDto, AssignDto, AnswerDto } from "../models/assignment.model";
 
 @Injectable({
   providedIn: 'root'

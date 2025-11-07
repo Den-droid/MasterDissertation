@@ -1,6 +1,7 @@
 import { AssignmentRestrictionType } from "../constants/assignment-restriction-type";
 import { AssignmentStatus } from "../constants/assignment-status.constant";
 import { FunctionResultType } from "../constants/function-result-type.constant";
+import { UserDto } from "./user.model";
 
 export class AssignmentAnswerDto {
   constructor(
@@ -30,21 +31,6 @@ export class AssignmentResponseDto {
 }
 export class UserAssignmentDto {
   constructor(
-    public userAssignmentId: number,
-    public hint: string,
-    public status: AssignmentStatus,
-    public functionResultType: FunctionResultType,
-    public restrictionType: AssignmentRestrictionType,
-    public attemptsRemaining: number,
-    public deadline: string,
-    public nextAttemptTime: string,
-    public mark: number,
-    public comment: string
-  ) { }
-}
-
-export class UserAssignment {
-  constructor(
     public id: number,
     public hint: string,
     public status: AssignmentStatus,
@@ -55,19 +41,14 @@ export class UserAssignment {
     public nextAttemptTime: string,
     public mark: number,
     public comment: string,
-  ) {
-
-  }
+    public user: UserDto
+  ) { }
 }
 
 export class AssignDto {
   constructor(public userId: number) { }
 }
 
-export function parseUserAssignmentDtoToAssignment(userAssignmentDto: UserAssignmentDto): UserAssignment {
-  return new UserAssignment(userAssignmentDto.userAssignmentId, userAssignmentDto.hint,
-    userAssignmentDto.status, userAssignmentDto.functionResultType, userAssignmentDto.restrictionType,
-    userAssignmentDto.attemptsRemaining, userAssignmentDto.deadline,
-    userAssignmentDto.nextAttemptTime, userAssignmentDto.mark, userAssignmentDto.comment
-  );
+export class AnswerDto {
+  constructor(public numberOfAnswer: number, public answer: string, public result: number, public isCorrect: boolean) { }
 }

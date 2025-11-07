@@ -4,6 +4,7 @@ export const modalText = {
 }
 
 export const validationMessages = {
-    "integer-required": "Введіть цілочисельне значення",
-    "decimal-required": "Введіть число"
+    "integer-required": "Введіть додатнє цілочисельне значення",
+    "decimal-required": "Введіть число",
+    "datetime-required": "Введіть дату"
 }

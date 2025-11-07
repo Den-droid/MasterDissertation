@@ -4,6 +4,8 @@ import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.answer.AnswerDto;
 import org.apiapplication.dto.assignment.*;
+import org.apiapplication.dto.university.UniversityDto;
+import org.apiapplication.dto.user.UserDto;
 import org.apiapplication.entities.assignment.*;
 import org.apiapplication.entities.user.Role;
 import org.apiapplication.entities.user.User;
@@ -133,7 +135,9 @@ public class AssignmentServiceImpl implements AssignmentService {
                                             .plusMinutes(userAssignment.getMinutesForAttempt())
                                     : LocalDateTime.now(),
                             mark != null ? mark.getMark() : -1,
-                            mark != null ? mark.getComment() : "");
+                            mark != null ? mark.getComment() : "",
+                            getUserDto(userAssignment.getUser())
+                    );
                 })
                 .toList();
 
@@ -376,5 +380,15 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .filter(fmmv -> fmmv.getFunctionResultType() == functionResultType)
                 .map(FunctionMinMaxValue::getValue)
                 .toList();
+    }
+
+    private UserDto getUserDto(User user) {
+        return new UserDto(user.getId(), user.getUserInfo().getFirstName(),
+                user.getUserInfo().getLastName(),
+                user.getEmail(),
+                user.getRoles().get(0).getName().name(),
+                user.isApproved(),
+                new UniversityDto(user.getUserInfo().getUniversity().getId(),
+                        user.getUserInfo().getUniversity().getName()));
     }
 }

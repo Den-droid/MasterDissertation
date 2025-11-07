@@ -1,5 +1,6 @@
 export const assignmentTitles = {
-  "assignment": "Завдання"
+  "assignment": "Завдання",
+  "assignments": "Список завдань"
 }
 
 export const assignmentLabels = {

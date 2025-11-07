@@ -13,6 +13,11 @@ import { AuthService } from '../../shared/services/auth.service';
 import { ActionType } from '../../shared/constants/action-type';
 import { UniversityService } from '../../shared/services/university.service';
 import { UniversityDto } from '../../shared/models/university.model';
+import { AssignmentRestrictionService } from '../../shared/services/assignment-restriction.service';
+import { RestrictionModalComponent } from '../../shared/modals/restriction/restriction-modal.component';
+import { DefaultRestrictionDto, ModalRestrictionDto, RestrictionDto } from '../../shared/models/restriction.model';
+import { restrictionModalHeaders } from '../../shared/translations/restriction.translation';
+import { DefaultRestrictionLevel } from '../../shared/constants/default-restriction-level.constant';
 
 @Component({
   selector: 'app-subject-list',
@@ -28,7 +33,7 @@ export class SubjectListComponent implements OnInit {
   searchSubject: Subject<string> = new Subject<string>();
 
   constructor(private modalService: NgbModal, private subjectService: SubjectService, private authService: AuthService,
-    private universityService: UniversityService
+    private universityService: UniversityService, private restrictionService: AssignmentRestrictionService
   ) { }
 
   ngOnInit(): void {
@@ -162,6 +167,73 @@ export class SubjectListComponent implements OnInit {
       .catch(
         () => { return; }
       )
+  }
+
+  setDefaultRestriction(id: number) {
+    const modalRef = this.modalService.open(RestrictionModalComponent, {
+      centered: true,
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    this.restrictionService.getDefaultForSubject(id).subscribe({
+      next: (dto: DefaultRestrictionDto[]) => {
+        if (dto.length > 0) {
+          if (dto[0].subjectId == null) {
+            modalRef.componentInstance.isInputRestrictionTypeDifferent = true;
+            if (dto[0].universityId != null) {
+              modalRef.componentInstance.inputRestritionTypeLevel = DefaultRestrictionLevel.UNIVERSITY;
+            } else {
+              modalRef.componentInstance.inputRestritionTypeLevel = DefaultRestrictionLevel.FUNCTION;
+            }
+          }
+          modalRef.componentInstance.inputValue = new ModalRestrictionDto(dto[0].restrictionType,
+            dto[0].attemptsRemaining, dto[0].minutesForAttempt, dto[0].deadline);
+        }
+      }
+    }
+    )
+
+    modalRef.componentInstance.title = restrictionModalHeaders.default;
+
+    modalRef.componentInstance.saveAttempt.subscribe(
+      (value: ModalRestrictionDto) => {
+        let dto = new DefaultRestrictionDto(null, value.restrictionType, null, id, null,
+          value.attemptsRemaining, value.minutesForAttempt, value.deadline);
+        this.restrictionService.setDefaultRestriction(dto).subscribe({
+          complete: () => {
+            modalRef.close();
+            this.getSubjects();
+          }
+        })
+      }
+    );
+  }
+
+  setRestriction(id: number) {
+    const modalRef = this.modalService.open(RestrictionModalComponent, {
+      centered: true,
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    const errorSubject = new Subject<string>();
+
+    modalRef.componentInstance.title = restrictionModalHeaders['non-default'];
+    modalRef.componentInstance.errorSubject$ = errorSubject;
+
+    modalRef.componentInstance.saveAttempt.subscribe(
+      (value: ModalRestrictionDto) => {
+        let dto = new RestrictionDto(value.restrictionType, null, id, null, null,
+          value.attemptsRemaining, value.minutesForAttempt, value.deadline);
+        this.restrictionService.setRestriction(dto).subscribe({
+          complete: () => {
+            modalRef.close();
+            this.getSubjects();
+          }
+        })
+      }
+    );
   }
 
   onSearchChange(value: string) {

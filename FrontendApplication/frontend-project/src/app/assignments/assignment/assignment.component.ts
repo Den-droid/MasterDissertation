@@ -4,10 +4,9 @@ import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Va
 import { ActivatedRoute, Router } from '@angular/router';
 import { AssignmentService } from '../../shared/services/assignment.service';
 import { JWTTokenService } from '../../shared/services/jwt-token.service';
-import { AssignmentAnswerDto, AssignmentDto, AssignmentResponseDto } from '../../shared/models/assignment.model';
+import { AnswerDto, AssignmentAnswerDto, AssignmentDto, AssignmentResponseDto } from '../../shared/models/assignment.model';
 import { assignmentLabels } from '../../shared/translations/assignment.translation';
 import { joinVariables } from '../../shared/helpers/variables-join.helper';
-import { AnswerDto } from '../../shared/models/answer.model';
 import { AssignmentStatus } from '../../shared/constants/assignment-status.constant';
 import { AssignmentRestrictionType } from '../../shared/constants/assignment-restriction-type';
 import { Subscription } from 'rxjs/internal/Subscription';

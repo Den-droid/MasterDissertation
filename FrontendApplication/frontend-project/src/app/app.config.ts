@@ -6,9 +6,7 @@ import { AssignmentsComponent } from './assignments/assignments.component';
 import { AuthComponent } from './auth/auth.component';
 import { ErrorComponent } from './error/error.component';
 import { authenticatedGuard } from './shared/guards/authenticated.guard';
-import { studentGuard } from './shared/guards/student.guard';
 import { AuthService } from './shared/services/auth.service';
-import { StudentComponent } from './student/student.component';
 import { UniversityComponent } from './university/university.component';
 import { adminGuard } from './shared/guards/admin.guard';
 import { adminTeacherGuard } from './shared/guards/admin-teacher.guard';
@@ -42,11 +40,6 @@ const routes: Routes = [
   {
     path: "error", component: ErrorComponent,
     loadChildren: () => import('./error/error.module').then(m => m.ErrorModule)
-  },
-  {
-    path: "student", component: StudentComponent,
-    loadChildren: () => import('./student/student.module').then(m => m.StudentModule),
-    canActivate: [studentGuard]
   },
   {
     path: "assignments", component: AssignmentsComponent,

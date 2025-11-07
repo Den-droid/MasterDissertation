@@ -1,0 +1,82 @@
+<div class="modal-header">
+    <h5 class="modal-title">{{ title }}</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+</div>
+
+<form [formGroup]="form">
+    <div class="modal-body">
+        @if(isInputRestrictionTypeDifferent){
+        <div class="alert alert-info">
+            <p>Наразі використовується обмеження по замовчуванню для:
+                {{getAnotherLeverRestrictionLabel(inputRestritionTypeLevel)}}</p>
+            <p>
+                @if(isAnotherLevelRestrictionAttemptsRemaining()){
+                Кількість спроб: <span>{{defaultRestrictionAnotherLevel.attemptsRemaining}}</span>
+                } @else if (isAnotherLevelRestrictionMinutesForAttempt()) {
+                Кількість хвилин на спробу: <span>{{defaultRestrictionAnotherLevel.minutesForAttempt}}</span>
+                } @else if (isAnotherLevelRestrictionDeadline()) {
+                Дедлайн: <span>{{defaultRestrictionAnotherLevel.deadline}}</span>
+                }
+            </p>
+        </div>
+        <div class="alert alert-warning">
+            Поточне обмеження по замовчуванню буде переписане вашим вибором у цьому вікні!
+        </div>
+        }
+        <div class="mb-3">
+            <label for="restrictionType" class="form-label">Тип обмеження</label>
+            <select id="restrictionType" class="form-select" formControlName="restrictionType">
+                @for(restrictionType of restrictionTypes; track restrictionType) {
+                <option [value]="restrictionType.type">{{getRestrictionTypeLabel(restrictionType.type)}}
+                </option>
+                }
+            </select>
+        </div>
+        @if(isAttemptsRemaining()){
+        <label for="attemptsRemaining" class="form-label">Введіть кількість спроб:</label>
+        <input type="text" id="attemptsRemaining" class="form-control" formControlName="attemptsRemaining" />
+        @if (f['attemptsRemaining'].errors?.['required'] && (f['attemptsRemaining'].touched ||
+        f['attemptsRemaining'].dirty)) {
+        <div class="text-danger mt-1">{{ attemptsRequired }}</div>
+        }
+        @if (f['attemptsRemaining'].errors?.['isInteger'] && (f['attemptsRemaining'].touched ||
+        f['attemptsRemaining'].dirty)) {
+        <div class="text-danger mt-1">{{ integerRequired }}</div>
+        }
+        }
+        @else if (isMinutesForAttempt()) {
+        <label for="minutesForAttempt" class="form-label">Введіть кількість хвилин на спробу:</label>
+        <input type="text" id="minutesForAttempt" class="form-control" formControlName="minutesForAttempt" />
+        @if (f['minutesForAttempt'].errors?.['required'] && (f['minutesForAttempt'].touched ||
+        f['minutesForAttempt'].dirty)) {
+        <div class="text-danger mt-1">{{ minutesRequired }}</div>
+        }
+        @if (f['minutesForAttempt'].errors?.['isInteger'] && (f['minutesForAttempt'].touched ||
+        f['minutesForAttempt'].dirty)) {
+        <div class="text-danger mt-1">{{ integerRequired }}</div>
+        }
+        }
+        @else if (isDeadline()) {
+        <label for="deadline" class="form-label">Введіть дедлайн:</label>
+        <input type="datetime-local" id="deadline" class="form-control" formControlName="deadline" />
+        @if (f['deadline'].errors?.['required'] && (f['deadline'].touched ||
+        f['deadline'].dirty)) {
+        <div class="text-danger mt-1">{{ deadlineRequired }}</div>
+        }
+        @if (f['deadline'].errors?.['isDatetime'] && (f['deadline'].touched ||
+        f['deadline'].dirty)) {
+        <div class="text-danger mt-1">{{ datetimeRequired }}</div>
+        }
+        }
+    </div>
+</form>
+
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
+        Скасувати
+    </button>
+    <button type="button" class="btn btn-primary" (click)="save()">
+        Зберегти
+    </button>
+</div>

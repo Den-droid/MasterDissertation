@@ -14,14 +14,14 @@ export class UserService {
   constructor(private readonly httpClient: HttpClient, private readonly jwtService: JWTTokenService) {
   }
 
-  get(userId: number): Observable<UserDto[]> {
-    if (userId === -1) {
-      return this.httpClient.get<UserDto[]>(`${this.url}`)
-    } else {
-      const params = new HttpParams()
-        .set('userId', userId);
-      return this.httpClient.get<UserDto[]>(`${this.url}`, { params })
-    }
+  getByUserId(userId: number): Observable<UserDto[]> {
+    const params = new HttpParams()
+      .set('userId', userId);
+    return this.httpClient.get<UserDto[]>(`${this.url}`, { params })
+  }
+
+  get(): Observable<UserDto[]> {
+    return this.httpClient.get<UserDto[]>(`${this.url}`)
   }
 
   getApiKey(userId: number): Observable<ApiKeyDto> {

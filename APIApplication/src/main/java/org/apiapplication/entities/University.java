@@ -28,4 +28,7 @@ public class University {
 
     @OneToMany(mappedBy = "university")
     private List<UserInfo> userInfos;
+
+    @OneToMany(mappedBy = "university")
+    private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions;
 }

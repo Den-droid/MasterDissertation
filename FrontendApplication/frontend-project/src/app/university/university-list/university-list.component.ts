@@ -9,6 +9,10 @@ import { InfoModalComponent } from '../../shared/modals/info/info-modal.componen
 import { universityModal } from '../../shared/translations/university.translation';
 import { ConfirmModalComponent } from '../../shared/modals/confirm/confirm-modal.component';
 import { modalText } from '../../shared/translations/common.translation';
+import { RestrictionModalComponent } from '../../shared/modals/restriction/restriction-modal.component';
+import { restrictionModalHeaders } from '../../shared/translations/restriction.translation';
+import { AssignmentRestrictionService } from '../../shared/services/assignment-restriction.service';
+import { RestrictionDto, ModalRestrictionDto, DefaultRestrictionDto } from '../../shared/models/restriction.model';
 
 @Component({
   selector: 'app-university-list',
@@ -23,7 +27,9 @@ export class UniversityListComponent implements OnInit {
   searchQuery: string = '';
   searchSubject: Subject<string> = new Subject<string>();
 
-  constructor(private modalService: NgbModal, private universityService: UniversityService) { }
+  constructor(private modalService: NgbModal, private universityService: UniversityService,
+    private restrictionService: AssignmentRestrictionService
+  ) { }
 
   ngOnInit(): void {
     this.getUniversities();
@@ -138,10 +144,64 @@ export class UniversityListComponent implements OnInit {
           }
         })
       }
+    ).catch(
+      () => { return; }
     )
-      .catch(
-        () => { return; }
-      )
+  }
+
+  setDefaultRestriction(id: number) {
+    const modalRef = this.modalService.open(RestrictionModalComponent, {
+      centered: true,
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    this.restrictionService.getDefaultForUniversity(id).subscribe({
+      next: (dto: DefaultRestrictionDto[]) => {
+        if (dto.length > 0)
+          modalRef.componentInstance.inputValue = new ModalRestrictionDto(dto[0].restrictionType,
+            dto[0].attemptsRemaining, dto[0].minutesForAttempt, dto[0].deadline);
+      }
+    }
+    )
+
+    modalRef.componentInstance.title = restrictionModalHeaders.default;
+
+    modalRef.componentInstance.saveAttempt.subscribe(
+      (value: ModalRestrictionDto) => {
+        let dto = new DefaultRestrictionDto(null, value.restrictionType, id, null, null,
+          value.attemptsRemaining, value.minutesForAttempt, value.deadline);
+        this.restrictionService.setDefaultRestriction(dto).subscribe({
+          complete: () => {
+            modalRef.close();
+            this.getUniversities();
+          }
+        })
+      }
+    );
+  }
+
+  setRestriction(id: number) {
+    const modalRef = this.modalService.open(RestrictionModalComponent, {
+      centered: true,
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    modalRef.componentInstance.title = restrictionModalHeaders['non-default'];
+
+    modalRef.componentInstance.saveAttempt.subscribe(
+      (value: ModalRestrictionDto) => {
+        let dto = new RestrictionDto(value.restrictionType, id, null, null, null,
+          value.attemptsRemaining, value.minutesForAttempt, value.deadline);
+        this.restrictionService.setRestriction(dto).subscribe({
+          complete: () => {
+            modalRef.close();
+            this.getUniversities();
+          }
+        })
+      }
+    );
   }
 
   onSearchChange(value: string) {
