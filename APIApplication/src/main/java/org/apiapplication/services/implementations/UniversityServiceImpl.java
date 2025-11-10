@@ -147,6 +147,11 @@ public class UniversityServiceImpl implements UniversityService {
         Set<University> universities = new HashSet<>();
         List<UserPermission> userPermissions = user.getUserPermissions();
 
+        University university = user.getUserInfo().getUniversity();
+        if (university != null) {
+            universities.add(university);
+        }
+
         for (UserPermission userPermission : userPermissions) {
             if (userPermission.getUniversity() != null) {
                 universities.add(userPermission.getUniversity());

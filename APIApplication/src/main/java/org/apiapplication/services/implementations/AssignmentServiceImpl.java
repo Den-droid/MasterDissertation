@@ -135,18 +135,20 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public void assign(AssignDto dto) {
-        if (!sessionService.isUserStudent(sessionService.getCurrentUser())) {
+        User user = sessionService.getCurrentUser();
+
+        if (!sessionService.isUserStudent(user)) {
             throw new PermissionException();
         }
 
-        User user = sessionService.getCurrentUser();
-
-        subjectRepository.findAll().stream()
+        boolean allPermittedSubjects = subjectRepository.findAll().stream()
                 .filter(s -> dto.subjectIds().contains(s.getId()))
                 .map(Subject::getUniversity)
-                .filter(u -> !user.getUserInfo().getUniversity().equals(u))
-                .findFirst()
-                .orElseThrow(PermissionException::new);
+                .allMatch(u -> user.getUserInfo().getUniversity().equals(u));
+
+        if (!allPermittedSubjects) {
+            throw new PermissionException();
+        }
 
         List<Subject> subjects = subjectRepository.findAll().stream()
                 .filter(s -> dto.subjectIds().contains(s.getId()))

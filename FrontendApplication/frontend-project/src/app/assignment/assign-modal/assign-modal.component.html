@@ -1,0 +1,51 @@
+<div class="modal-header">
+    <h5 class="modal-title">{{ title }}</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+</div>
+
+<form [formGroup]="form">
+    <div class="modal-body" formGroupName="subjects">
+        <label class="form-label">Виберіть теми завдання для яких ви хочете отримати:</label>
+        @for(selectedSubject of getSelectedSubjects(); track selectedSubject){
+        <div class="d-flex align-items-center" [ngClass]="{
+            'mt-2': $index != 0
+        }">
+            <select [id]="'subject'+$index" class="form-select" [formControlName]="getSubjectControlName($index)">
+                @for(subject of displayedSubjects[getSubjectControlName($index)]; track subject.id) {
+                <option [value]="subject.id">{{subject.name}}
+                </option>
+                }
+            </select>
+            <button type="button" class="btn btn-danger ms-2" (click)="removeSubject($index)">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>
+        @if (f['subjects'].get(getSubjectControlName($index))?.errors?.['required']
+        && (f['subjects'].get(getSubjectControlName($index))?.touched ||
+        f['subjects'].get(getSubjectControlName($index))?.dirty)) {
+        <div class="text-danger mt-1">{{subjectRequiredMessage}}</div>
+        }
+        @if(isLastSubject($index)){
+        <div class="d-flex justify-content-center mt-2">
+            <button type="button" class="btn btn-primary me-3" style="width: 40%;" (click)="addSubject()">
+                + Додати поле
+            </button>
+        </div>
+        }
+        }
+        @if(errorMessage){
+        <div class="alert alert-danger mt-2">
+            {{ errorMessage }}
+        </div>
+        }
+    </div>
+</form>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
+        Скасувати
+    </button>
+    <button type="button" class="btn btn-primary" (click)="save()">
+        Зберегти
+    </button>
+</div>

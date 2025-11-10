@@ -9,6 +9,7 @@ import org.apiapplication.entities.user.UserPermission;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @Entity
@@ -31,4 +32,15 @@ public class University {
 
     @OneToMany(mappedBy = "university")
     private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions;
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof University that)) return false;
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
+    }
 }

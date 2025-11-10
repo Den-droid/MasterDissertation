@@ -9,6 +9,7 @@ export const assignmentLabels = {
 }
 
 export const markModalHeader = 'Поставити оцінку';
+export const assignModalHeader = 'Призначити завдання';
 
 export const markModalValidation = {
   'comment-required': "Коментар є обов'язковим",

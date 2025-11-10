@@ -19,6 +19,9 @@ import { restrictionModalHeaders } from '../../shared/translations/restriction.t
 import { MarkDto, MarkModalDto } from '../../shared/models/mark.model';
 import { MarkService } from '../../shared/services/mark.service';
 import { MarkModalComponent } from '../mark-modal/mark-modal.component';
+import { AssignModalComponent } from '../assign-modal/assign-modal.component';
+import { SubjectService } from '../../shared/services/subject.service';
+import { SubjectDto } from '../../shared/models/subject.model';
 
 @Component({
   selector: 'app-assignment-list',
@@ -28,7 +31,7 @@ import { MarkModalComponent } from '../mark-modal/mark-modal.component';
 export class AssignmentListComponent {
   constructor(public assignmentService: AssignmentService, public jwtService: JWTTokenService,
     public router: Router, private modalService: NgbModal, private restrictionService: AssignmentRestrictionService,
-    private markService: MarkService
+    private markService: MarkService, private subjectService: SubjectService
   ) {
   }
 
@@ -77,12 +80,36 @@ export class AssignmentListComponent {
   }
 
   assign() {
-    let userId = parseToNumber(this.jwtService.getId());
-    this.assignmentService.assign(new AssignDto(userId)).subscribe({
-      next: () => {
-        this.getAssignmentsByUserId();
+    const modalRef = this.modalService.open(AssignModalComponent, {
+      centered: true,
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    this.subjectService.getAll().subscribe({
+      next: (dto: SubjectDto[]) => {
+        modalRef.componentInstance.subjects = dto;
       }
     })
+
+    let errorSubject = new Subject<string>();
+
+    modalRef.componentInstance.errorSubject$ = errorSubject;
+
+    modalRef.componentInstance.saveAttempt.subscribe(
+      (value: number[]) => {
+        let dto = new AssignDto(value);
+        this.assignmentService.assign(dto).subscribe({
+          error: (error: any) => {
+            errorSubject.next(error.error.message);
+          },
+          complete: () => {
+            modalRef.close();
+            this.getAssignmentsByUserId();
+          }
+        })
+      }
+    );
   }
 
   setRestriction(id: number) {
@@ -141,7 +168,7 @@ export class AssignmentListComponent {
         if (markDto)
           newMarkDto = new MarkDto(markDto.id, value.mark, value.comment);
         else
-          newMarkDto = new MarkDto(null, value.mark, value.comment);    
+          newMarkDto = new MarkDto(null, value.mark, value.comment);
 
         this.markService.mark(id, newMarkDto).subscribe({
           complete: () => {

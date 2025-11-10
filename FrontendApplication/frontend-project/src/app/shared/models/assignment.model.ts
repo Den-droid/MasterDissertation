@@ -46,7 +46,7 @@ export class UserAssignmentDto {
 }
 
 export class AssignDto {
-  constructor(public userId: number) { }
+  constructor(public subjectIds: number[]) { }
 }
 
 export class AnswerDto {
