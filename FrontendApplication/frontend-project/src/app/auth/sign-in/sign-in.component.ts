@@ -56,11 +56,11 @@ export class SignInComponent {
       },
       complete: () => {
         if (this.authService.isStudent())
-          this.router.navigate([`/student/assignments`]);
+          this.router.navigate([`/assignments`]);
         else if (this.authService.isAdmin())
           this.router.navigate([`/users`]);
         else if (this.authService.isTeacher())
-          this.router.navigate([`/teacher/assignments`]);
+          this.router.navigate([`/assignments`]);
       }
     });
   }

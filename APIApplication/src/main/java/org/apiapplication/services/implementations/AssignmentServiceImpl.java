@@ -359,8 +359,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
                         String.valueOf(userAssignmentId)));
 
-        if (sessionService.isUserAdmin(sessionService.getCurrentUser())
-                || !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
                 userAssignment)) {
             throw new PermissionException();
         }

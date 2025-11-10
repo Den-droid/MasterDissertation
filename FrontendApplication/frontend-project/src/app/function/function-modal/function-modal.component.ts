@@ -9,11 +9,12 @@ import { AddFunctionDto, FunctionDto, UpdateFunctionDto } from '../../shared/mod
 import { functionLabels } from '../../shared/translations/function.translation';
 import { decimalValidator, integerValidator } from '../../shared/validators/number.validator';
 import { validationMessages } from '../../shared/translations/common.translation';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-function-modal',
   templateUrl: './function-modal.component.html',
-  imports: [FormsModule, ReactiveFormsModule]
+  imports: [FormsModule, ReactiveFormsModule, CommonModule]
 })
 export class FunctionModalComponent {
   @Input() title = '';

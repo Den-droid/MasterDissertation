@@ -24,14 +24,14 @@
             }
         </div>
         <div formGroupName="minValues">
+            <label class="form-label mt-2">Введіть мінімальні значення:</label>
             @for(minValue of getMinValues(); track minValue){
-            <div class="mt-2">
-                <label [for]="'modalInputMinValue'+$index" class="form-label">Введіть мінімальне значення:</label>
+            <div [ngClass]="{'mt-2':$index != 0}">
                 <div class="d-flex align-items-center">
                     <input type="text" [id]="'modalInputMinValue'+$index" class="form-control"
                         [formControlName]="getMinFormControlName($index)" />
                     <button type="button" class="btn btn-danger ms-2" (click)="removeMinValue($index)">
-                        -
+                        <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
 
@@ -52,14 +52,14 @@
             }
         </div>
         <div formGroupName="maxValues">
+            <label class="form-label mt-2">Введіть максимальні значення:</label>
             @for(maxValue of getMaxValues(); track maxValue){
-            <div class="mt-2">
-                <label [for]="'modalInputMaxValue'+$index" class="form-label">Введіть максимальне значення:</label>
+            <div [ngClass]="{'mt-2':$index != 0}">
                 <div class="d-flex align-items-center">
                     <input type="text" [id]="'modalInputMaxValue'+$index" class="form-control"
                         [formControlName]="getMaxFormControlName($index)" />
                     <button type="button" class="btn btn-danger ms-2" (click)="removeMaxValue($index)">
-                        -
+                        <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
                 @if (f['maxValues'].get(getMaxFormControlName($index))?.errors?.['isDecimal'] &&

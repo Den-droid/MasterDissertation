@@ -141,7 +141,7 @@ export class AssignmentComponent {
   finish() {
     this.assignmentService.finish(this.assignmentId).subscribe({
       next: () => {
-        this.router.navigate([`/student/assignments`]);
+        this.router.navigate([`/assignments`]);
       }
     })
   }

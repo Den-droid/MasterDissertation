@@ -44,16 +44,16 @@ public class MarkServiceImpl implements MarkService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (!sessionService.isUserTeacher(sessionService.getCurrentUser())
-                || !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
-                userAssignment)) {
+        if (!sessionService.isUserTeacher(sessionService.getCurrentUser()) ||
+                !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                        userAssignment)) {
             throw new PermissionException();
         }
 
-        if (dto.markId() != null) {
-            mark = markRepository.findById(dto.markId()).orElseThrow(
+        if (dto.id() != null) {
+            mark = markRepository.findById(dto.id()).orElseThrow(
                     () -> new EntityWithIdNotFoundException(EntityName.MARK,
-                            String.valueOf(dto.markId()))
+                            String.valueOf(dto.id()))
             );
             mark.setMark(dto.mark());
             mark.setComment(dto.comment());
@@ -75,9 +75,8 @@ public class MarkServiceImpl implements MarkService {
                         String.valueOf(userAssignmentId))
         );
 
-        if (sessionService.isUserAdmin(sessionService.getCurrentUser()) ||
-                !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
-                        userAssignment)) {
+        if (!permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                userAssignment)) {
             throw new PermissionException();
         }
 

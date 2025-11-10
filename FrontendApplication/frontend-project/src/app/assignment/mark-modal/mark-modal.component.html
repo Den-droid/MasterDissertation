@@ -1,0 +1,37 @@
+<div class="modal-header">
+    <h5 class="modal-title">{{ title }}</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+</div>
+
+<form [formGroup]="form">
+    <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+        <label for="modalInputComment" class="form-label">Введіть коментар:</label>
+        <textarea rows="2" id="modalInputComment" class="form-control" formControlName="comment"></textarea>
+        @if (f['comment'].errors?.['required'] && (f['comment'].touched || f['comment'].dirty)) {
+        <div class="text-danger mt-1">{{ commentRequiredMessage }}</div>
+        }
+        <div class="mt-2">
+            <label for="modalInputMark" class="form-label">Введіть оцінку:</label>
+            <input type="text" id="modalInputMark" class="form-control" formControlName="mark" />
+            @if (f['mark'].errors?.['required'] && (f['mark'].touched || f['mark'].dirty))
+            {
+            <div class="text-danger mt-1">{{ markRequiredMessage }}</div>
+            }
+            @if (f['mark'].errors?.['isInteger'] && (f['mark'].touched ||
+            f['mark'].dirty))
+            {
+            <div class="text-danger mt-1">{{ integerRequiredMessage }}</div>
+            }
+        </div>
+    </div>
+</form>
+
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
+        Скасувати
+    </button>
+    <button type="button" class="btn btn-primary" (click)="save()">
+        Зберегти
+    </button>
+</div>

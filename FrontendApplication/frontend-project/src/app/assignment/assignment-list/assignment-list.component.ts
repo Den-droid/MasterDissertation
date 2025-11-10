@@ -16,6 +16,9 @@ import { RestrictionModalComponent } from '../../shared/modals/restriction/restr
 import { AssignmentRestrictionService } from '../../shared/services/assignment-restriction.service';
 import { ModalRestrictionDto, RestrictionDto } from '../../shared/models/restriction.model';
 import { restrictionModalHeaders } from '../../shared/translations/restriction.translation';
+import { MarkDto, MarkModalDto } from '../../shared/models/mark.model';
+import { MarkService } from '../../shared/services/mark.service';
+import { MarkModalComponent } from '../mark-modal/mark-modal.component';
 
 @Component({
   selector: 'app-assignment-list',
@@ -24,7 +27,8 @@ import { restrictionModalHeaders } from '../../shared/translations/restriction.t
 })
 export class AssignmentListComponent {
   constructor(public assignmentService: AssignmentService, public jwtService: JWTTokenService,
-    public router: Router, private modalService: NgbModal, private restrictionService: AssignmentRestrictionService
+    public router: Router, private modalService: NgbModal, private restrictionService: AssignmentRestrictionService,
+    private markService: MarkService
   ) {
   }
 
@@ -105,6 +109,41 @@ export class AssignmentListComponent {
         let dto = new RestrictionDto(value.restrictionType, null, null, null, id,
           value.attemptsRemaining, value.minutesForAttempt, value.deadline);
         this.restrictionService.setRestriction(dto).subscribe({
+          complete: () => {
+            modalRef.close();
+            this.getAssignmentsByUserId();
+          }
+        })
+      }
+    );
+  }
+
+  markAssignment(id: number) {
+    const modalRef = this.modalService.open(MarkModalComponent, {
+      centered: true,
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    let markDto: MarkDto;
+    this.markService.getByUserAssignmentId(id).subscribe({
+      next: (dto: MarkDto[]) => {
+        if (dto.length > 0) {
+          modalRef.componentInstance.inputValue = new MarkModalDto(dto[0].mark, dto[0].comment);
+          markDto = dto[0];
+        }
+      }
+    })
+
+    modalRef.componentInstance.saveAttempt.subscribe(
+      (value: MarkModalDto) => {
+        let newMarkDto;
+        if (markDto)
+          newMarkDto = new MarkDto(markDto.id, value.mark, value.comment);
+        else
+          newMarkDto = new MarkDto(null, value.mark, value.comment);    
+
+        this.markService.mark(id, newMarkDto).subscribe({
           complete: () => {
             modalRef.close();
             this.getAssignmentsByUserId();
