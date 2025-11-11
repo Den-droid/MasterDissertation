@@ -1,6 +1,8 @@
 export const modalText = {
     "confirm-title": "Підтвердіть дію",
-    "confirm-content": "Ви впевнені, що хочете продовжити?"
+    "confirm-content": "Ви впевнені, що хочете продовжити?",
+    "success-header": "Операцію виконано успішно",
+    "failure-header": "Операцію не виконано"
 }
 
 export const validationMessages = {

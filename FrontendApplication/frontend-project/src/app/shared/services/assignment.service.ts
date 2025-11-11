@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { baseUrl } from "../constants/url.constant";
-import { UserAssignmentDto, AssignmentDto, AssignmentAnswerDto, AssignmentResponseDto, AssignDto, AnswerDto } from "../models/assignment.model";
+import { UserAssignmentDto, AssignmentDto, AssignmentAnswerDto, AssignmentResponseDto, AssignDto, AnswerDto, AssignToGroupDto } from "../models/assignment.model";
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +23,10 @@ export class AssignmentService {
 
   assign(assignDto: AssignDto): Observable<any> {
     return this.httpClient.post(`${this.url}/assign`, assignDto);
+  }
+
+  assignToGroup(dto: AssignToGroupDto): Observable<any> {
+    return this.httpClient.post(`${this.url}/assignToGroup`, dto);
   }
 
   startContinue(userAssignmentId: number): Observable<any> {

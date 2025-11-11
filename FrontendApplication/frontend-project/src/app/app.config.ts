@@ -15,6 +15,8 @@ import { UsersComponent } from './users/users.component';
 import { UserComponent } from './user/user.component';
 import { AssignmentsComponent } from './assignment/assignments.component';
 import { SubjectComponent } from './subject/subject.component';
+import { GroupComponent } from './group/group.component';
+import { teacherGuard } from './shared/guards/teacher.guard';
 
 const routes: Routes = [
   {
@@ -22,9 +24,9 @@ const routes: Routes = [
       const authService = inject(AuthService);
 
       if (authService.isStudent()) {
-        return '/student/assignments';
+        return '/assignments';
       } else if (authService.isTeacher()) {
-        return '/teacher/assignments';
+        return '/assignments';
       } else if (authService.isAdmin()) {
         return '/users';
       }
@@ -70,6 +72,11 @@ const routes: Routes = [
     path: "users", component: UsersComponent,
     loadChildren: () => import('./users/users.module').then(m => m.UsersModule),
     canActivate: [adminGuard]
+  },
+  {
+    path: "groups", component: GroupComponent,
+    loadChildren: () => import('./group/group.module').then(m => m.GroupModule),
+    canActivate: [teacherGuard]
   },
   { path: '**', redirectTo: '/error/404', pathMatch: 'full' }
 ]

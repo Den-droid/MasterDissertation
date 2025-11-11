@@ -49,6 +49,10 @@ export class AssignDto {
   constructor(public subjectIds: number[]) { }
 }
 
+export class AssignToGroupDto {
+  constructor(public groupId: number) { }
+}
+
 export class AnswerDto {
   constructor(public numberOfAnswer: number, public answer: string, public result: number, public isCorrect: boolean) { }
 }

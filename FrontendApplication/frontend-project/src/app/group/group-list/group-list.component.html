@@ -1,0 +1,72 @@
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-4">
+            <i class="fa-solid fa-people-group me-2"></i> Групи
+        </h1>
+        <button class="btn btn-primary" (click)="addGroup()">
+            <i class="fa-solid fa-plus me-2"></i> Створити групу
+        </button>
+    </div>
+
+    <div class="mb-3">
+        <input type="text" class="form-control" placeholder="Пошук групи..." [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange($event)" />
+    </div>
+
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered align-middle text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>Назва</th>
+                    <th>Студенти</th>
+                    <th>Предмети</th>
+                    <th>Дія</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (groups.length === 0) {
+                <td colspan="4" class="text-center">
+                    <strong>Груп не знайдено</strong>
+                </td>
+                } @else if (filteredGroups.length === 0) {
+                <td colspan="4" class="text-center">
+                    <strong>Груп за пошуковим запитом не знайдено</strong>
+                </td>
+                }
+                @for (group of filteredGroups; track group.id) {
+                <tr>
+                    <td>{{group.name}}</td>
+                    <td>{{getStudentsPreview(group.id) | join}}
+                        @if(group.students.length > 3){
+                        <span (click)="getAllStudents(group.id)" class="text-primary" role="button"
+                            style="cursor: pointer;">
+                            {{' '}}Показати більше</span>
+                        }
+                    </td>
+                    <td>{{getSubjectsPreview(group.id) | join}}
+                        @if(group.subjects.length > 3){
+                        <span (click)="getAllSubjects(group.id)" class="text-primary" role="button"
+                            style="cursor: pointer;">
+                            {{' '}}Показати більше</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-around">
+                            <button class="btn btn-sm btn-warning" (click)="updateGroup(group.id)">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" (click)="deleteGroup(group.id)">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" (click)="assignToGroup(group.id)">
+                                <i class="fa-solid fa-tasks"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
