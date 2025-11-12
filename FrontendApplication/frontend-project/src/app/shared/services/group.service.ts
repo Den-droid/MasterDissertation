@@ -30,6 +30,14 @@ export class GroupService {
         return this.httpClient.put<any>(`${this.url}/${id}`, dto);
     }
 
+    setStudents(id: number, userIds: number[]): Observable<any> {
+        return this.httpClient.put<any>(`${this.url}/${id}/setStudents`, userIds);
+    }
+
+    setSubjects(id: number, subjectIds: number[]): Observable<any> {
+        return this.httpClient.put<any>(`${this.url}/${id}/setSubjects`, subjectIds);
+    }
+
     delete(id: number): Observable<any> {
         const queryParams = new HttpParams();
         queryParams.set('id', id);

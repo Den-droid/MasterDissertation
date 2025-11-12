@@ -136,7 +136,7 @@ export class UniversityListComponent implements OnInit {
               keyboard: false
             });
 
-            deleteErrorModalRef.componentInstance.content = error.error.message;
+            deleteErrorModalRef.componentInstance.content = [error.error.message];
             deleteErrorModalRef.componentInstance.title = universityModal['delete-error'];
           },
           complete: () => {

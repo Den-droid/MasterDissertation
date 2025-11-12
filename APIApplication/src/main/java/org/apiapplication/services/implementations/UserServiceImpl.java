@@ -7,9 +7,9 @@ import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.dto.user.UserDto;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserInfo;
+import org.apiapplication.enums.UserRole;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
-import org.apiapplication.repositories.UniversityRepository;
 import org.apiapplication.repositories.UserInfoRepository;
 import org.apiapplication.repositories.UserRepository;
 import org.apiapplication.services.interfaces.PermissionService;
@@ -48,23 +48,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> get(Integer userId) {
-        if (!sessionService.isUserAdmin(sessionService.getCurrentUser()))
-            throw new PermissionException();
+    public List<UserDto> get(Integer roleId) {
+        User currentUser = sessionService.getCurrentUser();
+        if (sessionService.isUserStudent(currentUser)) {
+            return List.of(getUserDto(currentUser));
+        }
 
-        if (userId != null) {
-            User user = userRepository.findById(userId).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(userId))
-            );
-
-            if (!permissionService.userCanAccessUniversity(sessionService.getCurrentUser(),
-                    user.getUserInfo().getUniversity())) {
-                throw new PermissionException();
-            }
-
-            return List.of(getUserDto(user));
+        List<User> users;
+        if (currentUser.getRoles().get(0).getName().equals(UserRole.TEACHER)) {
+            users = currentUser.getUserInfo().getUniversity().getUserInfos()
+                    .stream()
+                    .map(UserInfo::getUser)
+                    .toList();
         } else {
-            List<User> users = sessionService.getCurrentUser().getUserPermissions()
+            users = currentUser.getUserPermissions()
                     .stream()
                     .filter(up -> up.getUniversity() != null)
                     .collect(ArrayList::new,
@@ -73,8 +70,29 @@ public class UserServiceImpl implements UserService {
                                             .stream().map(UserInfo::getUser)
                                             .toList()
                                     ), ArrayList::addAll);
-            return users.stream().map(this::getUserDto).toList();
         }
+
+        return users.stream()
+                .filter(u -> u.getRoles().get(0).getId().equals(roleId))
+                .map(this::getUserDto)
+                .toList();
+    }
+
+    @Override
+    public UserDto getById(int userId) {
+        User currentUser = sessionService.getCurrentUser();
+
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.USER, String.valueOf(userId))
+        );
+
+        if (!currentUser.getId().equals(userId) &&
+                !permissionService.userCanAccessUniversity(currentUser,
+                        user.getUserInfo().getUniversity())) {
+            throw new PermissionException();
+        }
+
+        return getUserDto(user);
     }
 
     @Override

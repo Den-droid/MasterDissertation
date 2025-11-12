@@ -16,13 +16,9 @@ public interface GroupService {
 
     void delete(int groupId);
 
-    void setStudents(int groupId, SetStudentsDto setStudentsDto);
-
     void addStudents(int groupId, SetStudentsDto setStudentsDto);
 
     void removeStudents(int groupId, SetStudentsDto setStudentsDto);
-
-    void setSubjects(int groupId, SetSubjectsDto setSubjectsDto);
 
     void addSubjects(int groupId, SetSubjectsDto setSubjectsDto);
 

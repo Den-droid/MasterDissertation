@@ -24,6 +24,13 @@ export class UserService {
     return this.httpClient.get<UserDto[]>(`${this.url}`)
   }
 
+  getStudents(): Observable<UserDto[]> {
+    const params = new HttpParams()
+      .set('roleId', 1)
+
+    return this.httpClient.get<UserDto[]>(`${this.url}`, { params })
+  }
+
   getApiKey(userId: number): Observable<ApiKeyDto> {
     return this.httpClient.put<ApiKeyDto>(`${this.url}/${userId}/apiKey`, null)
   }

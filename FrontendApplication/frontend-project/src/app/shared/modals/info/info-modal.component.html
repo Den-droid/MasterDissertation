@@ -4,7 +4,9 @@
 </div>
 
 <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
-    <p>{{content}}</p>
+    @for(row of content; track row){
+        <p>{{row}}</p>
+    }
 </div>
 
 <div class="modal-footer">

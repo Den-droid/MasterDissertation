@@ -5,7 +5,6 @@ import lombok.Data;
 import org.apiapplication.entities.Group;
 import org.apiapplication.entities.assignment.UserAssignment;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -34,7 +33,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
-    @ManyToMany(mappedBy = "students")
+    @OneToMany(mappedBy = "owner")
     private List<Group> groups;
 
     @OneToOne(mappedBy = "user")

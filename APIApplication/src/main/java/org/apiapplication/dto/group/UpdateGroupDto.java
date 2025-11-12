@@ -1,4 +1,7 @@
 package org.apiapplication.dto.group;
 
-public record UpdateGroupDto(String name) {
+import java.util.List;
+
+public record UpdateGroupDto(String name, List<Integer> userIds,
+                             List<Integer> subjectIds) {
 }

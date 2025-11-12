@@ -1,0 +1,72 @@
+<div class="main-content">
+    <div class="card p-4 shadow-sm">
+        <h2 class="text-center mb-4">
+            {{isCreatingGroup() ? addGroupTitle : updateGroupTitle}}
+        </h2>
+
+        <form [formGroup]="form">
+            <div class="mb-3">
+                <label for="name" class="form-label">Назва</label>
+                <input type="text" id="name" class="form-control" formControlName="name" />
+                @if (f['name'].errors?.['required'] && (f['name'].touched || f['name'].dirty)) {
+                <div class="text-danger mt-1">{{ groupNameRequiredMessage }}</div>
+                }
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6 p-2">
+                    <h5 class="mb-2">Виберіть студентів:</h5>
+                    <input class="form-control mb-2" placeholder="Пошук..." formControlName="studentSearch"/>
+                    <div class="list-group" style="max-height:40vh; overflow:auto;">
+                        @for(student of filteredStudents; track student.id){
+                        <label class="list-group-item d-flex align-items-center">
+                            <input class="form-check-input me-2" type="checkbox"
+                                [checked]="isStudentSelected(student.id)" (change)="toggleStudent(student.id)" />
+                            <span>{{ getStudentFullName(student) }}</span>
+                        </label>
+                        }
+                    </div>
+                    @if(saveButtonClicked && selectedStudents.length === 0){
+                    <div class="alert alert-danger mt-2">
+                        {{atLeastOneStudentMessage}}
+                    </div>
+                    }
+                </div>
+                <div class="col-md-6 p-2">
+                    <h5 class="mb-2">Виберіть предмети:</h5>
+                    <input class="form-control mb-2" placeholder="Пошук..." formControlName="subjectSearch"/>
+                    <div class="list-group" style="max-height:40vh; overflow:auto;">
+                        @for(subject of filteredSubjects; track subject.id){
+                        <label class="list-group-item d-flex align-items-center">
+                            <input class="form-check-input me-2" type="checkbox"
+                                [checked]="isSubjectSelected(subject.id)" (change)="toggleSubject(subject.id)" />
+                            <span>{{ subject.name }}</span>
+                        </label>
+                        }
+                    </div>
+                    @if(saveButtonClicked && selectedSubjects.length === 0){
+                    <div class="alert alert-danger mt-2">
+                        {{atLeastOneSubjectMessage}}
+                    </div>
+                    }
+                </div>
+            </div>
+
+            @if(showError){
+            <div class="alert alert-danger mt-2">
+                {{errorMessage}}
+            </div>
+            }
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-secondary" (click)="goBack()">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Назад
+                </button>
+
+                <button type="button" class="btn btn-primary" (click)="save()">
+                    Зберегти
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

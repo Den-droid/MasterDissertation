@@ -6,7 +6,9 @@ import org.apiapplication.dto.user.UserDto;
 import java.util.List;
 
 public interface UserService {
-    List<UserDto> get(Integer userId);
+    List<UserDto> get(Integer roleId);
+
+    UserDto getById(int userId);
 
     ApiKeyDto getApiKey(int userId);
 

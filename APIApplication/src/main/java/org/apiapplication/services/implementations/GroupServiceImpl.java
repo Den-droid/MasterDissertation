@@ -73,7 +73,8 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public IdDto add(AddGroupDto dto) {
-        if (!sessionService.isUserTeacher(sessionService.getCurrentUser()))
+        User currentUser = sessionService.getCurrentUser();
+        if (!sessionService.isUserTeacher(currentUser))
             throw new PermissionException();
 
         Optional<Group> existingGroup = groupRepository.findAll().stream()
@@ -85,7 +86,13 @@ public class GroupServiceImpl implements GroupService {
 
         Group group = new Group();
         group.setName(dto.name());
-        group.setOwner(sessionService.getCurrentUser());
+        group.setOwner(currentUser);
+
+        List<Subject> subjects = subjectRepository.findAllById(dto.subjectIds());
+        group.setSubjects(new HashSet<>(subjects));
+
+        List<User> users = userRepository.findAllById(dto.userIds());
+        group.setStudents(new HashSet<>(users));
 
         groupRepository.save(group);
 
@@ -112,6 +119,14 @@ public class GroupServiceImpl implements GroupService {
         if (dto.name() != null && !dto.name().isEmpty())
             group.setName(dto.name());
 
+        List<Subject> subjects = subjectRepository.findAllById(dto.subjectIds());
+        group.getSubjects().clear();
+        group.getSubjects().addAll(new HashSet<>(subjects));
+
+        List<User> users = userRepository.findAllById(dto.userIds());
+        group.getStudents().clear();
+        group.getStudents().addAll(new HashSet<>(users));
+
         groupRepository.save(group);
     }
 
@@ -125,20 +140,6 @@ public class GroupServiceImpl implements GroupService {
             throw new PermissionException();
 
         groupRepository.delete(group);
-    }
-
-    @Override
-    public void setStudents(int groupId, SetStudentsDto dto) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.GROUP,
-                        String.valueOf(groupId)));
-
-        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId()))
-            throw new PermissionException();
-
-        List<User> users = userRepository.findAllById(dto.userIds());
-        group.setStudents(new HashSet<>(users));
-        groupRepository.save(group);
     }
 
     @Override
@@ -166,20 +167,6 @@ public class GroupServiceImpl implements GroupService {
 
         List<User> users = userRepository.findAllById(dto.userIds());
         users.forEach(group.getStudents()::remove);
-        groupRepository.save(group);
-    }
-
-    @Override
-    public void setSubjects(int groupId, SetSubjectsDto dto) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.GROUP,
-                        String.valueOf(groupId)));
-
-        if (!Objects.equals(sessionService.getCurrentUser().getId(), group.getOwner().getId()))
-            throw new PermissionException();
-
-        List<Subject> subjects = subjectRepository.findAllById(dto.subjectIds());
-        group.setSubjects(new HashSet<>(subjects));
         groupRepository.save(group);
     }
 

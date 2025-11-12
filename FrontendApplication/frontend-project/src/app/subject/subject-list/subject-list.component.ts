@@ -155,7 +155,7 @@ export class SubjectListComponent implements OnInit {
               keyboard: false
             });
 
-            deleteErrorModalRef.componentInstance.content = error.error.message;
+            deleteErrorModalRef.componentInstance.content = [error.error.message];
             deleteErrorModalRef.componentInstance.title = subjectModal['delete-error'];
           },
           complete: () => {

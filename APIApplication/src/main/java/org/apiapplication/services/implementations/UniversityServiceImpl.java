@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -61,7 +62,13 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     public List<UniversityDto> get() {
-        Set<University> universities = getForUser(sessionService.getCurrentUser());
+        Set<University> universities;
+        User currentUser = sessionService.getCurrentUser();
+        if (currentUser != null) {
+            universities = getForUser(sessionService.getCurrentUser());
+        } else {
+            universities = new HashSet<>(universityRepository.findAll());
+        }
 
         List<UniversityDto> universityDtos = universities.stream()
                 .map(u -> new UniversityDto(u.getId(), u.getName()))

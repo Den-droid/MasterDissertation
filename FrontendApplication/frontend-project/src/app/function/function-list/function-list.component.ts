@@ -170,7 +170,7 @@ export class FunctionListComponent implements OnInit {
               keyboard: false
             });
 
-            deleteErrorModalRef.componentInstance.content = error.error.message;
+            deleteErrorModalRef.componentInstance.content = [error.error.message];
             deleteErrorModalRef.componentInstance.title = functionModal['delete-error'];
           },
           complete: () => {

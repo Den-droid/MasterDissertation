@@ -69,19 +69,6 @@ public class GroupController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{groupId}/setStudents")
-    private ResponseEntity<?> setStudents(@PathVariable String groupId,
-                                          @RequestBody SetStudentsDto setStudentsDto) {
-        int groupIdInt;
-        try {
-            groupIdInt = Integer.parseInt(groupId);
-        } catch (NumberFormatException e) {
-            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
-        }
-        groupService.setStudents(groupIdInt, setStudentsDto);
-        return ResponseEntity.ok().build();
-    }
-
     @PutMapping("/{groupId}/addStudents")
     private ResponseEntity<?> addStudents(@PathVariable String groupId,
                                           @RequestBody SetStudentsDto setStudentsDto) {
@@ -105,19 +92,6 @@ public class GroupController {
             throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
         }
         groupService.removeStudents(groupIdInt, setStudentsDto);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{groupId}/setSubjects")
-    private ResponseEntity<?> setSubjects(@PathVariable String groupId,
-                                          @RequestBody SetSubjectsDto setSubjectsDto) {
-        int groupIdInt;
-        try {
-            groupIdInt = Integer.parseInt(groupId);
-        } catch (NumberFormatException e) {
-            throw new EntityWithIdNotFoundException(EntityName.GROUP, groupId);
-        }
-        groupService.setSubjects(groupIdInt, setSubjectsDto);
         return ResponseEntity.ok().build();
     }
 

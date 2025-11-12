@@ -19,15 +19,15 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public User getCurrentUser() {
-        UserDetailsImpl userDetails =
-                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (userDetails == null)
+        if (principal instanceof UserDetailsImpl userDetails) {
+            String email = userDetails.getEmail();
+            return userRepository.findByEmailIgnoreCase(email)
+                    .orElseThrow(() -> new UserWithEmailNotFoundException(email));
+        } else {
             return null;
-
-        String email = userDetails.getEmail();
-        return userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new UserWithEmailNotFoundException(email));
+        }
     }
 
     @Override

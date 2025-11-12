@@ -7,7 +7,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class InfoModalComponent {
   @Input() title = '';
-  @Input() content = '';
+  @Input() content = [];
 
   constructor(public activeModal: NgbActiveModal) { }
 }

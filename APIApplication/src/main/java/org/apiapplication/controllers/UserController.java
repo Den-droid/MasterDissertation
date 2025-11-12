@@ -20,9 +20,21 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getById(@PathVariable String userId) {
+        int userIdInt;
+        try {
+            userIdInt = Integer.parseInt(userId);
+        } catch (NumberFormatException e) {
+            throw new EntityWithIdNotFoundException(EntityName.USER, userId);
+        }
+        UserDto userDto = userService.getById(userIdInt);
+        return ResponseEntity.ok(userDto);
+    }
+
     @GetMapping
-    public ResponseEntity<List<UserDto>> get(@RequestParam(required = false) Integer userId) {
-        List<UserDto> userDtos = userService.get(userId);
+    public ResponseEntity<List<UserDto>> get(@RequestParam(required = false) Integer roleId) {
+        List<UserDto> userDtos = userService.get(roleId);
         return ResponseEntity.ok(userDtos);
     }
 

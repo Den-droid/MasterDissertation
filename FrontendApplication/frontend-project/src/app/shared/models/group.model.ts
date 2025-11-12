@@ -4,11 +4,11 @@ export class GroupDto {
 }
 
 export class AddGroupDto {
-    constructor(public name: string) { }
+    constructor(public name: string, public userIds: number[], public subjectIds: number[]) { }
 }
 
 export class UpdateGroupDto {
-    constructor(public name: string) { }
+    constructor(public name: string, public userIds: number[], public subjectIds: number[]) { }
 }
 
 export class GroupStudentDto {

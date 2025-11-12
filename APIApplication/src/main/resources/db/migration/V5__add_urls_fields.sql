@@ -47,13 +47,12 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/groups/{groupId}', 'Видалити групу', 3),
        ('/api/groups/{groupId}/addStudents', 'Додати студентів у групу', 2),
        ('/api/groups/{groupId}/removeStudents', 'Видалити студентів з групи', 2),
-       ('/api/groups/{groupId}/setStudents', 'Задати студентів групи', 2),
        ('/api/groups/{groupId}/addSubjects', 'Додати предмети до групи', 2),
        ('/api/groups/{groupId}/removeSubjects', 'Видалити предмети з групи', 2),
-       ('/api/groups/{groupId}/setSubjects', 'Задати предмети для групи', 2),
        ('/api/users/{userId}/approve', 'Підтвердити користувача', 2),
        ('/api/users/{userId}/reject', 'Відхилити користувача', 2),
-       ('/api/assignments/assignToGroup', 'Призначити завдання групі', 1);
+       ('/api/assignments/assignToGroup', 'Призначити завдання групі', 1),
+       ('/api/users/{userId}', 'Отримати дані про користувача', 0);
 
 INSERT INTO fields (name, label, description, type)
 VALUES ('userId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор користувача', 0),
@@ -83,7 +82,8 @@ VALUES ('userId', 'Ідентифікатор', 'Унікальний число
        ('markId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор оцінки', 0),
        ('userIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор користувача', 0),
        ('subjectIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор предмету', 0),
-       ('groupId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор групи', 0);
+       ('groupId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор групи', 0),
+       ('roleId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор ролі', 0);
 
 insert into url_fields(url_id, field_id, required, multiple)
 values ((select id from urls where url = '/api/assignments/assignToGroup'),
@@ -187,7 +187,10 @@ values ((select id from urls where url = '/api/assignments/assignToGroup'),
         false, false),
        ((select id from urls where url = '/api/assignmentRestrictions' and method = 0),
         (select id from fields where name = 'userAssignmentId'),
-        true, false);
+        true, false),
+       ((select id from urls where url = '/api/users' and method = 0),
+        (select id from fields where name = 'roleId'),
+        false, false);
 
 insert into url_fields(url_id, field_id, required, multiple)
 values ((select id from urls where url = '/api/permissions' and method = 1),
@@ -277,15 +280,21 @@ values ((select id from urls where url = '/api/permissions' and method = 1),
        ((select id from urls where url = '/api/groups/{groupId}/removeStudents'),
         (select id from fields where name = 'userIds'),
         false, true),
-       ((select id from urls where url = '/api/groups/{groupId}/setStudents'),
-        (select id from fields where name = 'userIds'),
-        false, true),
        ((select id from urls where url = '/api/groups/{groupId}/addSubjects'),
         (select id from fields where name = 'subjectIds'),
         false, true),
        ((select id from urls where url = '/api/groups/{groupId}/removeSubjects'),
         (select id from fields where name = 'subjectIds'),
         false, true),
-       ((select id from urls where url = '/api/groups/{groupId}/setSubjects'),
+       ((select id from urls where url = '/api/groups' and method = 1),
         (select id from fields where name = 'subjectIds'),
+        true, true),
+       ((select id from urls where url = '/api/groups' and method = 1),
+        (select id from fields where name = 'userIds'),
+        true, true),
+       ((select id from urls where url = '/api/groups/{groupId}' and method = 2),
+        (select id from fields where name = 'subjectIds'),
+        false, true),
+       ((select id from urls where url = '/api/groups/{groupId}' and method = 2),
+        (select id from fields where name = 'userIds'),
         false, true);

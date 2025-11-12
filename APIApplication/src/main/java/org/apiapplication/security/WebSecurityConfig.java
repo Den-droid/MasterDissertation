@@ -71,7 +71,6 @@ public class WebSecurityConfig {
             "/api/permissions",
             "/api/subjects",
             "/api/subjects/*",
-            "/api/universities",
             "/api/universities/*"
     };
 
@@ -81,6 +80,10 @@ public class WebSecurityConfig {
             "/api/fields",
             "/api/urls/methods",
             "/api/assignmentRestrictions/restrictionTypes"
+    };
+
+    private final String[] publicUrls = {
+            "/api/universities",
     };
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,
@@ -134,6 +137,7 @@ public class WebSecurityConfig {
                                         UserRole.TEACHER.name(), UserRole.STUDENT.name())
                                 .requestMatchers(userUrls).hasAnyRole(UserRole.ADMIN.name(),
                                         UserRole.TEACHER.name(), UserRole.STUDENT.name())
+                                .requestMatchers(publicUrls).permitAll()
                                 .requestMatchers(authUrl).permitAll()
                                 .anyRequest().authenticated()
                 )

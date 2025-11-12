@@ -69,7 +69,6 @@ export class GroupListComponent implements OnInit {
     let group = this.filteredGroups.filter(fg => fg.id === id)[0];
     let students = [...group.students];
     let studentNames = students.map(s => s.firstName + " " + s.lastName);
-    let studentsString = studentNames.join('\n');
 
     const modalRef = this.modalService.open(InfoModalComponent, {
       centered: true,
@@ -77,7 +76,7 @@ export class GroupListComponent implements OnInit {
       keyboard: false
     });
 
-    modalRef.componentInstance.content = studentsString;
+    modalRef.componentInstance.content = studentNames;
     modalRef.componentInstance.title = groupModals['students-header'];
   }
 
@@ -98,7 +97,6 @@ export class GroupListComponent implements OnInit {
     let group = this.filteredGroups.filter(fg => fg.id === id)[0];
     let subjects = [...group.subjects];
     let subjectNames = subjects.map(s => s.name);
-    let subjectsString = subjectNames.join('\n');
 
     const modalRef = this.modalService.open(InfoModalComponent, {
       centered: true,
@@ -106,7 +104,7 @@ export class GroupListComponent implements OnInit {
       keyboard: false
     });
 
-    modalRef.componentInstance.content = subjectsString;
+    modalRef.componentInstance.content = subjectNames;
     modalRef.componentInstance.title = groupModals['subjects-header'];
   }
 
@@ -136,11 +134,11 @@ export class GroupListComponent implements OnInit {
   }
 
   addGroup() {
-    this.router.navigate([`/add`]);
+    this.router.navigate([`/groups/add`]);
   }
 
   updateGroup(id: number) {
-    this.router.navigate([`/${id}`]);
+    this.router.navigate([`/groups/${id}`]);
   }
 
   deleteGroup(id: number) {
