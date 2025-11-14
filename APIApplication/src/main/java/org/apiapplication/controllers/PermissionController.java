@@ -2,6 +2,7 @@ package org.apiapplication.controllers;
 
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.permission.PermissionDto;
+import org.apiapplication.dto.permission.UpdatePermissionDto;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.PermissionService;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +26,9 @@ public class PermissionController {
         return ResponseEntity.ok(permissionDtos);
     }
 
-    @PostMapping
-    public ResponseEntity<?> givePermission(@RequestBody PermissionDto permissionDto) {
-        permissionService.givePermission(permissionDto);
+    @PutMapping
+    public ResponseEntity<?> updatePermission(@RequestBody UpdatePermissionDto permissionDto) {
+        permissionService.updatePermissions(permissionDto);
         return ResponseEntity.ok().build();
     }
 

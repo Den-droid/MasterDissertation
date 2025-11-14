@@ -7,6 +7,7 @@ import { usersModal } from '../../shared/translations/user.translation';
 import { UserDto } from '../../shared/models/user.model';
 import { UserService } from '../../shared/services/user.service';
 import { RoleName, RoleLabel } from '../../shared/constants/roles.constant';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-list',
@@ -20,7 +21,7 @@ export class UserListComponent implements OnInit {
   searchQuery: string = '';
   searchSubject: Subject<string> = new Subject<string>();
 
-  constructor(private modalService: NgbModal, private userService: UserService) { }
+  constructor(private modalService: NgbModal, private userService: UserService, private router: Router) { }
 
   ngOnInit(): void {
     this.getUsers();
@@ -89,6 +90,14 @@ export class UserListComponent implements OnInit {
     ).catch(
       () => { return; }
     )
+  }
+
+  permissions(user: UserDto) {
+    this.router.navigate([`/users`, `${user.id}`, `permissions`])
+  }
+
+  isUserTeacher(user: UserDto) {
+    return this.getRoleLabel(user.role) == RoleLabel.TEACHER;
   }
 
   onSearchChange(value: string) {

@@ -3,6 +3,7 @@ package org.apiapplication.services.implementations;
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.permission.PermissionDto;
+import org.apiapplication.dto.permission.UpdatePermissionDto;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.Function;
@@ -148,7 +149,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public void givePermission(PermissionDto dto) {
+    public void updatePermissions(UpdatePermissionDto dto) {
         if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
             throw new PermissionException();
         }
@@ -162,51 +163,78 @@ public class PermissionServiceImpl implements PermissionService {
             throw new PermissionException();
         }
 
-        University university = null;
-        Subject subject = null;
-        Function function = null;
-        UserAssignment userAssignment = null;
+        if (dto.universityIds().isEmpty() && dto.functionIds().isEmpty()
+                && dto.subjectIds().isEmpty() && dto.userAssignmentIds().isEmpty()) {
+            return;
+        }
 
-        if (dto.universityId() != null) {
+        List<UserPermission> userPermissions = user.getUserPermissions();
+        for (int universityId : dto.universityIds()) {
             if (user.getRoles().get(0).getName().equals(UserRole.TEACHER)) {
                 throw new PermissionException();
             }
 
-            university = universityRepository.findById(dto.universityId()).orElseThrow(
+            University university = universityRepository.findById(universityId).orElseThrow(
                     () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
-                            String.valueOf(dto.universityId()))
+                            String.valueOf(universityId))
             );
-        } else if (dto.subjectId() != null) {
-            subject = subjectRepository.findById(dto.subjectId()).orElseThrow(
+
+            UserPermission userPermission = new UserPermission();
+            userPermission.setUser(user);
+            userPermission.setUniversity(university);
+
+            if (!user.getUserPermissions().contains(userPermission)) {
+                userPermissions.add(userPermission);
+            }
+        }
+
+        for (int subjectId : dto.subjectIds()) {
+            Subject subject = subjectRepository.findById(subjectId).orElseThrow(
                     () -> new EntityWithIdNotFoundException(EntityName.SUBJECT,
-                            String.valueOf(dto.subjectId()))
+                            String.valueOf(subjectId))
             );
-        } else if (dto.functionId() != null) {
-            function = functionRepository.findById(dto.functionId()).orElseThrow(
+
+            UserPermission userPermission = new UserPermission();
+            userPermission.setUser(user);
+            userPermission.setSubject(subject);
+
+            if (!user.getUserPermissions().contains(userPermission)) {
+                userPermissions.add(userPermission);
+            }
+        }
+
+        for (int functionId : dto.functionIds()) {
+            Function function = functionRepository.findById(functionId).orElseThrow(
                     () -> new EntityWithIdNotFoundException(EntityName.FUNCTION,
-                            String.valueOf(dto.functionId()))
+                            String.valueOf(functionId))
             );
-        } else if (dto.userAssignmentId() != null) {
-            userAssignment = userAssignmentRepository.findById(dto.userAssignmentId()).orElseThrow(
-                    () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
-                            String.valueOf(dto.userAssignmentId()))
-            );
+
+            UserPermission userPermission = new UserPermission();
+            userPermission.setUser(user);
+            userPermission.setFunction(function);
+
+            if (!user.getUserPermissions().contains(userPermission)) {
+                userPermissions.add(userPermission);
+            }
         }
 
-        if (university == null && subject == null && function == null && userAssignment == null) {
-            return;
+        for (int assignmentId : dto.userAssignmentIds()) {
+            UserAssignment userAssignment = userAssignmentRepository.findById(assignmentId)
+                    .orElseThrow(
+                            () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
+                                    String.valueOf(assignmentId))
+                    );
+
+            UserPermission userPermission = new UserPermission();
+            userPermission.setUser(user);
+            userPermission.setUserAssignment(userAssignment);
+
+            if (!user.getUserPermissions().contains(userPermission)) {
+                userPermissions.add(userPermission);
+            }
         }
 
-        UserPermission userPermission = new UserPermission();
-        userPermission.setUser(user);
-        userPermission.setUniversity(university);
-        userPermission.setSubject(subject);
-        userPermission.setFunction(function);
-        userPermission.setUserAssignment(userAssignment);
-
-        if (!user.getUserPermissions().contains(userPermission)) {
-            userPermissionRepository.save(userPermission);
-        }
+        userPermissionRepository.saveAll(userPermissions);
     }
 
     @Override

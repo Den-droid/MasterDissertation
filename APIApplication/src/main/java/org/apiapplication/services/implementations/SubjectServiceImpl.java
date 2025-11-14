@@ -182,11 +182,6 @@ public class SubjectServiceImpl implements SubjectService {
         Set<Subject> subjects = new HashSet<>();
         List<UserPermission> userPermissions = user.getUserPermissions();
 
-        University university = user.getUserInfo().getUniversity();
-        if (university != null) {
-            subjects.addAll(university.getSubjects());
-        }
-
         for (UserPermission userPermission : userPermissions) {
             if (userPermission.getUniversity() != null) {
                 subjects.addAll(userPermission.getUniversity().getSubjects());

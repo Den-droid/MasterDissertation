@@ -1,5 +1,6 @@
 export const usersPageTitles = {
-    "users": "Користувачі"
+    "users": "Користувачі",
+    "user-permissions": "Дозволи користувача"
 }
 
 export const usersModal = {

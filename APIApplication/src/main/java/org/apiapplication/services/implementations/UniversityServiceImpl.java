@@ -3,7 +3,7 @@ package org.apiapplication.services.implementations;
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.common.IdDto;
-import org.apiapplication.dto.permission.PermissionDto;
+import org.apiapplication.dto.permission.UpdatePermissionDto;
 import org.apiapplication.dto.university.AddUniversityDto;
 import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.dto.university.UpdateUniversityDto;
@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -98,8 +97,8 @@ public class UniversityServiceImpl implements UniversityService {
 
         userRepository.findAll().stream()
                 .filter(u -> u.getRoles().get(0).getName().equals(UserRole.ADMIN))
-                .forEach(u -> permissionService.givePermission(new PermissionDto(null, u.getId(),
-                        university.getId(), null, null, null)));
+                .forEach(u -> permissionService.updatePermissions(new UpdatePermissionDto(u.getId(),
+                        List.of(university.getId()), null, null, null)));
 
         return new IdDto(university.getId());
     }
@@ -153,11 +152,6 @@ public class UniversityServiceImpl implements UniversityService {
     public Set<University> getForUser(User user) {
         Set<University> universities = new HashSet<>();
         List<UserPermission> userPermissions = user.getUserPermissions();
-
-        University university = user.getUserInfo().getUniversity();
-        if (university != null) {
-            universities.add(university);
-        }
 
         for (UserPermission userPermission : userPermissions) {
             if (userPermission.getUniversity() != null) {

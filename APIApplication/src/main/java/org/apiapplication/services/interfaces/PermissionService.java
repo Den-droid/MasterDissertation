@@ -1,6 +1,7 @@
 package org.apiapplication.services.interfaces;
 
 import org.apiapplication.dto.permission.PermissionDto;
+import org.apiapplication.dto.permission.UpdatePermissionDto;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.Function;
@@ -20,7 +21,7 @@ public interface PermissionService {
 
     boolean userCanAccessUniversity(User user, University university);
 
-    void givePermission(PermissionDto permissionDto);
+    void updatePermissions(UpdatePermissionDto permissionDto);
 
     void removePermission(int permissionId);
 }

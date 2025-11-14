@@ -18,7 +18,7 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/functions', 'Отримати список функцій', 0),
        ('/api/assignmentRestrictions/setDefaultRestriction', 'Задати обмеження ' ||
                                                              'по замовчуванню для виконання завдання', 2),
-       ('/api/permissions', 'Надати доступ користувачу до ресурсів', 1),
+       ('/api/permissions', 'Надати доступ користувачу до ресурсів', 2),
        ('/api/assignmentRestrictions/setRestriction', 'Задати обмеження для ' ||
                                                       'виконання завдання', 2),
        ('/api/permissions/{permissionId}', 'Забрати доступ на ресурс', 3),
@@ -83,7 +83,10 @@ VALUES ('userId', 'Ідентифікатор', 'Унікальний число
        ('userIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор користувача', 0),
        ('subjectIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор предмету', 0),
        ('groupId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор групи', 0),
-       ('roleId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор ролі', 0);
+       ('roleId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор ролі', 0),
+       ('universityIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор університету', 0),
+       ('functionIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор функції', 0),
+       ('userAssignmentIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор завдання користувача', 0);
 
 insert into url_fields(url_id, field_id, required, multiple)
 values ((select id from urls where url = '/api/assignments/assignToGroup'),
@@ -193,21 +196,21 @@ values ((select id from urls where url = '/api/assignments/assignToGroup'),
         false, false);
 
 insert into url_fields(url_id, field_id, required, multiple)
-values ((select id from urls where url = '/api/permissions' and method = 1),
+values ((select id from urls where url = '/api/permissions' and method = 2),
         (select id from fields where name = 'userId'),
         true, false),
-       ((select id from urls where url = '/api/permissions' and method = 1),
-        (select id from fields where name = 'universityId'),
-        false, false),
-       ((select id from urls where url = '/api/permissions' and method = 1),
-        (select id from fields where name = 'subjectId'),
-        false, false),
-       ((select id from urls where url = '/api/permissions' and method = 1),
-        (select id from fields where name = 'functionId'),
-        false, false),
-       ((select id from urls where url = '/api/permissions' and method = 1),
-        (select id from fields where name = 'userAssignmentId'),
-        false, false),
+       ((select id from urls where url = '/api/permissions' and method = 2),
+        (select id from fields where name = 'universityIds'),
+        false, true),
+       ((select id from urls where url = '/api/permissions' and method = 2),
+        (select id from fields where name = 'subjectIds'),
+        false, true),
+       ((select id from urls where url = '/api/permissions' and method = 2),
+        (select id from fields where name = 'functionIds'),
+        false, true),
+       ((select id from urls where url = '/api/permissions' and method = 2),
+        (select id from fields where name = 'userAssignmentIds'),
+        false, true),
        ((select id from urls where url = '/api/universities' and method = 1),
         (select id from fields where name = 'name'),
         true, false),
