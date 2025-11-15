@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.answer.AnswerDto;
 import org.apiapplication.dto.assignment.*;
+import org.apiapplication.dto.mark.MarkDto;
 import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.dto.user.UserDto;
 import org.apiapplication.entities.Group;
@@ -123,8 +124,8 @@ public class AssignmentServiceImpl implements AssignmentService {
                                     userAssignment.getLastAttemptTime()
                                             .plusMinutes(userAssignment.getMinutesForAttempt())
                                     : LocalDateTime.now(),
-                            mark != null ? mark.getMark() : -1,
-                            mark != null ? mark.getComment() : "",
+                            mark != null ? new MarkDto(mark.getId(), mark.getMark(), mark.getComment())
+                                    : null,
                             getUserDto(userAssignment.getUser())
                     );
                 })

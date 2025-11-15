@@ -1,6 +1,8 @@
 import { AssignmentRestrictionType } from "../constants/assignment-restriction-type";
 import { AssignmentStatus } from "../constants/assignment-status.constant";
 import { FunctionResultType } from "../constants/function-result-type.constant";
+import { FunctionDto } from "./function.model";
+import { MarkDto } from "./mark.model";
 import { UserDto } from "./user.model";
 
 export class AssignmentAnswerDto {
@@ -39,10 +41,29 @@ export class UserAssignmentDto {
     public attemptsRemaining: number,
     public deadline: string,
     public nextAttemptTime: string,
-    public mark: number,
-    public comment: string,
+    public mark: MarkDto,
     public user: UserDto
   ) { }
+}
+
+export class UserAssignmentWithFunctionDto {
+  constructor(
+    public id: number,
+    public hint: string,
+    public status: AssignmentStatus,
+    public functionResultType: FunctionResultType,
+    public restrictionType: AssignmentRestrictionType,
+    public attemptsRemaining: number,
+    public deadline: string,
+    public nextAttemptTime: string,
+    public mark: MarkDto,
+    public user: UserDto,
+    public func: FunctionDto | null
+  ) { }
+}
+
+export class AssignmentFunctionDto {
+  public constructor(public functionId: number, public userAssignmentId: number) { }
 }
 
 export class AssignDto {

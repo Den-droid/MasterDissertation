@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { baseUrl } from "../constants/url.constant";
+import { AssignmentFunctionDto } from "../models/assignment.model";
 import { IdDto } from "../models/common.model";
 import { AddFunctionDto, FunctionDto, UpdateFunctionDto } from "../models/function.model";
 
@@ -20,6 +21,11 @@ export class FunctionService {
 
     getById(id: number): Observable<FunctionDto> {
         return this.httpClient.get<FunctionDto>(`${this.url}/${id}`);
+    }
+
+    getByAssignmentIds(userAssignmentIds: number[]): Observable<AssignmentFunctionDto[]> {
+        const params = new HttpParams().appendAll({ userAssignmentIds })
+        return this.httpClient.get<AssignmentFunctionDto[]>(`${this.url}/getByAssignmentIds`, { params });
     }
 
     add(dto: AddFunctionDto): Observable<IdDto> {

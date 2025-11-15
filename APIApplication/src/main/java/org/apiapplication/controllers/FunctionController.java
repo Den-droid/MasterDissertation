@@ -1,6 +1,7 @@
 package org.apiapplication.controllers;
 
 import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.assignment.AssignmentFunctionDto;
 import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.function.AddFunctionDto;
 import org.apiapplication.dto.function.FunctionDto;
@@ -32,6 +33,14 @@ public class FunctionController {
         }
         FunctionDto functionDto = functionService.getFunctionById(functionIdInt);
         return ResponseEntity.ok(functionDto);
+    }
+
+    @GetMapping("/getByAssignmentIds")
+    public ResponseEntity<List<AssignmentFunctionDto>> getByUserAssignmentIds(
+            @RequestParam List<Integer> userAssignmentIds) {
+        List<AssignmentFunctionDto> functionDtos =
+                functionService.getFunctionsByAssignmentIds(userAssignmentIds);
+        return ResponseEntity.ok(functionDtos);
     }
 
     @GetMapping

@@ -52,7 +52,8 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/users/{userId}/approve', 'Підтвердити користувача', 2),
        ('/api/users/{userId}/reject', 'Відхилити користувача', 2),
        ('/api/assignments/assignToGroup', 'Призначити завдання групі', 1),
-       ('/api/users/{userId}', 'Отримати дані про користувача', 0);
+       ('/api/users/{userId}', 'Отримати дані про користувача', 0),
+       ('/api/functions/getByAssignmentIds', 'Отримати функції для завдань', 0);
 
 INSERT INTO fields (name, label, description, type)
 VALUES ('userId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор користувача', 0),
@@ -193,7 +194,10 @@ values ((select id from urls where url = '/api/assignments/assignToGroup'),
         true, false),
        ((select id from urls where url = '/api/users' and method = 0),
         (select id from fields where name = 'roleId'),
-        false, false);
+        false, false),
+       ((select id from urls where url = '/api/functions/getByAssignmentIds' and method = 0),
+        (select id from fields where name = 'userAssignmentIds'),
+        false, true);
 
 insert into url_fields(url_id, field_id, required, multiple)
 values ((select id from urls where url = '/api/permissions' and method = 2),

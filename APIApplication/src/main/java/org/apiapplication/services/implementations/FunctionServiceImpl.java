@@ -2,6 +2,7 @@ package org.apiapplication.services.implementations;
 
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
+import org.apiapplication.dto.assignment.AssignmentFunctionDto;
 import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.function.AddFunctionDto;
 import org.apiapplication.dto.function.FunctionDto;
@@ -12,6 +13,7 @@ import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.assignment.FunctionMinMaxValue;
+import org.apiapplication.entities.assignment.UserAssignment;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.enums.FunctionResultType;
@@ -21,10 +23,7 @@ import org.apiapplication.exceptions.entity.EntityWithNameAlreadyFoundException;
 import org.apiapplication.exceptions.function.FunctionSameExistsException;
 import org.apiapplication.exceptions.function.FunctionTextFormatIncorrectException;
 import org.apiapplication.exceptions.permission.PermissionException;
-import org.apiapplication.repositories.FunctionMinMaxValueRepository;
-import org.apiapplication.repositories.FunctionRepository;
-import org.apiapplication.repositories.SubjectRepository;
-import org.apiapplication.repositories.UserPermissionRepository;
+import org.apiapplication.repositories.*;
 import org.apiapplication.services.interfaces.FunctionService;
 import org.apiapplication.services.interfaces.PermissionService;
 import org.apiapplication.services.interfaces.SessionService;
@@ -40,6 +39,7 @@ public class FunctionServiceImpl implements FunctionService {
     private final SubjectRepository subjectRepository;
     private final FunctionMinMaxValueRepository functionMinMaxValueRepository;
     private final UserPermissionRepository userPermissionRepository;
+    private final UserAssignmentRepository userAssignmentRepository;
 
     private final PermissionService permissionService;
     private final SessionService sessionService;
@@ -48,12 +48,14 @@ public class FunctionServiceImpl implements FunctionService {
                                SubjectRepository subjectRepository,
                                FunctionMinMaxValueRepository functionMinMaxValueRepository,
                                UserPermissionRepository userPermissionRepository,
+                               UserAssignmentRepository userAssignmentRepository,
                                PermissionService permissionService,
                                SessionService sessionService) {
         this.functionRepository = functionRepository;
         this.subjectRepository = subjectRepository;
         this.functionMinMaxValueRepository = functionMinMaxValueRepository;
         this.userPermissionRepository = userPermissionRepository;
+        this.userAssignmentRepository = userAssignmentRepository;
 
         this.permissionService = permissionService;
         this.sessionService = sessionService;
@@ -65,6 +67,25 @@ public class FunctionServiceImpl implements FunctionService {
                 functionRepository.findById(id).orElseThrow(
                         () -> new EntityWithIdNotFoundException(EntityName.FUNCTION, String.valueOf(id)))
         )).get(0);
+    }
+
+    @Override
+    public List<AssignmentFunctionDto> getFunctionsByAssignmentIds(List<Integer> assignmentIds) {
+        List<UserAssignment> userAssignments = userAssignmentRepository.findAllById(assignmentIds);
+        List<Integer> functionIds = userAssignments.stream()
+                .map(ua -> ua.getFunction().getId())
+                .distinct().toList();
+        List<Function> functions = functionRepository.findAllById(functionIds);
+
+        List<AssignmentFunctionDto> assignmentFunctionDtos = new ArrayList<>();
+        for (UserAssignment userAssignment : userAssignments) {
+            int functionId = userAssignment.getFunction().getId();
+            AssignmentFunctionDto assignmentFunctionDto =
+                    new AssignmentFunctionDto(functionId, userAssignment.getId());
+            assignmentFunctionDtos.add(assignmentFunctionDto);
+        }
+
+        return assignmentFunctionDtos;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.apiapplication.services.interfaces;
 
+import org.apiapplication.dto.assignment.AssignmentFunctionDto;
 import org.apiapplication.dto.common.IdDto;
 import org.apiapplication.dto.function.AddFunctionDto;
 import org.apiapplication.dto.function.FunctionDto;
@@ -9,6 +10,8 @@ import java.util.List;
 
 public interface FunctionService {
     FunctionDto getFunctionById(int id);
+
+    List<AssignmentFunctionDto> getFunctionsByAssignmentIds(List<Integer> assignmentIds);
 
     List<FunctionDto> get(Integer subjectId);
 

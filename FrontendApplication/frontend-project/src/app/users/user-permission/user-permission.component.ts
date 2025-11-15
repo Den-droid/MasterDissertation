@@ -3,7 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { debounceTime, Subject } from "rxjs";
-import { UserAssignmentDto } from "../../shared/models/assignment.model";
+import { AssignmentFunctionDto, UserAssignmentDto, UserAssignmentWithFunctionDto } from "../../shared/models/assignment.model";
 import { FunctionDto } from "../../shared/models/function.model";
 import { PermissionDto, UpdatePermissionsDto } from "../../shared/models/permission.model";
 import { SubjectDto } from "../../shared/models/subject.model";
@@ -35,8 +35,8 @@ export class UserPermissionComponent implements OnInit {
     filteredFunctions: FunctionDto[] = [];
     selectedFunctions: number[] = [];
 
-    assignments: UserAssignmentDto[] = [];
-    filteredAssignments: UserAssignmentDto[] = [];
+    assignments: UserAssignmentWithFunctionDto[] = [];
+    filteredAssignments: UserAssignmentWithFunctionDto[] = [];
     selectedAssignments: number[] = [];
 
     searchUniversities: string = '';
@@ -175,8 +175,25 @@ export class UserPermissionComponent implements OnInit {
     getAssignments() {
         this.assignmentService.get().subscribe({
             next: (dto: UserAssignmentDto[]) => {
-                this.assignments = dto;
-                this.filteredAssignments = [...this.assignments];
+                this.functionService.getByAssignmentIds(dto.map(ua => ua.id)).subscribe({
+                    next: (assignmentFunctions: AssignmentFunctionDto[]) => {
+                        let getFunction = (userAssignment: UserAssignmentDto) => {
+                            let functionId = assignmentFunctions
+                                .find(af => af.userAssignmentId == userAssignment.id)?.functionId;
+                            if (functionId) {
+                                let func = this.functions.find(f => f.id === functionId);
+                                return func ? func : null;
+                            } else {
+                                return null;
+                            }
+                        };
+                        this.assignments = dto.map(ua => new UserAssignmentWithFunctionDto(
+                            ua.id, ua.hint, ua.status, ua.functionResultType, ua.restrictionType, ua.attemptsRemaining,
+                            ua.deadline, ua.nextAttemptTime, ua.mark, ua.user, getFunction(ua))
+                        );
+                        this.filteredAssignments = [...this.assignments];
+                    }
+                })
             }
         })
     }
@@ -242,30 +259,24 @@ export class UserPermissionComponent implements OnInit {
     toggleUniversity(id: number) {
         if (this.selectedUniversities.includes(id)) {
             this.selectedUniversities = this.selectedUniversities.filter(su => su !== id);
-            if (this.selectedUniversities.length === 0) {
-                this.filteredSubjects = [...this.subjects];
-                this.filteredFunctions = [...this.functions];
-                this.filteredAssignments = [...this.assignments];
-            } else {
-                this.filteredSubjects = this.subjects.filter(s => this.selectedUniversities.includes(s.university.id));
-                this.filteredFunctions = this.functions.filter(f => this.filteredSubjects
-                    .map(fs => fs.id)
-                    .includes(f.subject.id));
-                // this.filteredAssignments = this.assignments.filter(a => this.filteredFunctions
-                //     .map(ff => ff.id)
-                //     .includes(a.)
-                // )
-            }
         } else {
             this.selectedUniversities.push(id);
+        }
+
+        if (this.selectedUniversities.length === 0) {
+            this.filteredSubjects = [...this.subjects];
+            this.filteredFunctions = [...this.functions];
+            this.filteredAssignments = [...this.assignments];
+        } else {
             this.filteredSubjects = this.subjects.filter(s => this.selectedUniversities.includes(s.university.id));
             this.filteredFunctions = this.functions.filter(f => this.filteredSubjects
                 .map(fs => fs.id)
                 .includes(f.subject.id));
-            // this.filteredAssignments = this.assignments.filter(a => this.filteredFunctions
-            //     .map(ff => ff.id)
-            //     .includes(a.)
-            // )
+            this.filteredAssignments = this.assignments
+                .filter(a => a.func != null ? this.filteredFunctions
+                    .map(ff => ff.id)
+                    .includes(a.func.id) : false
+                )
         }
 
         this.onSubjectsSearchChange(this.searchSubjects);
@@ -276,23 +287,20 @@ export class UserPermissionComponent implements OnInit {
     toggleSubject(id: number) {
         if (this.selectedSubjects.includes(id)) {
             this.selectedSubjects = this.selectedSubjects.filter(ss => ss !== id);
-            if (this.selectedSubjects.length === 0) {
-                this.filteredFunctions = [...this.functions];
-                this.filteredAssignments = [...this.assignments];
-            } else {
-                this.filteredFunctions = this.functions.filter(f => this.selectedSubjects.includes(f.subject.id));
-                // this.filteredAssignments = this.assignments.filter(a => this.filteredFunctions
-                //     .map(ff => ff.id)
-                //     .includes(a.)
-                // )
-            }
         } else {
             this.selectedSubjects.push(id);
+        }
+
+        if (this.selectedSubjects.length === 0) {
+            this.filteredFunctions = [...this.functions];
+            this.filteredAssignments = [...this.assignments];
+        } else {
             this.filteredFunctions = this.functions.filter(f => this.selectedSubjects.includes(f.subject.id));
-            // this.filteredAssignments = this.assignments.filter(a => this.filteredFunctions
-            //     .map(ff => ff.id)
-            //     .includes(a.)
-            // )
+            this.filteredAssignments = this.assignments
+                .filter(a => a.func != null ? this.filteredFunctions
+                    .map(ff => ff.id)
+                    .includes(a.func.id) : false
+                )
         }
 
         this.onFunctionsSearchChange(this.searchFunctions);
@@ -302,20 +310,15 @@ export class UserPermissionComponent implements OnInit {
     toggleFunction(id: number) {
         if (this.selectedFunctions.includes(id)) {
             this.selectedFunctions = this.selectedFunctions.filter(sf => sf !== id);
-            if (this.selectedFunctions.length === 0) {
-                this.filteredAssignments = [...this.assignments];
-            } else {
-                // this.filteredAssignments = this.assignments.filter(a => this.filteredFunctions
-                //     .map(ff => ff.id)
-                //     .includes(a.)
-                // )
-            }
         } else {
             this.selectedFunctions.push(id);
-            // this.filteredAssignments = this.assignments.filter(a => this.filteredFunctions
-            //     .map(ff => ff.id)
-            //     .includes(a.)
-            // )
+        }
+
+        if (this.selectedFunctions.length === 0) {
+            this.filteredAssignments = [...this.assignments];
+        } else {
+            this.filteredAssignments = this.assignments.filter(a => a.func != null ?
+                this.selectedSubjects.includes(a.func.id) : false)
         }
 
         this.onAssignmentsSearchChange(this.searchAssignments);
@@ -330,12 +333,13 @@ export class UserPermissionComponent implements OnInit {
     }
 
     save() {
-        this.saveButtonClicked = true;
         this.validate();
 
         if (this.form.invalid) {
             return;
         }
+
+        this.saveButtonClicked = true;
 
         if (this.nothingSelected()) {
             return;
