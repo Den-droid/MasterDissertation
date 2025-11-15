@@ -16,6 +16,7 @@ import { SubjectService } from "../../shared/services/subject.service";
 import { UniversityService } from "../../shared/services/university.service";
 import { userPermissionsLabels, userValidation } from "../../shared/translations/permission.translation";
 import { usersPageTitles } from "../../shared/translations/user.translation";
+import { FunctionResultType, FunctionResultTypeLabel } from "../../shared/constants/function-result-type.constant";
 
 @Component({
     selector: 'app-user-permission',
@@ -222,6 +223,11 @@ export class UserPermissionComponent implements OnInit {
 
     getStudentFullName(student: UserDto) {
         return student.firstName + " " + student.lastName;
+    }
+
+    getFunctionResultTypeString(assignment: UserAssignmentWithFunctionDto) {
+        let key = FunctionResultType[assignment.functionResultType] as keyof typeof FunctionResultTypeLabel;
+        return FunctionResultTypeLabel[key];
     }
 
     onUniversitiesSearchChange(value: string) {

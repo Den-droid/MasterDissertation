@@ -63,7 +63,8 @@
                             <input class="form-check-input me-2" type="checkbox"
                                 [checked]="isAssignmentSelected(assignment.id)"
                                 (change)="toggleAssignment(assignment.id)" />
-                            <span>{{ getStudentFullName(assignment.user) }}</span>
+                            <span>{{ getStudentFullName(assignment.user) + ' ('
+                                + getFunctionResultTypeString(assignment) + ')' }}</span>
                         </label>
                         }
                     </div>
