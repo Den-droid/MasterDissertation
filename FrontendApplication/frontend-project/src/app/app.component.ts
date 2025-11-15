@@ -3,6 +3,7 @@ import { AuthService } from './shared/services/auth.service';
 import { JWTTokenService } from './shared/services/jwt-token.service';
 import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { RoleName } from './shared/constants/roles.constant';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,18 @@ export class AppComponent {
         }
       }
     })
+  }
+
+  isStudent() {
+    return this.role == RoleName.STUDENT;
+  }
+
+  isTeacher() {
+    return this.role == RoleName.TEACHER;
+  }
+
+  isAdmin() {
+    return this.role == RoleName.ADMIN;
   }
 
   logout() {

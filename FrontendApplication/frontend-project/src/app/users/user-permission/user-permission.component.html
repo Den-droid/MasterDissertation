@@ -6,13 +6,13 @@
 
         <form [formGroup]="form">
             <div class="row g-1">
-                <div class="col-md-3 p-1">
+                <div class="col-md-4 p-1">
                     <h5 class="mb-2">Виберіть університети:</h5>
                     <input class="form-control mb-2" placeholder="Пошук..." formControlName="universitySearch" />
                     <div class="list-group" style="max-height:40vh; overflow:auto;">
                         @for(university of filteredUniversities; track university.id){
                         <label class="list-group-item d-flex align-items-center">
-                            <input class="form-check-input me-2" type="checkbox"
+                            <input class="form-check-input me-2 flex-shrink-0" type="checkbox"
                                 [checked]="isUniversitySelected(university.id)"
                                 (change)="toggleUniversity(university.id)" />
                             <span>{{ university.name }}</span>
@@ -20,13 +20,13 @@
                         }
                     </div>
                 </div>
-                <div class="col-md-3 p-1">
+                <div class="col-md-4 p-1">
                     <h5 class="mb-2">Виберіть предмети:</h5>
                     <input class="form-control mb-2" placeholder="Пошук..." formControlName="subjectSearch" />
                     <div class="list-group" style="max-height:40vh; overflow:auto;">
                         @for(subject of filteredSubjects; track subject.id){
                         <label class="list-group-item d-flex align-items-center">
-                            <input class="form-check-input me-2" type="checkbox"
+                            <input class="form-check-input me-2 flex-shrink-0" type="checkbox"
                                 [checked]="isSubjectSelected(subject.id)" (change)="toggleSubject(subject.id)" />
                             <span>{{ subject.name }}</span>
                         </label>
@@ -37,13 +37,13 @@
                         {{includeSubjectText}}
                     </label>
                 </div>
-                <div class="col-md-3 p-1">
+                <div class="col-md-4 p-1">
                     <h5 class="mb-2">Виберіть функції:</h5>
                     <input class="form-control mb-2" placeholder="Пошук..." formControlName="functionSearch" />
                     <div class="list-group" style="max-height:40vh; overflow:auto;">
                         @for(function of filteredFunctions; track function.id){
                         <label class="list-group-item d-flex align-items-center">
-                            <input class="form-check-input me-2" type="checkbox"
+                            <input class="form-check-input me-2 flex-shrink-0" type="checkbox"
                                 [checked]="isFunctionSelected(function.id)" (change)="toggleFunction(function.id)" />
                             <span>{{ function.text }}</span>
                         </label>
@@ -54,13 +54,13 @@
                         {{includeFunctionText}}
                     </label>
                 </div>
-                <div class="col-md-3 p-1">
+                <div class="col-md-6 p-1">
                     <h5 class="mb-2">Виберіть завдання:</h5>
                     <input class="form-control mb-2" placeholder="Пошук..." formControlName="assignmentSearch" />
                     <div class="list-group" style="max-height:40vh; overflow:auto;">
                         @for(assignment of filteredAssignments; track assignment.id){
                         <label class="list-group-item d-flex align-items-center">
-                            <input class="form-check-input me-2" type="checkbox"
+                            <input class="form-check-input me-2 flex-shrink-0" type="checkbox"
                                 [checked]="isAssignmentSelected(assignment.id)"
                                 (change)="toggleAssignment(assignment.id)" />
                             <span>{{ getStudentFullName(assignment.user) + ' ('

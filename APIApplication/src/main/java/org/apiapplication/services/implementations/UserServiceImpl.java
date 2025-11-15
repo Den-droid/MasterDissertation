@@ -72,10 +72,16 @@ public class UserServiceImpl implements UserService {
                                     ), ArrayList::addAll);
         }
 
-        return users.stream()
-                .filter(u -> u.getRoles().get(0).getId().equals(roleId))
-                .map(this::getUserDto)
-                .toList();
+        if (roleId != null) {
+            return users.stream()
+                    .filter(u -> u.getRoles().get(0).getId().equals(roleId))
+                    .map(this::getUserDto)
+                    .toList();
+        } else {
+            return users.stream()
+                    .map(this::getUserDto)
+                    .toList();
+        }
     }
 
     @Override

@@ -10,16 +10,46 @@
         <i class="fas fa-bars"></i>
       </button>
       <div class="sidebar-logo">
-        <a href="#">My App</a>
+        <a href="/">Завданнятор</a>
       </div>
     </div>
-    <nav class="sidebar-nav">
-      <a href="#" class="sidebar-link"><i class="fas fa-home"></i><span>Home</span></a>
-      <a href="#" class="sidebar-link"><i class="fas fa-user"></i><span>Profile</span></a>
-      <a href="#" class="sidebar-link"><i class="fas fa-cog"></i><span>Settings</span></a>
-    </nav>
+    <div style="height:100%; display: flex; flex-direction: column; justify-content: space-between;">
+      <nav class="sidebar-nav">
+        @if(!isAuthenticated){
+        <a href="/auth/signin" class="sidebar-link"><i class="fas fa-right-to-bracket"></i><span>Увійти</span></a>
+        }
+        @if(!isAuthenticated){
+        <a href="/auth/signup" class="sidebar-link"><i class="fas fa-user-plus"></i><span>Реєстрація</span></a>
+        }
+        @if(isAuthenticated){
+        <a href="/assignments" class="sidebar-link"><i class="fas fa-tasks"></i><span>Завдання</span></a>
+        }
+        @if(isAdmin()){
+        <a href="/universities" class="sidebar-link"><i class="fas fa-school"></i><span>Університети</span></a>
+        }
+        @if(isAdmin() || isTeacher()){
+        <a href="/subjects" class="sidebar-link"><i class="fas fa-book"></i><span>Предмети</span></a>
+        }
+        @if(isAdmin() || isTeacher()){
+        <a href="/functions" class="sidebar-link"><i class="fas fa-square-root-variable"></i><span>Функції</span></a>
+        }
+        @if(isTeacher()){
+        <a href="/groups" class="sidebar-link"><i class="fas fa-people-group"></i><span>Групи</span></a>
+        }
+        @if(isAdmin()){
+        <a href="/users" class="sidebar-link"><i class="fas fa-user"></i><span>Користувачі</span></a>
+        }
+        @if(isAuthenticated){
+        <a href="/user" class="sidebar-link"><i class="fas fa-cog"></i><span>Налаштування</span></a>
+        }
+      </nav>
+      <nav>
+        @if(isAuthenticated){
+        <a href="#" class="sidebar-link" (click)="logout()"><i class="fas fa-right-from-bracket"></i><span>Вийти</span></a>
+        }
+      </nav>
+    </div>
   </aside>
-
   <div class="main main-not-expand p-3">
     <router-outlet></router-outlet>
   </div>

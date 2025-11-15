@@ -1,6 +1,6 @@
+import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { AuthService } from "../services/auth.service";
-import { inject } from "@angular/core";
 
 export const studentGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
@@ -9,6 +9,8 @@ export const studentGuard: CanActivateFn = (route, state) => {
   if (authService.isStudent()) {
     return true;
   }
+
+  authService.logout();
 
   return router.createUrlTree(['/', 'auth', 'signin']);
 };

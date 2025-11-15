@@ -10,5 +10,7 @@ export const studentTeacherGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
+  authService.logout();
+
   return router.createUrlTree(['/', 'auth', 'signin']);
 };

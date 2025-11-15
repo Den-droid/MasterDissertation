@@ -92,8 +92,8 @@ export class UserListComponent implements OnInit {
     )
   }
 
-  permissions(user: UserDto) {
-    this.router.navigate([`/users`, `${user.id}`, `permissions`])
+  goToPermissions(userId: number) {
+    this.router.navigate([`/users`, `${userId}`, `permissions`])
   }
 
   isUserTeacher(user: UserDto) {

@@ -45,20 +45,23 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return this.jwtService.getToken() != null;
+    return this.jwtService.getToken() && !this.jwtService.isTokenExpired() ?
+      true : false;
   }
 
   isStudent(): boolean {
-    return this.jwtService.getRoles()?.includes(RoleName.STUDENT) ?? false;
+    return this.jwtService.getRoles()?.includes(RoleName.STUDENT) && !this.jwtService.isTokenExpired() ?
+      true : false;
   }
 
   isTeacher(): boolean {
-    return this.jwtService.getRoles()?.includes(RoleName.TEACHER) ?? false;
+    return this.jwtService.getRoles()?.includes(RoleName.TEACHER) && !this.jwtService.isTokenExpired() ?
+      true : false;
   }
 
   isAdmin(): boolean {
-    return this.jwtService.getRoles()?.includes(RoleName.ADMIN)
-      ?? false;
+    return this.jwtService.getRoles()?.includes(RoleName.ADMIN) && !this.jwtService.isTokenExpired() ?
+      true : false;
   }
 
   logout() {
