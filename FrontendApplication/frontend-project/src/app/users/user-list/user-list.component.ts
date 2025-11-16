@@ -8,6 +8,7 @@ import { UserDto } from '../../shared/models/user.model';
 import { UserService } from '../../shared/services/user.service';
 import { RoleName, RoleLabel } from '../../shared/constants/roles.constant';
 import { Router } from '@angular/router';
+import { JWTTokenService } from '../../shared/services/jwt-token.service';
 
 @Component({
   selector: 'app-user-list',
@@ -15,15 +16,21 @@ import { Router } from '@angular/router';
   imports: [FormsModule]
 })
 export class UserListComponent implements OnInit {
+  currentUserId!: number;
+
   users: UserDto[] = [];
   filteredUsers: UserDto[] = [];
 
   searchQuery: string = '';
   searchSubject: Subject<string> = new Subject<string>();
 
-  constructor(private modalService: NgbModal, private userService: UserService, private router: Router) { }
+  constructor(private modalService: NgbModal, private userService: UserService, private router: Router,
+    private jwtService: JWTTokenService
+  ) { }
 
   ngOnInit(): void {
+    this.currentUserId = Number.parseInt(this.jwtService.getId() as string);
+
     this.getUsers();
 
     this.searchSubject.pipe(
@@ -98,6 +105,10 @@ export class UserListComponent implements OnInit {
 
   isUserTeacher(user: UserDto) {
     return this.getRoleLabel(user.role) == RoleLabel.TEACHER;
+  }
+
+  isUserAdmin(user: UserDto) {
+    return this.getRoleLabel(user.role) == RoleLabel.ADMIN;
   }
 
   onSearchChange(value: string) {

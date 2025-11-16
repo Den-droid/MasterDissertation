@@ -32,22 +32,16 @@ import java.util.Set;
 @Transactional
 public class UniversityServiceImpl implements UniversityService {
     private final UniversityRepository universityRepository;
-    private final UserRepository userRepository;
     private final UserPermissionRepository userPermissionRepository;
 
     private final SessionService sessionService;
-    private final PermissionService permissionService;
 
     public UniversityServiceImpl(UniversityRepository universityRepository,
-                                 UserRepository userRepository,
                                  UserPermissionRepository userPermissionRepository,
-                                 SessionService sessionService,
-                                 PermissionService permissionService) {
+                                 SessionService sessionService) {
         this.universityRepository = universityRepository;
-        this.userRepository = userRepository;
         this.userPermissionRepository = userPermissionRepository;
         this.sessionService = sessionService;
-        this.permissionService = permissionService;
     }
 
     @Override
@@ -94,11 +88,6 @@ public class UniversityServiceImpl implements UniversityService {
         university.setName(dto.name());
 
         universityRepository.save(university);
-
-        userRepository.findAll().stream()
-                .filter(u -> u.getRoles().get(0).getName().equals(UserRole.ADMIN))
-                .forEach(u -> permissionService.updatePermissions(new UpdatePermissionDto(u.getId(),
-                        List.of(university.getId()), null, null, null)));
 
         return new IdDto(university.getId());
     }

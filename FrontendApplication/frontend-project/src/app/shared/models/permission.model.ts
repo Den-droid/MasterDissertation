@@ -6,6 +6,6 @@ export class PermissionDto {
 
 export class UpdatePermissionsDto {
     constructor(public userId: number, public universityIds: number[],
-        public subjectIds: number[], public functionId: number[], public userAssignmentId: number[]
+        public subjectIds: number[], public functionIds: number[], public userAssignmentIds: number[]
     ) { }
 }

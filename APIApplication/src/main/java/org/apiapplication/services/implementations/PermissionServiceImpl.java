@@ -18,6 +18,7 @@ import org.apiapplication.services.interfaces.PermissionService;
 import org.apiapplication.services.interfaces.SessionService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -163,12 +164,97 @@ public class PermissionServiceImpl implements PermissionService {
             throw new PermissionException();
         }
 
-        if (dto.universityIds().isEmpty() && dto.functionIds().isEmpty()
-                && dto.subjectIds().isEmpty() && dto.userAssignmentIds().isEmpty()) {
-            return;
+        List<UserPermission> userPermissionsToAdd = getUserPermissionsToAdd(dto, user);
+        List<UserPermission> userPermissionsToRemove = new ArrayList<>();
+
+        user.getUserPermissions().stream()
+                .filter(up -> up.getUniversity() != null)
+                .filter(up -> !dto.universityIds().contains(up.getUniversity().getId())
+                        && up.getUser().getId().equals(user.getId()))
+                .forEach(userPermissionsToRemove::add);
+
+        user.getUserPermissions().stream()
+                .filter(up -> up.getSubject() != null)
+                .filter(up -> !dto.subjectIds().contains(up.getSubject().getId())
+                        && up.getUser().getId().equals(user.getId()))
+                .forEach(userPermissionsToRemove::add);
+
+        user.getUserPermissions().stream()
+                .filter(up -> up.getFunction() != null)
+                .filter(up -> !dto.functionIds().contains(up.getFunction().getId())
+                        && up.getUser().getId().equals(user.getId()))
+                .forEach(userPermissionsToRemove::add);
+
+        user.getUserPermissions().stream()
+                .filter(up -> up.getUserAssignment() != null)
+                .filter(up -> !dto.userAssignmentIds().contains(
+                        up.getUserAssignment().getId())
+                        && up.getUser().getId().equals(user.getId()))
+                .forEach(userPermissionsToRemove::add);
+
+        userPermissionRepository.deleteAll(userPermissionsToRemove);
+        userPermissionRepository.saveAll(userPermissionsToAdd);
+    }
+
+    @Override
+    public void removePermissions(UpdatePermissionDto dto) {
+        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
+            throw new PermissionException();
         }
 
-        List<UserPermission> userPermissions = user.getUserPermissions();
+        User user = userRepository.findById(dto.userId()).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.USER,
+                        String.valueOf(dto.userId()))
+        );
+
+        List<UserPermission> userPermissionsToRemove = new ArrayList<>();
+        user.getUserPermissions().stream()
+                .filter(up -> up.getUniversity() != null)
+                .filter(up -> dto.universityIds().contains(up.getUniversity().getId())
+                        && up.getUser().getId().equals(user.getId()))
+                .forEach(userPermissionsToRemove::add);
+
+        user.getUserPermissions().stream()
+                .filter(up -> up.getSubject() != null)
+                .filter(up -> dto.subjectIds().contains(up.getSubject().getId())
+                        && up.getUser().getId().equals(user.getId()))
+                .forEach(userPermissionsToRemove::add);
+
+        user.getUserPermissions().stream()
+                .filter(up -> up.getFunction() != null)
+                .filter(up -> dto.functionIds().contains(up.getFunction().getId())
+                        && up.getUser().getId().equals(user.getId()))
+                .forEach(userPermissionsToRemove::add);
+
+        user.getUserPermissions().stream()
+                .filter(up -> up.getUserAssignment() != null)
+                .filter(up -> dto.userAssignmentIds().contains(
+                        up.getUserAssignment().getId())
+                        && up.getUser().getId().equals(user.getId()))
+                .forEach(userPermissionsToRemove::add);
+
+        userPermissionRepository.deleteAll(userPermissionsToRemove);
+    }
+
+    @Override
+    public void givePermissions(UpdatePermissionDto dto) {
+        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
+            throw new PermissionException();
+        }
+
+        User user = userRepository.findById(dto.userId()).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.USER,
+                        String.valueOf(dto.userId()))
+        );
+
+        List<UserPermission> userPermissionsToAdd = getUserPermissionsToAdd(dto, user);
+
+        userPermissionRepository.saveAll(userPermissionsToAdd);
+    }
+
+    private List<UserPermission> getUserPermissionsToAdd(UpdatePermissionDto dto,
+                                                         User user) {
+        List<UserPermission> userPermissionsToAdd = new ArrayList<>();
         for (int universityId : dto.universityIds()) {
             if (user.getRoles().get(0).getName().equals(UserRole.TEACHER)) {
                 throw new PermissionException();
@@ -184,7 +270,7 @@ public class PermissionServiceImpl implements PermissionService {
             userPermission.setUniversity(university);
 
             if (!user.getUserPermissions().contains(userPermission)) {
-                userPermissions.add(userPermission);
+                userPermissionsToAdd.add(userPermission);
             }
         }
 
@@ -199,7 +285,7 @@ public class PermissionServiceImpl implements PermissionService {
             userPermission.setSubject(subject);
 
             if (!user.getUserPermissions().contains(userPermission)) {
-                userPermissions.add(userPermission);
+                userPermissionsToAdd.add(userPermission);
             }
         }
 
@@ -214,7 +300,7 @@ public class PermissionServiceImpl implements PermissionService {
             userPermission.setFunction(function);
 
             if (!user.getUserPermissions().contains(userPermission)) {
-                userPermissions.add(userPermission);
+                userPermissionsToAdd.add(userPermission);
             }
         }
 
@@ -230,24 +316,11 @@ public class PermissionServiceImpl implements PermissionService {
             userPermission.setUserAssignment(userAssignment);
 
             if (!user.getUserPermissions().contains(userPermission)) {
-                userPermissions.add(userPermission);
+                userPermissionsToAdd.add(userPermission);
             }
         }
 
-        userPermissionRepository.saveAll(userPermissions);
-    }
-
-    @Override
-    public void removePermission(int permissionId) {
-        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
-            throw new PermissionException();
-        }
-
-        UserPermission userPermission = userPermissionRepository.findById(permissionId)
-                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_PERMISSION,
-                        String.valueOf(permissionId)));
-
-        userPermissionRepository.delete(userPermission);
+        return userPermissionsToAdd;
     }
 
     private PermissionDto getPermissionDto(UserPermission userPermission) {

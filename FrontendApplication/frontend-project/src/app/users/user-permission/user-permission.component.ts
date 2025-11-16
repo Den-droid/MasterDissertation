@@ -2,7 +2,10 @@ import { CommonModule, Location } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { debounceTime, Subject } from "rxjs";
+import { FunctionResultType, FunctionResultTypeLabel } from "../../shared/constants/function-result-type.constant";
+import { InfoModalComponent } from "../../shared/modals/info/info-modal.component";
 import { AssignmentFunctionDto, UserAssignmentDto, UserAssignmentWithFunctionDto } from "../../shared/models/assignment.model";
 import { FunctionDto } from "../../shared/models/function.model";
 import { PermissionDto, UpdatePermissionsDto } from "../../shared/models/permission.model";
@@ -14,9 +17,11 @@ import { FunctionService } from "../../shared/services/function.service";
 import { PermissionService } from "../../shared/services/permission.service";
 import { SubjectService } from "../../shared/services/subject.service";
 import { UniversityService } from "../../shared/services/university.service";
-import { userPermissionsLabels, userValidation } from "../../shared/translations/permission.translation";
+import { modalText } from "../../shared/translations/common.translation";
+import { userPermissionsLabels, userPermissionsModalText, userValidation } from "../../shared/translations/permission.translation";
 import { usersPageTitles } from "../../shared/translations/user.translation";
-import { FunctionResultType, FunctionResultTypeLabel } from "../../shared/constants/function-result-type.constant";
+import { UserService } from "../../shared/services/user.service";
+import { RoleLabel, RoleName } from "../../shared/constants/roles.constant";
 
 @Component({
     selector: 'app-user-permission',
@@ -27,23 +32,29 @@ export class UserPermissionComponent implements OnInit {
     universities: UniversityDto[] = [];
     filteredUniversities: UniversityDto[] = [];
     selectedUniversities: number[] = [];
+    originalSelectedUniversities: number[] = [];
 
     subjects: SubjectDto[] = [];
     filteredSubjects: SubjectDto[] = [];
     selectedSubjects: number[] = [];
+    originalSelectedSubjects: number[] = [];
 
     functions: FunctionDto[] = [];
     filteredFunctions: FunctionDto[] = [];
     selectedFunctions: number[] = [];
+    originalSelectedFunctions: number[] = [];
 
     assignments: UserAssignmentWithFunctionDto[] = [];
     filteredAssignments: UserAssignmentWithFunctionDto[] = [];
     selectedAssignments: number[] = [];
+    originalSelectedAssignments: number[] = [];
 
     searchUniversitiesSubject: Subject<string> = new Subject<string>();
     searchSubjectsSubject: Subject<string> = new Subject<string>();
     searchFunctionsSubject: Subject<string> = new Subject<string>();
     searchAssignmentsSubject: Subject<string> = new Subject<string>();
+
+    user!: UserDto;
 
     form!: FormGroup;
     userId!: number;
@@ -52,6 +63,8 @@ export class UserPermissionComponent implements OnInit {
     errorMessage = '';
 
     atLeastOneMessage = userValidation["at-least-one"];
+    atLeastOneWithUniversityMessage = userValidation["at-least-one-with-university"];
+    includeUniversitiesText = userPermissionsLabels["include-universities"];
     includeSubjectText = userPermissionsLabels["include-subjects"];
     includeFunctionText = userPermissionsLabels["include-functions"];
     title = usersPageTitles["user-permissions"];
@@ -59,7 +72,8 @@ export class UserPermissionComponent implements OnInit {
     constructor(private location: Location, private fb: FormBuilder, private route: ActivatedRoute,
         private readonly router: Router, private universityService: UniversityService,
         private subjectService: SubjectService, private functionService: FunctionService,
-        private assignmentService: AssignmentService, private permissionService: PermissionService
+        private assignmentService: AssignmentService, private permissionService: PermissionService,
+        private userService: UserService, private modalService: NgbModal
     ) { }
 
     ngOnInit(): void {
@@ -70,6 +84,7 @@ export class UserPermissionComponent implements OnInit {
 
         this.route.paramMap.subscribe(params => {
             this.userId = Number(params.get('id'));
+            this.getUser();
             this.getUserPermissions();
         });
 
@@ -78,8 +93,9 @@ export class UserPermissionComponent implements OnInit {
             subjectSearch: [''],
             functionSearch: [''],
             assignmentSearch: [''],
+            includeUniversities: [false],
             includeSubjects: [false],
-            includeFunctions: [false],
+            includeFunctions: [false]
         });
 
         this.form.get('universitySearch')?.valueChanges.subscribe({
@@ -142,6 +158,25 @@ export class UserPermissionComponent implements OnInit {
         });
     }
 
+    getUser() {
+        this.userService.getByUserId(this.userId).subscribe({
+            next: (dto: UserDto) => {
+                this.user = dto;
+            }
+        });
+    }
+
+    isUserAdmin() {
+        return this.getRoleLabel(this.user.role) == RoleLabel.ADMIN;
+    }
+
+    getRoleLabel(roleName: string) {
+        const key = Object.keys(RoleName).find(
+            k => RoleName[k as keyof typeof RoleName] === roleName
+        );
+        return RoleLabel[key as keyof typeof RoleLabel];
+    }
+
     getUniversities() {
         this.universityService.getAll().subscribe({
             next: (dto: UniversityDto[]) => {
@@ -200,12 +235,16 @@ export class UserPermissionComponent implements OnInit {
             next: (dto: PermissionDto[]) => {
                 for (let userPermission of dto) {
                     if (userPermission.universityId != null) {
+                        this.originalSelectedUniversities.push(userPermission.universityId);
                         this.selectedUniversities.push(userPermission.universityId)
                     } else if (userPermission.subjectId != null) {
+                        this.originalSelectedSubjects.push(userPermission.subjectId);
                         this.selectedSubjects.push(userPermission.subjectId)
                     } else if (userPermission.functionId != null) {
+                        this.originalSelectedFunctions.push(userPermission.functionId);
                         this.selectedFunctions.push(userPermission.functionId)
                     } else if (userPermission.userAssignmentId != null) {
+                        this.originalSelectedAssignments.push(userPermission.userAssignmentId);
                         this.selectedAssignments.push(userPermission.userAssignmentId)
                     }
                 }
@@ -344,19 +383,22 @@ export class UserPermissionComponent implements OnInit {
         }
     }
 
-    save() {
+    validate() {
         this.saveButtonClicked = true;
-        this.validate();
-
-        if (this.form.invalid) {
-            return;
-        }
 
         if (this.nothingSelected()) {
-            return;
+            return false;
         }
 
-        let subjectsToSend: number[] = [], functionsToSend: number[] = [];
+        return true;
+    }
+
+    getUpdatePermissionsDto() {
+        let universitiesToSend: number[] = [], subjectsToSend: number[] = [], functionsToSend: number[] = [];
+
+        if (this.form.value.includeUniversities) {
+            this.selectedUniversities.forEach(su => universitiesToSend.push(su));
+        }
 
         if (this.form.value.includeSubjects) {
             this.selectedSubjects.forEach(ss => subjectsToSend.push(ss));
@@ -366,8 +408,52 @@ export class UserPermissionComponent implements OnInit {
             this.selectedFunctions.forEach(sf => functionsToSend.push(sf));
         }
 
-        let dto = new UpdatePermissionsDto(this.userId, [], subjectsToSend,
+        return new UpdatePermissionsDto(this.userId, universitiesToSend, subjectsToSend,
             functionsToSend, this.selectedAssignments);
+    }
+
+    revertChanges() {
+        this.saveButtonClicked = false;
+        this.selectedUniversities = [...this.originalSelectedUniversities];
+        this.selectedSubjects = [...this.originalSelectedSubjects];
+        this.selectedFunctions = [...this.originalSelectedFunctions];
+        this.selectedAssignments = [...this.originalSelectedAssignments];
+    }
+
+    save() {
+        if (!this.validate()) {
+            return;
+        }
+        this.saveOriginalValues();
+        let dto = this.getUpdatePermissionsDto();
+
+        this.permissionService.updatePermissions(dto).subscribe({
+            complete: () => {
+                const modalRef = this.modalService.open(InfoModalComponent, {
+                    centered: true,
+                    backdrop: true,
+                    keyboard: false
+                });
+
+                modalRef.componentInstance.content = [userPermissionsModalText["successful-update"]];
+                modalRef.componentInstance.title = modalText['success-header'];
+            }
+        })
+    }
+
+    saveOriginalValues() {
+        this.originalSelectedUniversities = [...this.selectedUniversities];
+        this.originalSelectedSubjects = [...this.selectedSubjects];
+        this.originalSelectedFunctions = [...this.selectedFunctions];
+        this.originalSelectedAssignments = [...this.selectedAssignments];
+    }
+
+    saveAndClose() {
+        if (!this.validate()) {
+            return;
+        }
+        this.saveOriginalValues();
+        let dto = this.getUpdatePermissionsDto();
 
         this.permissionService.updatePermissions(dto).subscribe({
             complete: () => {
@@ -380,15 +466,9 @@ export class UserPermissionComponent implements OnInit {
         this.location.back();
     }
 
-    validate() {
-        if (this.form.invalid) {
-            this.form.markAllAsTouched();
-            return;
-        }
-    }
-
     nothingSelected() {
-        return (this.form.value.includeSubjects ? this.selectedSubjects.length === 0 : true)
+        return (this.form.value.includeUniversities ? this.selectedUniversities.length === 0 : true)
+            && (this.form.value.includeSubjects ? this.selectedSubjects.length === 0 : true)
             && (this.form.value.includeFunctions ? this.selectedFunctions.length === 0 : true)
             && this.selectedAssignments.length === 0;
     }

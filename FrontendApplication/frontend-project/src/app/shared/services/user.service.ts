@@ -14,10 +14,8 @@ export class UserService {
   constructor(private readonly httpClient: HttpClient, private readonly jwtService: JWTTokenService) {
   }
 
-  getByUserId(userId: number): Observable<UserDto[]> {
-    const params = new HttpParams()
-      .set('userId', userId);
-    return this.httpClient.get<UserDto[]>(`${this.url}`, { params })
+  getByUserId(userId: number): Observable<UserDto> {
+    return this.httpClient.get<UserDto>(`${this.url}/${userId}`)
   }
 
   get(): Observable<UserDto[]> {

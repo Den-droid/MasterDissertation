@@ -23,5 +23,7 @@ public interface PermissionService {
 
     void updatePermissions(UpdatePermissionDto permissionDto);
 
-    void removePermission(int permissionId);
+    void removePermissions(UpdatePermissionDto updatePermissionDto);
+
+    void givePermissions(UpdatePermissionDto updatePermissionDto);
 }

@@ -19,6 +19,12 @@
                         </label>
                         }
                     </div>
+                    @if(user && isUserAdmin()){
+                    <label>
+                        <input type="checkbox" formControlName="includeUniversities">
+                        {{includeUniversitiesText}}
+                    </label>
+                    }
                 </div>
                 <div class="col-md-4 p-1">
                     <h5 class="mb-2">Виберіть предмети:</h5>
@@ -73,7 +79,7 @@
 
             @if(saveButtonClicked && nothingSelected()){
             <div class="alert alert-danger mt-2">
-                {{atLeastOneMessage}}
+                {{isUserAdmin() ? atLeastOneWithUniversityMessage : atLeastOneMessage}}
             </div>
             }
 
@@ -88,9 +94,17 @@
                     <i class="fa-solid fa-arrow-left me-1"></i> Назад
                 </button>
 
-                <button type="button" class="btn btn-primary" (click)="save()">
-                    Зберегти
-                </button>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-secondary" (click)="revertChanges()">
+                        Скасувати зміни
+                    </button>
+                    <button type="button" class="ms-2 btn btn-primary" (click)="save()">
+                        Зберегти
+                    </button>
+                    <button type="button" class="ms-2 btn btn-primary" (click)="saveAndClose()">
+                        Зберегти і вийти
+                    </button>
+                </div>
             </div>
         </form>
     </div>
