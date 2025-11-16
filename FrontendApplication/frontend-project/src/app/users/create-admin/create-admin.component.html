@@ -1,0 +1,83 @@
+<div class="main-content" style="width: 50% !important;">
+  <div class="card p-4 shadow-sm">
+
+    <h2 class="text-center mb-4">
+      <i class="fa-solid fa-user-plus me-2"></i> {{title}}
+    </h2>
+
+    <form [formGroup]="form">
+      <div class="row g-2">
+        <div class="col-md-6">
+          <label for="firstName" class="form-label">Ім’я</label>
+          <input type="text" id="firstName" class="form-control" formControlName="firstName" />
+          @if (f['firstName'].errors?.['required'] && (f['firstName'].touched || f['firstName'].dirty)) {
+          <div class="text-danger mt-1">{{firstNameRequired}}</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="lastName" class="form-label">Прізвище</label>
+          <input type="text" id="lastName" class="form-control" formControlName="lastName" />
+          @if (f['lastName'].errors?.['required'] && (f['lastName'].touched || f['lastName'].dirty)) {
+          <div class="text-danger mt-1">{{lastNameRequired}}</div>
+          }
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Електронна пошта</label>
+        <input type="email" id="email" class="form-control" formControlName="email" />
+        @if (f['email'].errors?.['required'] && (f['email'].touched || f['email'].dirty)) {
+        <div class="text-danger mt-1">{{emailRequired}}</div>
+        }
+        @if (f['email'].errors?.['email'] && (f['email'].touched || f['email'].dirty)) {
+        <div class="text-danger mt-1">{{emailIncorrect}}</div>
+        }
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Пароль</label>
+        <input type="password" id="password" class="form-control" formControlName="password" />
+        @if (f['password'].errors?.['required'] && (f['password'].touched || f['password'].dirty)) {
+        <div class="text-danger mt-1">{{passwordRequired}}</div>
+        }
+        @if (f['password'].errors?.['minlength'] && (f['password'].touched || f['password'].dirty)) {
+        <div class="text-danger mt-1">{{passwordTooShort}}</div>
+        }
+        @if (f['password'].errors?.['pattern'] && (f['password'].touched || f['password'].dirty)) {
+        <div class="text-danger mt-1">
+          {{passwordFormatIncorrect}}
+        </div>
+        }
+      </div>
+
+      <div class="mb-3">
+        <label for="confirmPassword" class="form-label">Підтвердіть пароль</label>
+        <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword" />
+        @if (f['confirmPassword'].errors?.['required'] && (f['confirmPassword'].touched || f['confirmPassword'].dirty))
+        {
+        <div class="text-danger mt-1">{{confirmPasswordRequired}}</div>
+        }
+        @if (form.errors?.['passwordMismatch'] && (f['confirmPassword'].touched || f['confirmPassword'].dirty)) {
+        <div class="text-danger mt-1">{{passwordNotMatchConfirm}}</div>
+        }
+      </div>
+
+      @if(error){
+      <div class="alert alert-danger">
+        {{errorMessage}}
+      </div>
+      }
+
+      <div class="d-flex justify-content-between mt-4">
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+          <i class="fa-solid fa-arrow-left me-1"></i> Назад
+        </button>
+
+        <button type="button" class="btn btn-primary" (click)="createAdmin()">
+          <i class="fa-solid fa-user-check me-1"></i> Створити адміністратора
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

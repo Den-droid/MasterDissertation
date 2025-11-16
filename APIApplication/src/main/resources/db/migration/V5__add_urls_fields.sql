@@ -54,7 +54,8 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/users/{userId}/reject', 'Відхилити користувача', 2),
        ('/api/assignments/assignToGroup', 'Призначити завдання групі', 1),
        ('/api/users/{userId}', 'Отримати дані про користувача', 0),
-       ('/api/functions/getByAssignmentIds', 'Отримати функції для завдань', 0);
+       ('/api/functions/getByAssignmentIds', 'Отримати функції для завдань', 0),
+       ('/api/users/createAdmin', 'Створити адміністратора', 1);
 
 INSERT INTO fields (name, label, description, type)
 VALUES ('userId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор користувача', 0),
@@ -201,7 +202,19 @@ values ((select id from urls where url = '/api/assignments/assignToGroup'),
         false, true);
 
 insert into url_fields(url_id, field_id, required, multiple)
-values ((select id from urls where url = '/api/permissions' and method in (1, 2, 3)),
+values ((select id from urls where url = '/api/users/createAdmin'),
+        (select id from fields where name = 'firstName'),
+        true, false),
+       ((select id from urls where url = '/api/users/createAdmin'),
+        (select id from fields where name = 'lastName'),
+        true, false),
+       ((select id from urls where url = '/api/users/createAdmin'),
+        (select id from fields where name = 'email'),
+        true, false),
+       ((select id from urls where url = '/api/users/createAdmin'),
+        (select id from fields where name = 'password'),
+        true, false),
+       ((select id from urls where url = '/api/permissions' and method in (1, 2, 3)),
         (select id from fields where name = 'userId'),
         true, false),
        ((select id from urls where url = '/api/permissions' and method in (1, 2, 3)),

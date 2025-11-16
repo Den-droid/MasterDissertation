@@ -2,6 +2,7 @@ package org.apiapplication.controllers;
 
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.auth.ApiKeyDto;
+import org.apiapplication.dto.user.CreateAdminDto;
 import org.apiapplication.dto.user.UserDto;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.services.interfaces.UserService;
@@ -36,6 +37,12 @@ public class UserController {
     public ResponseEntity<List<UserDto>> get(@RequestParam(required = false) Integer roleId) {
         List<UserDto> userDtos = userService.get(roleId);
         return ResponseEntity.ok(userDtos);
+    }
+
+    @PostMapping("/createAdmin")
+    public ResponseEntity<?> createAdmin(@RequestBody CreateAdminDto createAdminDto) {
+        userService.createAdmin(createAdminDto);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{userId}/apiKey")

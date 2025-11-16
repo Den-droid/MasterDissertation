@@ -3,7 +3,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, Subject } from 'rxjs';
 import { ConfirmModalComponent } from '../../shared/modals/confirm/confirm-modal.component';
-import { usersModal } from '../../shared/translations/user.translation';
+import { usersModal, usersPageTitles } from '../../shared/translations/user.translation';
 import { UserDto } from '../../shared/models/user.model';
 import { UserService } from '../../shared/services/user.service';
 import { RoleName, RoleLabel } from '../../shared/constants/roles.constant';
@@ -18,6 +18,7 @@ import { JWTTokenService } from '../../shared/services/jwt-token.service';
 export class UserListComponent implements OnInit {
   currentUserId!: number;
 
+  title = usersPageTitles['create-admin'];
   users: UserDto[] = [];
   filteredUsers: UserDto[] = [];
 
@@ -101,6 +102,10 @@ export class UserListComponent implements OnInit {
 
   goToPermissions(userId: number) {
     this.router.navigate([`/users`, `${userId}`, `permissions`])
+  }
+
+  goToCreateAdmin() {
+    this.router.navigate([`/users`, `create-admin`])
   }
 
   isUserTeacher(user: UserDto) {

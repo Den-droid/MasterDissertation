@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { baseUrl } from "../constants/url.constant";
-import { ApiKeyDto, UserDto } from "../models/user.model";
+import { ApiKeyDto, CreateAdminDto, UserDto } from "../models/user.model";
 import { JWTTokenService } from "./jwt-token.service";
 
 @Injectable({
@@ -31,6 +31,10 @@ export class UserService {
 
   getApiKey(userId: number): Observable<ApiKeyDto> {
     return this.httpClient.put<ApiKeyDto>(`${this.url}/${userId}/apiKey`, null)
+  }
+
+  createAdmin(dto: CreateAdminDto): Observable<any> {
+    return this.httpClient.post<any>(`${this.url}/createAdmin`, dto);
   }
 
   approve(userId: number): Observable<any> {

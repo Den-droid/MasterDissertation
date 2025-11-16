@@ -1,6 +1,7 @@
 package org.apiapplication.services.interfaces;
 
 import org.apiapplication.dto.auth.ApiKeyDto;
+import org.apiapplication.dto.user.CreateAdminDto;
 import org.apiapplication.dto.user.UserDto;
 
 import java.util.List;
@@ -11,6 +12,8 @@ public interface UserService {
     UserDto getById(int userId);
 
     ApiKeyDto getApiKey(int userId);
+
+    void createAdmin(CreateAdminDto createAdminDto);
 
     void approve(int userId);
 

@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { authTitles } from '../shared/translations/auth.translation';
+import { usersPageTitles } from '../shared/translations/user.translation';
 import { ApikeyComponent } from './apikey/apikey.component';
 
 const userRoutes: Routes = [
-  { path: "", component: ApikeyComponent, title: authTitles['api-key'] }
+  { path: "", component: ApikeyComponent, title: usersPageTitles['api-key'] }
 ]
 
 @NgModule({

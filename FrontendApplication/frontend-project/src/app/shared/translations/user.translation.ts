@@ -1,6 +1,8 @@
 export const usersPageTitles = {
     "users": "Користувачі",
-    "user-permissions": "Дозволи користувача"
+    "user-permissions": "Дозволи користувача",
+    "create-admin": "Створити адміністратора",
+    "api-key": "Налаштування - Ключ"
 }
 
 export const usersModal = {

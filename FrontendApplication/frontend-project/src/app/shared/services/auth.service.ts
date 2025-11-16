@@ -45,8 +45,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return this.jwtService.getToken() && !this.jwtService.isTokenExpired() ?
-      true : false;
+    return this.jwtService.getToken() ? true : false;
   }
 
   isStudent(): boolean {

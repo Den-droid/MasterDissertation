@@ -54,7 +54,8 @@ public class WebSecurityConfig {
     };
 
     private final String[] adminUrls = {
-            "/api/users"
+            "/api/users",
+            "/api/users/*"
     };
 
     private final String[] studentTeacherUrls = {

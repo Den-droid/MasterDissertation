@@ -17,5 +17,4 @@ export const authTitles = {
   "sign-up": "Реєстрація",
   "forgot-password": "Забули пароль?",
   "restore-password": "Відновлення пароля",
-  "api-key": "Налаштування - Ключ"
 }

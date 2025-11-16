@@ -4,12 +4,17 @@ import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.auth.ApiKeyDto;
 import org.apiapplication.dto.university.UniversityDto;
+import org.apiapplication.dto.user.CreateAdminDto;
 import org.apiapplication.dto.user.UserDto;
+import org.apiapplication.entities.user.Role;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserInfo;
 import org.apiapplication.enums.UserRole;
+import org.apiapplication.exceptions.auth.UserWithEmailExistsException;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
+import org.apiapplication.exceptions.entity.EntityWithNameNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
+import org.apiapplication.repositories.RoleRepository;
 import org.apiapplication.repositories.UserInfoRepository;
 import org.apiapplication.repositories.UserRepository;
 import org.apiapplication.services.interfaces.PermissionService;
@@ -20,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,6 +33,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
     private final UserInfoRepository userInfoRepository;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     private final SessionService sessionService;
     private final PermissionService permissionService;
@@ -35,11 +42,13 @@ public class UserServiceImpl implements UserService {
 
     public UserServiceImpl(UserInfoRepository userInfoRepository,
                            UserRepository userRepository,
+                           RoleRepository roleRepository,
                            SessionService sessionService,
                            PermissionService permissionService,
                            PasswordEncoder passwordEncoder) {
         this.userInfoRepository = userInfoRepository;
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
 
         this.sessionService = sessionService;
         this.permissionService = permissionService;
@@ -117,6 +126,38 @@ public class UserServiceImpl implements UserService {
         userInfoRepository.save(userInfo);
 
         return new ApiKeyDto(newApiToken);
+    }
+
+    @Override
+    public void createAdmin(CreateAdminDto dto) {
+        if (!sessionService.isUserAdmin(sessionService.getCurrentUser())) {
+            throw new PermissionException();
+        }
+
+        Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(dto.email());
+        if (optionalUser.isPresent()) {
+            throw new UserWithEmailExistsException(dto.email());
+        }
+
+        User user = new User();
+        user.setEmail(dto.email());
+        user.setPassword(passwordEncoder.encode(dto.password()));
+        user.setApproved(true);
+
+        UserInfo userInfo = new UserInfo();
+        userInfo.setFirstName(dto.firstName());
+        userInfo.setLastName(dto.lastName());
+        userInfo.setApiKey(generateApiKey());
+        userInfo.setUser(user);
+
+        List<Role> roles = new ArrayList<>();
+        Role userRole = roleRepository.findByName(UserRole.valueOf("ADMIN"))
+                .orElseThrow(() -> new EntityWithNameNotFoundException(EntityName.ROLE, "ADMIN"));
+        roles.add(userRole);
+        user.setRoles(roles);
+
+        userRepository.save(user);
+        userInfoRepository.save(userInfo);
     }
 
     @Override
