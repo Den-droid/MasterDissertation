@@ -1,8 +1,10 @@
 insert into roles(name)
-values ('STUDENT'), ('TEACHER'), ('ADMIN');
+values ('STUDENT'),
+       ('TEACHER'),
+       ('ADMIN');
 
-insert into users(email, password)
-values('amerscan8+admin@gmail.com', '$2a$10$YVgDrcNT5PDQkr.iAkF0pe.sApBLm46Mj592tTXJusR/0/qi3EdF2');
+insert into users(email, password, is_approved)
+values ('amerscan8+admin@gmail.com', '$2a$10$YVgDrcNT5PDQkr.iAkF0pe.sApBLm46Mj592tTXJusR/0/qi3EdF2', true);
 
 insert into user_roles(role_id, user_id)
 values ((select id from roles where name = 'ADMIN'),

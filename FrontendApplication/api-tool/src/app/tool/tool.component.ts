@@ -182,7 +182,6 @@ export class ToolComponent {
     this.showResponse = true;
     this.apiService.sendRequest(this.urlForm.value.url, this.urlForm.value.method, queryOrBody).subscribe({
       next: (resp: HttpResponse<any>) => {
-        console.log(resp);
         this.responseStatus = resp.status;
         if (resp.body)
           this.response = resp.body;
@@ -190,7 +189,6 @@ export class ToolComponent {
           this.response = null;
       },
       error: (err) => {
-        console.log(err);
         this.responseStatus = err.status;
         if (err.error)
           this.response = err.error;
@@ -206,8 +204,14 @@ export class ToolComponent {
   }
 
   removeField(index: number) {
-    this.fields.splice(index, 1);
-    this.fieldsFormControls.removeAt(index);
+    let name = this.fields[index].name;
+    let fieldsWithNameLength = this.fields.filter(f => f.name === name).length;
+    if (fieldsWithNameLength === 1) {
+      this.fieldsFormControls.at(index).setValue('');
+    } else {
+      this.fields.splice(index, 1);
+      this.fieldsFormControls.removeAt(index);
+    }
   }
 
   logout() {
@@ -270,16 +274,5 @@ export class ToolComponent {
     if (index === this.fields.length - 1)
       return true;
     return this.fields[index + 1].name !== this.fields[index].name;
-  }
-
-  isSingleFieldWithName(index: number) {
-    if (index === this.fields.length - 1) {
-      return this.fields[index - 1].name !== this.fields[index].name;
-    }
-    else if (index === 0) {
-      return this.fields[index + 1].name !== this.fields[index].name;
-    }
-    return this.fields[index - 1].name !== this.fields[index].name &&
-      this.fields[index + 1].name !== this.fields[index].name;
   }
 }

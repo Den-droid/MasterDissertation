@@ -18,7 +18,7 @@ import { JWTTokenService } from '../../shared/services/jwt-token.service';
 export class UserListComponent implements OnInit {
   currentUserId!: number;
 
-  title = usersPageTitles['create-admin'];
+  title = usersPageTitles.users;
   users: UserDto[] = [];
   filteredUsers: UserDto[] = [];
 

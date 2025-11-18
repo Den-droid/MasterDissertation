@@ -69,7 +69,7 @@ public class FunctionController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("{functionId}")
+    @DeleteMapping("/{functionId}")
     public ResponseEntity<?> delete(@PathVariable String functionId) {
         int functionIdInt;
         try {

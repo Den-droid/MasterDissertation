@@ -20,7 +20,7 @@ public class AssignmentController {
         this.assignmentService = assignmentService;
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<UserAssignmentDto>> getByUserId() {
         List<UserAssignmentDto> userAssignmentsDto = assignmentService.get();
         return ResponseEntity.ok(userAssignmentsDto);

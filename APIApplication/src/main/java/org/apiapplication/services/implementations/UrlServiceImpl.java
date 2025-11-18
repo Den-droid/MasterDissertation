@@ -3,6 +3,8 @@ package org.apiapplication.services.implementations;
 import org.apiapplication.dto.url.MethodTypeDto;
 import org.apiapplication.dto.url.UrlDto;
 import org.apiapplication.entities.Url;
+import org.apiapplication.entities.user.Role;
+import org.apiapplication.entities.user.User;
 import org.apiapplication.enums.MethodType;
 import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.exceptions.url.UrlWithNameNotFoundException;
@@ -29,12 +31,19 @@ public class UrlServiceImpl implements UrlService {
 
     @Override
     public List<UrlDto> get(String url, Integer method) {
-        if (sessionService.getCurrentUser() == null) {
+        User user = sessionService.getCurrentUser();
+        if (user == null) {
             throw new PermissionException();
         }
 
+        Role role = user.getRoles().get(0);
+
         if ((url == null || url.isEmpty()) && method == null) {
-            return getUrlDtoFromUrl(urlRepository.findAll());
+            List<UrlDto> urls = urlRepository.findAll().stream()
+                    .filter(u -> u.getRoles().contains(role))
+                    .map(this::getUrlDtoFromUrl)
+                    .toList();
+            return urls;
         } else {
             List<Url> urls = urlRepository.findAll();
             Url neededUrl = null;
@@ -52,7 +61,7 @@ public class UrlServiceImpl implements UrlService {
             }
 
             if (neededUrl != null) {
-                return getUrlDtoFromUrl(List.of(neededUrl));
+                return List.of(getUrlDtoFromUrl(neededUrl));
             } else {
                 throw new UrlWithNameNotFoundException(url);
             }
@@ -70,10 +79,8 @@ public class UrlServiceImpl implements UrlService {
                 .toList();
     }
 
-    private List<UrlDto> getUrlDtoFromUrl(List<Url> urls) {
-        return urls.stream()
-                .map(u -> new UrlDto(u.getId(), u.getUrl(),
-                        u.getDescription(), u.getMethod().ordinal()))
-                .toList();
+    private UrlDto getUrlDtoFromUrl(Url url) {
+        return new UrlDto(url.getId(), url.getUrl(),
+                url.getDescription(), url.getMethod().ordinal());
     }
 }

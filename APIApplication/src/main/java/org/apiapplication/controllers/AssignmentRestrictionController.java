@@ -28,7 +28,7 @@ public class AssignmentRestrictionController {
         return ResponseEntity.ok(restrictionDto);
     }
 
-    @GetMapping("defaultRestrictions")
+    @GetMapping("/defaultRestrictions")
     public ResponseEntity<List<DefaultRestrictionDto>> getDefaultRestrictions(
             @RequestParam(required = false) Integer functionId,
             @RequestParam(required = false) Integer subjectId,

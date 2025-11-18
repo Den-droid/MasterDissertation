@@ -59,10 +59,17 @@
           <div style="font-size: 0.9rem; color: #555;">{{mapFieldTypeToLabel(fields[$index].type)}}:
             {{fields[$index].description}}</div>
         </div>
-        <div style="flex-grow: 1;">
-          <input [type]="isDatetime(fields[$index]) ? 'datetime-local':'text'" class="form-control"
-            [placeholder]="'Введіть ' + fields[$index].label" [formControlName]="$index" #fieldInput />
-
+        <div style="width: 70%">
+          <div class="d-flex align-items-center">
+            <input [type]="isDatetime(fields[$index]) ? 'datetime-local':'text'"
+              class="form-control" [placeholder]="'Введіть ' + fields[$index].label"
+              [formControlName]="$index" #fieldInput />
+            @if(fields[$index].multiple){
+            <button type="button" class="btn btn-danger ms-2" (click)="removeField($index)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+            }
+          </div>
           @if (control.errors?.['required'] && (control.touched || control.dirty)) {
           <div class="text-danger mt-1">{{requiredErrorMessage}}</div>
           }
@@ -81,18 +88,12 @@
 
         </div>
       </div>
-      @if(fields[$index].multiple){
+
+      @if(fields[$index].multiple && isLastFieldWithName($index)){
       <div class="d-flex justify-content-center">
-        @if(isLastFieldWithName($index)){
         <button type="button" class="btn btn-primary me-3" style="width: 20%;" (click)="addField($index)">
           + Додати поле
         </button>
-        }
-        @if(!isSingleFieldWithName($index)){
-        <button type="button" class="btn btn-danger" style="width: 20%;" (click)="removeField($index)">
-          - Видалити поле
-        </button>
-        }
       </div>
       }
       }

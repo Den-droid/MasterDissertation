@@ -10,5 +10,7 @@ export const authenticatedGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
+  authService.logout();
+
   return router.createUrlTree(['/', 'apitool', 'auth', 'signin']);
 };
