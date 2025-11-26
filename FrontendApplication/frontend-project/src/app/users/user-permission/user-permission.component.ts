@@ -210,14 +210,9 @@ export class UserPermissionComponent implements OnInit {
                 this.functionService.getByAssignmentIds(dto.map(ua => ua.id)).subscribe({
                     next: (assignmentFunctions: AssignmentFunctionDto[]) => {
                         let getFunction = (userAssignment: UserAssignmentDto) => {
-                            let functionId = assignmentFunctions
-                                .find(af => af.userAssignmentId == userAssignment.id)?.functionId;
-                            if (functionId) {
-                                let func = this.functions.find(f => f.id === functionId);
-                                return func ? func : null;
-                            } else {
-                                return null;
-                            }
+                            let functionDto = assignmentFunctions
+                                .find(af => af.userAssignmentId == userAssignment.id)?.functionDto;
+                            return functionDto ? functionDto : null;
                         };
                         this.assignments = dto.map(ua => new UserAssignmentWithFunctionDto(
                             ua.id, ua.hint, ua.status, ua.functionResultType, ua.restrictionType, ua.attemptsRemaining,

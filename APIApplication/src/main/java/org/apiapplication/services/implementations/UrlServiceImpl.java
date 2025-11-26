@@ -63,7 +63,9 @@ public class UrlServiceImpl implements UrlService {
             if (neededUrl != null) {
                 return List.of(getUrlDtoFromUrl(neededUrl));
             } else {
-                throw new UrlWithNameNotFoundException(url);
+                throw new UrlWithNameNotFoundException(url,
+                        getMethods().stream().filter(m -> m.method() == method)
+                                .findFirst().get().label());
             }
         }
     }

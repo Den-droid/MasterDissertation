@@ -1,4 +1,6 @@
 package org.apiapplication.dto.assignment;
 
-public record AssignmentFunctionDto(int functionId, int userAssignmentId) {
+import org.apiapplication.dto.function.FunctionDto;
+
+public record AssignmentFunctionDto(FunctionDto functionDto, int userAssignmentId) {
 }

@@ -213,4 +213,10 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
        ((select id from roles where name = 'STUDENT'),
         (select id from urls where url = '/api/assignments/{userAssignmentId}/marks')),
        ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/urls')),
-       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/urls/methods'));
+       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/urls/methods')),
+       ((select id from roles where name = 'STUDENT'), (select id
+                                                        from urls
+                                                        where url = '/api/subjects'
+                                                          and method = 0)),
+       ((select id from roles where name = 'STUDENT'),
+        (select id from urls where url = '/api/assignmentRestrictions/restrictionTypes'));

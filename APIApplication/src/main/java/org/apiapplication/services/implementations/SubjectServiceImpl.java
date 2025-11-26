@@ -11,6 +11,7 @@ import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserPermission;
+import org.apiapplication.enums.UserRole;
 import org.apiapplication.exceptions.entity.EntityCantBeDeletedException;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.entity.EntityWithNameAlreadyFoundException;
@@ -182,11 +183,15 @@ public class SubjectServiceImpl implements SubjectService {
         Set<Subject> subjects = new HashSet<>();
         List<UserPermission> userPermissions = user.getUserPermissions();
 
-        for (UserPermission userPermission : userPermissions) {
-            if (userPermission.getUniversity() != null) {
-                subjects.addAll(userPermission.getUniversity().getSubjects());
-            } else if (userPermission.getSubject() != null) {
-                subjects.add(userPermission.getSubject());
+        if (user.getRoles().get(0).getName().equals(UserRole.STUDENT)) {
+            subjects.addAll(user.getUserInfo().getUniversity().getSubjects());
+        } else {
+            for (UserPermission userPermission : userPermissions) {
+                if (userPermission.getUniversity() != null) {
+                    subjects.addAll(userPermission.getUniversity().getSubjects());
+                } else if (userPermission.getSubject() != null) {
+                    subjects.add(userPermission.getSubject());
+                }
             }
         }
         return subjects;

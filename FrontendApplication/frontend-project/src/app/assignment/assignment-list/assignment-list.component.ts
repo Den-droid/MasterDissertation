@@ -1,27 +1,27 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AssignmentService } from '../../shared/services/assignment.service';
-import { JWTTokenService } from '../../shared/services/jwt-token.service';
-import { parseToNumber } from '../../shared/helpers/parse-to-number.helper';
-import { UserAssignmentDto, AssignDto } from '../../shared/models/assignment.model';
-import { AssignmentStatus, AssignmentStatusLabel } from '../../shared/constants/assignment-status.constant';
 import { Router } from '@angular/router';
-import { FunctionResultType, FunctionResultTypeLabel } from '../../shared/constants/function-result-type.constant';
-import { AssignmentRestrictionType } from '../../shared/constants/assignment-restriction-type';
-import { RoleName } from '../../shared/constants/roles.constant';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
+import { AssignmentRestrictionType } from '../../shared/constants/assignment-restriction-type';
+import { AssignmentStatus, AssignmentStatusLabel } from '../../shared/constants/assignment-status.constant';
+import { FunctionResultType, FunctionResultTypeLabel } from '../../shared/constants/function-result-type.constant';
+import { RoleName } from '../../shared/constants/roles.constant';
 import { RestrictionModalComponent } from '../../shared/modals/restriction/restriction-modal.component';
-import { AssignmentRestrictionService } from '../../shared/services/assignment-restriction.service';
-import { ModalRestrictionDto, RestrictionDto } from '../../shared/models/restriction.model';
-import { restrictionModalHeaders } from '../../shared/translations/restriction.translation';
+import { AssignDto, AssignmentFunctionDto, mapToUserAssignmentWithFunctionDto, UserAssignmentDto, UserAssignmentWithFunctionDto } from '../../shared/models/assignment.model';
 import { MarkDto, MarkModalDto } from '../../shared/models/mark.model';
-import { MarkService } from '../../shared/services/mark.service';
-import { MarkModalComponent } from '../mark-modal/mark-modal.component';
-import { AssignModalComponent } from '../assign-modal/assign-modal.component';
-import { SubjectService } from '../../shared/services/subject.service';
+import { ModalRestrictionDto, RestrictionDto } from '../../shared/models/restriction.model';
 import { SubjectDto } from '../../shared/models/subject.model';
+import { AssignmentRestrictionService } from '../../shared/services/assignment-restriction.service';
+import { AssignmentService } from '../../shared/services/assignment.service';
+import { JWTTokenService } from '../../shared/services/jwt-token.service';
+import { MarkService } from '../../shared/services/mark.service';
+import { SubjectService } from '../../shared/services/subject.service';
+import { restrictionModalHeaders } from '../../shared/translations/restriction.translation';
+import { AssignModalComponent } from '../assign-modal/assign-modal.component';
+import { MarkModalComponent } from '../mark-modal/mark-modal.component';
+import { FunctionService } from '../../shared/services/function.service';
 
 @Component({
   selector: 'app-assignment-list',
@@ -31,7 +31,7 @@ import { SubjectDto } from '../../shared/models/subject.model';
 export class AssignmentListComponent {
   constructor(public assignmentService: AssignmentService, public jwtService: JWTTokenService,
     public router: Router, private modalService: NgbModal, private restrictionService: AssignmentRestrictionService,
-    private markService: MarkService, private subjectService: SubjectService
+    private markService: MarkService, private subjectService: SubjectService, private functionService: FunctionService
   ) {
   }
 
@@ -48,10 +48,10 @@ export class AssignmentListComponent {
 
   currentUserRole!: string;
 
-  assignments: UserAssignmentDto[] = [];
+  assignments: UserAssignmentWithFunctionDto[] = [];
 
-  activeAssignments: UserAssignmentDto[] = [];
-  finishedAssignments: UserAssignmentDto[] = [];
+  activeAssignments: UserAssignmentWithFunctionDto[] = [];
+  finishedAssignments: UserAssignmentWithFunctionDto[] = [];
 
   updateActiveFinishedAssignments() {
     this.updateActiveAssignments()
@@ -63,10 +63,30 @@ export class AssignmentListComponent {
       next: (userAssignmentDtos: UserAssignmentDto[]) => {
         this.assignments = [];
         for (const userAssignmentDto of userAssignmentDtos) {
-          this.assignments.push(userAssignmentDto)
+          let userAssignment = mapToUserAssignmentWithFunctionDto(userAssignmentDto);
+          this.assignments.push(userAssignment);
+        }
+
+        if (this.isAdmin() || this.isTeacher()) {
+          this.getAssignmentsFunctions();
         }
 
         this.updateActiveFinishedAssignments();
+      }
+    })
+  }
+
+  getAssignmentsFunctions() {
+    let ids = this.assignments.map(a => a.id);
+    this.functionService.getByAssignmentIds(ids).subscribe({
+      next: (dto: AssignmentFunctionDto[]) => {
+        let getFunction = (userAssignment: UserAssignmentDto) => {
+          let functionDto = dto.find(af => af.userAssignmentId == userAssignment.id)?.functionDto;
+          return functionDto ? functionDto : null;
+        };
+        this.assignments.forEach(a => {
+          a.func = getFunction(a)
+        })
       }
     })
   }

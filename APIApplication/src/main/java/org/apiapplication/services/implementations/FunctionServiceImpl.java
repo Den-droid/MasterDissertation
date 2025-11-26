@@ -79,9 +79,10 @@ public class FunctionServiceImpl implements FunctionService {
 
         List<AssignmentFunctionDto> assignmentFunctionDtos = new ArrayList<>();
         for (UserAssignment userAssignment : userAssignments) {
-            int functionId = userAssignment.getFunction().getId();
+            Function function = userAssignment.getFunction();
             AssignmentFunctionDto assignmentFunctionDto =
-                    new AssignmentFunctionDto(functionId, userAssignment.getId());
+                    new AssignmentFunctionDto(getFunctionDtoFromFunction(List.of(function)).get(0),
+                            userAssignment.getId());
             assignmentFunctionDtos.add(assignmentFunctionDto);
         }
 

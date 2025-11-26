@@ -63,7 +63,7 @@ export class UserAssignmentWithFunctionDto {
 }
 
 export class AssignmentFunctionDto {
-  public constructor(public functionId: number, public userAssignmentId: number) { }
+  public constructor(public functionDto: FunctionDto, public userAssignmentId: number) { }
 }
 
 export class AssignDto {
@@ -76,4 +76,12 @@ export class AssignToGroupDto {
 
 export class AnswerDto {
   constructor(public numberOfAnswer: number, public answer: string, public result: number, public isCorrect: boolean) { }
+}
+
+export function mapToUserAssignmentWithFunctionDto(userAssignmentDto: UserAssignmentDto) {
+  return new UserAssignmentWithFunctionDto(userAssignmentDto.id, userAssignmentDto.hint,
+    userAssignmentDto.status, userAssignmentDto.functionResultType, userAssignmentDto.restrictionType,
+    userAssignmentDto.attemptsRemaining, userAssignmentDto.deadline, userAssignmentDto.nextAttemptTime,
+    userAssignmentDto.mark, userAssignmentDto.user, null
+  );
 }
