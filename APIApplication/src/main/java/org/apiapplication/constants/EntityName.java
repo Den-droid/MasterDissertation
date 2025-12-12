@@ -14,4 +14,5 @@ public class EntityName {
     public static final String DEFAULT_ASSIGNMENT_RESTRICTION = "Обмеження завдання по замовчуванню";
     public static final String USER_PERMISSION = "Права користувача";
     public static final String GROUP = "Група";
+    public static final String MAZE = "Лабіринт";
 }

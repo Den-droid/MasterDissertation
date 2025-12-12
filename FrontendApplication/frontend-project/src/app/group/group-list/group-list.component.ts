@@ -109,7 +109,7 @@ export class GroupListComponent implements OnInit {
   }
 
   assignToGroup(id: number) {
-    this.assignmentService.assignToGroup(new AssignToGroupDto(id)).subscribe({
+    this.assignmentService.assignFunctionToGroup(new AssignToGroupDto(id)).subscribe({
       error: (error: any) => {
         const modalRef = this.modalService.open(InfoModalComponent, {
           centered: true,

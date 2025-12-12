@@ -1,7 +1,8 @@
 INSERT INTO urls (url, description, method)
 VALUES ('/api/assignments', 'Отримати список завдань користувача', 0),
        ('/api/assignments/{userAssignmentId}', 'Отримати завдання користувача за ідентифікатором', 0),
-       ('/api/assignments/assign', 'Призначити завдання користувачу', 1),
+       ('/api/assignments/assignFunction', 'Призначити функцію користувачу', 1),
+       ('/api/assignments/assignMaze', 'Призначити лабіринт користувачу', 1),
        ('/api/assignments/{userAssignmentId}/startContinue', 'Розпочати або продовжити виконання завдання', 2),
        ('/api/assignments/{userAssignmentId}/finish', 'Завершити виконання завдання', 2),
        ('/api/assignments/{userAssignmentId}/giveAnswer', 'Надіслати відповідь на завдання', 1),
@@ -52,7 +53,8 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/groups/{groupId}/removeSubjects', 'Видалити предмети з групи', 2),
        ('/api/users/{userId}/approve', 'Підтвердити користувача', 2),
        ('/api/users/{userId}/reject', 'Відхилити користувача', 2),
-       ('/api/assignments/assignToGroup', 'Призначити завдання групі', 1),
+       ('/api/assignments/assignFunctionToGroup', 'Призначити функцію групі', 1),
+       ('/api/assignments/assignMazeToGroup', 'Призначити лабіринт групі', 1),
        ('/api/users/{userId}', 'Отримати дані про користувача', 0),
        ('/api/functions/getByAssignmentIds', 'Отримати функції для завдань', 0),
        ('/api/users/createAdmin', 'Створити адміністратора', 1);
@@ -92,10 +94,13 @@ VALUES ('userId', 'Ідентифікатор', 'Унікальний число
        ('userAssignmentIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор завдання користувача', 0);
 
 insert into url_fields(url_id, field_id, required, multiple)
-values ((select id from urls where url = '/api/assignments/assignToGroup'),
+values ((select id from urls where url = '/api/assignments/assignFunctionToGroup'),
         (select id from fields where name = 'groupId'),
         true, false),
-       ((select id from urls where url = '/api/assignments/assign'),
+       ((select id from urls where url = '/api/assignments/assignMazeToGroup'),
+        (select id from fields where name = 'groupId'),
+        true, false),
+       ((select id from urls where url = '/api/assignments/assignFunction'),
         (select id from fields where name = 'subjectIds'),
         true, true),
        ((select id from urls where url = '/api/assignments/{userAssignmentId}/giveAnswer'),

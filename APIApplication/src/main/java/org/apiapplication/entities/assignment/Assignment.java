@@ -2,7 +2,7 @@ package org.apiapplication.entities.assignment;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.apiapplication.enums.FunctionResultType;
+import org.apiapplication.enums.AssignmentType;
 
 @Entity
 @Table(name = "assignments")
@@ -13,7 +13,9 @@ public class Assignment {
     private Integer id;
 
     private String text;
-    private FunctionResultType functionResultType;
+
+    @Column(name = "assignment_type")
+    private AssignmentType assignmentType;
 
     @Override
     public boolean equals(Object o) {

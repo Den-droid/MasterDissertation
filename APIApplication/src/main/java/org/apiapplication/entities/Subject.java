@@ -3,7 +3,7 @@ package org.apiapplication.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
-import org.apiapplication.entities.assignment.Function;
+import org.apiapplication.entities.function.Function;
 import org.apiapplication.entities.user.UserPermission;
 
 import java.util.List;

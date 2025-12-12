@@ -38,15 +38,28 @@ public class AssignmentController {
         return ResponseEntity.ok(assignmentDto);
     }
 
-    @PostMapping("/assign")
-    public ResponseEntity<?> assign(@RequestBody AssignDto assignDto) {
-        assignmentService.assign(assignDto);
+    @PostMapping("/assignFunction")
+    public ResponseEntity<?> assignFunction(@RequestBody AssignFunctionDto assignFunctionDto) {
+        assignmentService.assignFunction(assignFunctionDto);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/assignToGroup")
-    public ResponseEntity<?> assignToGroup(@RequestBody AssignGroupDto assignGroupDto) {
-        assignmentService.assign(assignGroupDto);
+    @PostMapping("/assignFunctionToGroup")
+    public ResponseEntity<?> assignFunctionToGroup(@RequestBody AssignGroupDto
+                                                           assignGroupDto) {
+        assignmentService.assignFunctionToGroup(assignGroupDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/assignMaze")
+    public ResponseEntity<?> assignMaze() {
+        assignmentService.assignMaze();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/assignMazeToGroup")
+    public ResponseEntity<?> assignMazeToGroup(@RequestBody AssignGroupDto assignGroupDto) {
+        assignmentService.assignMazeToGroup(assignGroupDto);
         return ResponseEntity.ok().build();
     }
 
@@ -83,7 +96,7 @@ public class AssignmentController {
         } catch (NumberFormatException e) {
             throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
         }
-        AssignmentResponseDto assignmentResponseDto = assignmentService.answerAssignment(userAssignmentIdInt,
+        AssignmentResponseDto assignmentResponseDto = assignmentService.answer(userAssignmentIdInt,
                 assignmentAnswerDto);
         return ResponseEntity.ok(assignmentResponseDto);
     }

@@ -10,13 +10,14 @@ import org.apiapplication.dto.user.UserDto;
 import org.apiapplication.entities.Group;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.assignment.*;
+import org.apiapplication.entities.function.Function;
+import org.apiapplication.entities.function.FunctionMinMaxValue;
+import org.apiapplication.entities.maze.Maze;
+import org.apiapplication.entities.maze.MazePoint;
 import org.apiapplication.entities.user.Role;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserPermission;
-import org.apiapplication.enums.AssignmentRestrictionType;
-import org.apiapplication.enums.AssignmentStatus;
-import org.apiapplication.enums.FunctionResultType;
-import org.apiapplication.enums.UserRole;
+import org.apiapplication.enums.*;
 import org.apiapplication.exceptions.assignment.*;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
@@ -116,7 +117,6 @@ public class AssignmentServiceImpl implements AssignmentService {
                     return new UserAssignmentDto(userAssignment.getId(),
                             assignment.getText(),
                             userAssignment.getStatus().ordinal(),
-                            assignment.getFunctionResultType().ordinal(),
                             userAssignment.getRestrictionType().ordinal(),
                             userAssignment.getAttemptsRemaining(),
                             userAssignment.getDeadline(),
@@ -135,7 +135,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public void assign(AssignDto dto) {
+    public void assignFunction(AssignFunctionDto dto) {
         User user = sessionService.getCurrentUser();
 
         if (!sessionService.isUserStudent(user)) {
@@ -155,11 +155,11 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .filter(s -> dto.subjectIds().contains(s.getId()))
                 .toList();
 
-        assign(List.of(user), subjects);
+        assignFunction(List.of(user), subjects);
     }
 
     @Override
-    public void assign(AssignGroupDto dto) {
+    public void assignFunctionToGroup(AssignGroupDto dto) {
         User currentUser = sessionService.getCurrentUser();
 
         Group group = groupRepository.findById(dto.groupId())
@@ -172,10 +172,36 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         List<Subject> subjects = group.getSubjects().stream().toList();
 
-        assign(group.getStudents().stream().toList(), subjects);
+        assignFunction(group.getStudents().stream().toList(), subjects);
     }
 
-    private void assign(List<User> users, List<Subject> subjects) {
+    @Override
+    public void assignMaze() {
+        User user = sessionService.getCurrentUser();
+
+        if (!sessionService.isUserStudent(user)) {
+            throw new PermissionException();
+        }
+
+        assignMaze(List.of(user));
+    }
+
+    @Override
+    public void assignMazeToGroup(AssignGroupDto assignGroupDto) {
+        User currentUser = sessionService.getCurrentUser();
+
+        Group group = groupRepository.findById(assignGroupDto.groupId())
+                .orElseThrow(() -> new EntityWithIdNotFoundException(
+                        EntityName.GROUP, String.valueOf(assignGroupDto.groupId())
+                ));
+
+        if (!group.getOwner().getId().equals(currentUser.getId()))
+            throw new PermissionException();
+
+        assignMaze(group.getStudents().stream().toList());
+    }
+
+    private void assignFunction(List<User> users, List<Subject> subjects) {
         List<UserAssignment> allUserAssignments = new ArrayList<>();
 
         List<Function> allFunctions = subjects.stream()
@@ -188,10 +214,10 @@ public class AssignmentServiceImpl implements AssignmentService {
 
             for (Function function : allFunctions) {
                 for (Assignment assignment : allAssignments) {
-                    if (assignment.getFunctionResultType().equals(FunctionResultType.MIN) &&
+                    if (assignment.getAssignmentType().equals(AssignmentType.FUNCTION_MIN) &&
                             !getMinMaxValuesForFunction(function, FunctionResultType.MIN).isEmpty())
                         possibleUserAssignments.add(new UserAssignment(user, function, assignment));
-                    else if (assignment.getFunctionResultType().equals(FunctionResultType.MAX) &&
+                    else if (assignment.getAssignmentType().equals(AssignmentType.FUNCTION_MAX) &&
                             !getMinMaxValuesForFunction(function, FunctionResultType.MAX).isEmpty()) {
                         possibleUserAssignments.add(new UserAssignment(user, function, assignment));
                     }
@@ -215,25 +241,43 @@ public class AssignmentServiceImpl implements AssignmentService {
             userAssignment.setHasCorrectAnswer(false);
             userAssignment.setStatus(AssignmentStatus.ASSIGNED);
 
-            DefaultAssignmentRestriction defaultAssignmentRestriction =
-                    assignmentRestrictionService.getDefaultRestrictionForFunction(userAssignment.getFunction());
+            updateRestrictionOnUserAssignmentCreation(userAssignment);
 
-            if (defaultAssignmentRestriction == null) {
-                defaultAssignmentRestriction = assignmentRestrictionService.getDefaultRestriction();
-            }
+            allUserAssignments.add(userAssignment);
+        }
 
-            if (defaultAssignmentRestriction.getAssignmentRestrictionType()
-                    .equals(AssignmentRestrictionType.N_ATTEMPTS)) {
-                userAssignment.setRestrictionType(AssignmentRestrictionType.N_ATTEMPTS);
-                userAssignment.setAttemptsRemaining(defaultAssignmentRestriction.getAttemptsRemaining());
-            } else if (defaultAssignmentRestriction.getAssignmentRestrictionType()
-                    .equals(AssignmentRestrictionType.DEADLINE)) {
-                userAssignment.setRestrictionType(AssignmentRestrictionType.DEADLINE);
-                userAssignment.setDeadline(defaultAssignmentRestriction.getDeadline());
-            } else {
-                userAssignment.setRestrictionType(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
-                userAssignment.setMinutesForAttempt(defaultAssignmentRestriction.getMinutesForAttempt());
-            }
+        userAssignmentRepository.saveAll(allUserAssignments);
+    }
+
+    private void assignMaze(List<User> users) {
+        List<UserAssignment> allUserAssignments = new ArrayList<>();
+        Assignment assignment = assignmentRepository.findAll().stream()
+                .filter(a -> a.getAssignmentType().equals(AssignmentType.MAZE))
+                .findFirst().orElseThrow(NoAvailableAssignmentsException::new);
+        List<Maze> possibleMazes = users.get(0).getUserInfo()
+                .getUniversity().getMazes();
+
+        for (User user : users) {
+            List<UserAssignment> possibleUserAssignments = new ArrayList<>
+                    (possibleMazes.stream()
+                            .map(m -> new UserAssignment(user, m, assignment))
+                            .toList());
+
+            List<UserAssignment> currentUserAssignments = user.getUserAssignments();
+            possibleUserAssignments.removeAll(currentUserAssignments);
+
+            Random random = new Random();
+            int possibleFunctionsCount = possibleUserAssignments.size();
+            int possibleFunctionIndex = random.nextInt(possibleFunctionsCount);
+
+            UserAssignment userAssignment = new UserAssignment();
+            userAssignment.setAssignment(possibleUserAssignments.get(possibleFunctionIndex).getAssignment());
+            userAssignment.setUser(user);
+            userAssignment.setMaze(possibleUserAssignments.get(possibleFunctionIndex).getMaze());
+            userAssignment.setHasCorrectAnswer(false);
+            userAssignment.setStatus(AssignmentStatus.ASSIGNED);
+
+            updateRestrictionOnUserAssignmentCreation(userAssignment);
 
             allUserAssignments.add(userAssignment);
         }
@@ -276,36 +320,112 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public AssignmentResponseDto answerAssignment(int userAssignmentId,
-                                                  AssignmentAnswerDto dto) {
+    public AssignmentResponseDto answer(int userAssignmentId, AssignmentAnswerDto assignmentAnswerDto) {
         UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
                         String.valueOf(userAssignmentId)));
 
-        if (!sessionService.isUserStudent(sessionService.getCurrentUser()) ||
-                !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
-                        userAssignment)) {
-            throw new PermissionException();
+        if (userAssignment.getFunction() != null) {
+            return answerFunction(userAssignment, assignmentAnswerDto);
+        } else if (userAssignment.getMaze() != null) {
+            return answerMaze(userAssignment, assignmentAnswerDto);
         }
 
-        if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.N_ATTEMPTS) &&
-                userAssignment.getAttemptsRemaining() == 0) {
-            throw new AttemptsNotLeftException();
-        } else if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.DEADLINE) &&
-                userAssignment.getDeadline().isBefore(LocalDateTime.now())) {
-            throw new AttemptAfterDeadlineException(userAssignment.getDeadline());
-        } else if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES) &&
-                (userAssignment.getLastAttemptTime() != null &&
-                        userAssignment.getLastAttemptTime().plusMinutes(userAssignment.getMinutesForAttempt())
-                                .isAfter(LocalDateTime.now()))
-        ) {
-            throw new AttemptLimitReachedException(userAssignment.getLastAttemptTime()
-                    .plusMinutes(userAssignment.getMinutesForAttempt()));
+        return null;
+    }
+
+    private AssignmentResponseDto answerMaze(UserAssignment userAssignment, AssignmentAnswerDto assignmentAnswerDto) {
+        checkPermissions(userAssignment);
+        checkRestrictionsAfterAnswer(userAssignment);
+        checkHasCorrectAnswer(userAssignment);
+
+        Answer lastAnswer = userAssignment.getAnswers()
+                .stream().max(Comparator.comparingInt(Answer::getAnswerNumber)).orElse(null);
+
+        Answer currentAnswer = new Answer();
+        currentAnswer.setCorrect(false);
+        userAssignment.setHasCorrectAnswer(false);
+        currentAnswer.setUserAssignment(userAssignment);
+        currentAnswer.setWall(false);
+
+        MazePoint currentUserLocation = new MazePoint();
+
+        if (lastAnswer == null) {
+            MazePoint startPoint = userAssignment.getMaze().getMazePoints()
+                    .stream()
+                    .filter(mp -> mp.getMazePointType().equals(MazePointType.START))
+                    .findFirst().orElseThrow(() -> new RuntimeException("Maze point not found"));
+
+            currentUserLocation.setX(startPoint.getX());
+            currentUserLocation.setY(startPoint.getY());
+        } else {
+            Map<String, Double> lastAnswerString = AnswerParser.parseAnswer(lastAnswer.getAnswer());
+            currentUserLocation.setX(lastAnswerString.get("x").intValue());
+            currentUserLocation.setY(lastAnswerString.get("y").intValue());
         }
 
-        if (userAssignment.isHasCorrectAnswer()) {
-            throw new AlreadyCorrectAnswerException();
+        int userNextMoveInt;
+        try {
+            userNextMoveInt = Integer.parseInt(assignmentAnswerDto.answer());
+        } catch (RuntimeException e) {
+            throw new AnswerFormatIncorrectException();
         }
+
+        Direction userNextMove = Direction.values()[userNextMoveInt];
+        switch (userNextMove) {
+            case LEFT -> currentUserLocation.setX(currentUserLocation.getX() - 1);
+            case RIGHT -> currentUserLocation.setX(currentUserLocation.getX() + 1);
+            case UP -> currentUserLocation.setY(currentUserLocation.getY() + 1);
+            case DOWN -> currentUserLocation.setY(currentUserLocation.getY() - 1);
+        }
+
+        MazePoint finalPoint = userAssignment.getMaze().getMazePoints()
+                .stream()
+                .filter(mp -> mp.getMazePointType().equals(MazePointType.END))
+                .findFirst().orElseThrow(() -> new RuntimeException("Maze point not found"));
+
+        if (currentUserLocation.getX() == finalPoint.getX()
+                && currentUserLocation.getY() == finalPoint.getY()) {
+            currentAnswer.setCorrect(true);
+            userAssignment.setHasCorrectAnswer(true);
+        } else {
+            List<MazePoint> mazeWalls = userAssignment.getMaze().getMazePoints()
+                    .stream()
+                    .filter(mp -> mp.getMazePointType().equals(MazePointType.WALL))
+                    .toList();
+
+            for (MazePoint mazePoint : mazeWalls) {
+                if (currentUserLocation.getX() == mazePoint.getX() &&
+                        currentUserLocation.getY() == mazePoint.getY()) {
+                    currentAnswer.setWall(true);
+                    break;
+                }
+            }
+        }
+
+        currentAnswer.setAnswer(currentUserLocation.toString());
+        currentAnswer.setResult(0);
+
+        List<Answer> answers = userAssignment.getAnswers();
+        currentAnswer.setAnswerNumber(answers.size() + 1);
+
+        userAssignmentRepository.save(userAssignment);
+        answerRepository.save(currentAnswer);
+
+        return new AssignmentResponseDto(0, currentAnswer.isWall(),
+                currentAnswer.isCorrect(),
+                userAssignment.getRestrictionType().ordinal(),
+                userAssignment.getAttemptsRemaining(),
+                userAssignment.getDeadline(),
+                LocalDateTime.now().plusMinutes(userAssignment.getMinutesForAttempt())
+        );
+    }
+
+    private AssignmentResponseDto answerFunction(UserAssignment userAssignment,
+                                                 AssignmentAnswerDto dto) {
+        checkPermissions(userAssignment);
+        checkRestrictionsAfterAnswer(userAssignment);
+        checkHasCorrectAnswer(userAssignment);
 
         double result;
         try {
@@ -316,7 +436,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         }
 
         Function function = userAssignment.getFunction();
-        FunctionResultType functionResultType = userAssignment.getAssignment().getFunctionResultType();
+        FunctionResultType functionResultType = userAssignment.getAssignment()
+                .getAssignmentType().equals(AssignmentType.FUNCTION_MIN) ? FunctionResultType.MIN
+                : FunctionResultType.MAX;
 
         List<Double> correctValues = getMinMaxValuesForFunction(function, functionResultType);
 
@@ -332,11 +454,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             }
         }
 
-        if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.N_ATTEMPTS))
-            userAssignment.setAttemptsRemaining(userAssignment.getAttemptsRemaining() - 1);
-        else if (userAssignment.getRestrictionType()
-                .equals(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES))
-            userAssignment.setLastAttemptTime(LocalDateTime.now());
+        updateRestrictionAfterAnswer(userAssignment);
 
         answer.setUserAssignment(userAssignment);
         answer.setAnswer(dto.answer());
@@ -348,7 +466,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         userAssignmentRepository.save(userAssignment);
         answerRepository.save(answer);
 
-        return new AssignmentResponseDto(result, answer.isCorrect(),
+        return new AssignmentResponseDto(result, false, answer.isCorrect(),
                 userAssignment.getRestrictionType().ordinal(),
                 userAssignment.getAttemptsRemaining(),
                 userAssignment.getDeadline(),
@@ -386,6 +504,8 @@ public class AssignmentServiceImpl implements AssignmentService {
                 userAssignments.add(userPermission.getUserAssignment());
             } else if (userPermission.getFunction() != null) {
                 userAssignments.addAll(userPermission.getFunction().getUserAssignments());
+            } else if (userPermission.getMaze() != null) {
+                userAssignments.addAll(userPermission.getMaze().getUserAssignments());
             } else if (userPermission.getSubject() != null) {
                 userAssignments.addAll(
                         userPermission.getSubject().getFunctions().stream()
@@ -396,6 +516,11 @@ public class AssignmentServiceImpl implements AssignmentService {
                 userAssignments.addAll(
                         userPermission.getUniversity().getSubjects().stream()
                                 .flatMap(s -> s.getFunctions().stream())
+                                .flatMap(f -> f.getUserAssignments().stream())
+                                .toList()
+                );
+                userAssignments.addAll(
+                        userPermission.getUniversity().getMazes().stream()
                                 .flatMap(f -> f.getUserAssignments().stream())
                                 .toList()
                 );
@@ -420,5 +545,73 @@ public class AssignmentServiceImpl implements AssignmentService {
                 user.isApproved(),
                 new UniversityDto(user.getUserInfo().getUniversity().getId(),
                         user.getUserInfo().getUniversity().getName()));
+    }
+
+    private void checkRestrictionsAfterAnswer(UserAssignment userAssignment) {
+        if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.N_ATTEMPTS) &&
+                userAssignment.getAttemptsRemaining() == 0) {
+            throw new AttemptsNotLeftException();
+        } else if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.DEADLINE) &&
+                userAssignment.getDeadline().isBefore(LocalDateTime.now())) {
+            throw new AttemptAfterDeadlineException(userAssignment.getDeadline());
+        } else if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES) &&
+                (userAssignment.getLastAttemptTime() != null &&
+                        userAssignment.getLastAttemptTime().plusMinutes(userAssignment.getMinutesForAttempt())
+                                .isAfter(LocalDateTime.now()))
+        ) {
+            throw new AttemptLimitReachedException(userAssignment.getLastAttemptTime()
+                    .plusMinutes(userAssignment.getMinutesForAttempt()));
+        }
+    }
+
+    private void checkPermissions(UserAssignment userAssignment) {
+        if (!sessionService.isUserStudent(sessionService.getCurrentUser()) ||
+                !permissionService.userCanAccessAssignment(sessionService.getCurrentUser(),
+                        userAssignment)) {
+            throw new PermissionException();
+        }
+    }
+
+    private void checkHasCorrectAnswer(UserAssignment userAssignment) {
+        if (userAssignment.isHasCorrectAnswer()) {
+            throw new AlreadyCorrectAnswerException();
+        }
+    }
+
+    private void updateRestrictionAfterAnswer(UserAssignment userAssignment) {
+        if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.N_ATTEMPTS))
+            userAssignment.setAttemptsRemaining(userAssignment.getAttemptsRemaining() - 1);
+        else if (userAssignment.getRestrictionType()
+                .equals(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES))
+            userAssignment.setLastAttemptTime(LocalDateTime.now());
+    }
+
+    private void updateRestrictionOnUserAssignmentCreation(
+            UserAssignment userAssignment) {
+        Assignment assignment = userAssignment.getAssignment();
+
+        DefaultAssignmentRestriction defaultAssignmentRestriction =
+                assignment.getAssignmentType().equals(AssignmentType.MAZE) ?
+                        assignmentRestrictionService
+                                .getDefaultRestrictionForMaze(userAssignment.getMaze()) :
+                        assignmentRestrictionService
+                                .getDefaultRestrictionForFunction(userAssignment.getFunction());
+
+        if (defaultAssignmentRestriction == null) {
+            defaultAssignmentRestriction = assignmentRestrictionService.getDefaultRestriction();
+        }
+
+        if (defaultAssignmentRestriction.getAssignmentRestrictionType()
+                .equals(AssignmentRestrictionType.N_ATTEMPTS)) {
+            userAssignment.setRestrictionType(AssignmentRestrictionType.N_ATTEMPTS);
+            userAssignment.setAttemptsRemaining(defaultAssignmentRestriction.getAttemptsRemaining());
+        } else if (defaultAssignmentRestriction.getAssignmentRestrictionType()
+                .equals(AssignmentRestrictionType.DEADLINE)) {
+            userAssignment.setRestrictionType(AssignmentRestrictionType.DEADLINE);
+            userAssignment.setDeadline(defaultAssignmentRestriction.getDeadline());
+        } else {
+            userAssignment.setRestrictionType(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
+            userAssignment.setMinutesForAttempt(defaultAssignmentRestriction.getMinutesForAttempt());
+        }
     }
 }

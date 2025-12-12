@@ -1,8 +1,10 @@
-package org.apiapplication.entities.assignment;
+package org.apiapplication.entities.function;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import org.apiapplication.entities.Subject;
+import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
+import org.apiapplication.entities.assignment.UserAssignment;
 import org.apiapplication.entities.user.UserPermission;
 
 import java.util.List;

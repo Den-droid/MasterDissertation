@@ -22,7 +22,6 @@
           <th>Функція</th>
           }
           <th>Завдання</th>
-          <th>Тип завдання</th>
           <th>Статус відповідей</th>
           <th>Статус завдання</th>
           <th>Дія</th>
@@ -30,7 +29,7 @@
       </thead>
       <tbody>
         @if (activeAssignments.length === 0) {
-        <td [attr.colspan]="isAdmin() || isTeacher() ? 8 : 5" class="text-center">
+        <td [attr.colspan]="isAdmin() || isTeacher() ? 7 : 4" class="text-center">
           <strong>Активних завдань не знайдено</strong>
         </td>
         }
@@ -42,7 +41,6 @@
           <td>{{activeAssignment.func?.text}}</td>
           }
           <td>{{activeAssignment.hint}}</td>
-          <td>{{getFunctionResultTypeString(activeAssignment)}}</td>
           <td>
             @if(isRestrictionNAttempts(activeAssignment)){
             Залишилось спроб:
@@ -53,14 +51,14 @@
             @if(isRestrictionDeadline(activeAssignment)){
             Дедлайн надсилання відповідей:
             <span class="fw-bold">
-              {{activeAssignment.deadline}}
+              {{activeAssignment.deadline | date: 'dd.MM.yyyy hh:mm:ss'}}
             </span>
             }
             @if(isRestrictionAttemptInNMinutes(activeAssignment)){
             Наступна відповідь може бути надіслана:
             <span class="fw-bold">
               @if(isNextAttemptTimeAfterNow(activeAssignment)){
-              {{activeAssignment.nextAttemptTime}}
+              {{activeAssignment.nextAttemptTime | date: 'dd.MM.yyyy hh:mm:ss'}}
               }
               @else {
               зараз
@@ -106,7 +104,6 @@
           <th>Функція</th>
           }
           <th>Завдання</th>
-          <th>Тип завдання</th>
           <th>Оцінка</th>
           <th>Коментар</th>
           <th>Дія</th>
@@ -114,7 +111,7 @@
       </thead>
       <tbody>
         @if (finishedAssignments.length === 0) {
-        <td [attr.colspan]="isAdmin() || isTeacher() ? 8 : 5" class="text-center">
+        <td [attr.colspan]="isAdmin() || isTeacher() ? 7 : 4" class="text-center">
           <strong>Завершених завдань не знайдено</strong>
         </td> }
         @for (finishedAssignment of finishedAssignments; track finishedAssignment.id) {
@@ -125,7 +122,6 @@
           <td>{{finishedAssignment.func?.text}}</td>
           }
           <td>{{finishedAssignment.hint}}</td>
-          <td>{{getFunctionResultTypeString(finishedAssignment)}}</td>
           @if(finishedAssignment.mark){
           <td>{{finishedAssignment.mark.mark}}</td>
           <td>{{finishedAssignment.mark.comment}}</td>

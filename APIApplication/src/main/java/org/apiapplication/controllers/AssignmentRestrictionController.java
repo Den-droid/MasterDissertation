@@ -32,9 +32,10 @@ public class AssignmentRestrictionController {
     public ResponseEntity<List<DefaultRestrictionDto>> getDefaultRestrictions(
             @RequestParam(required = false) Integer functionId,
             @RequestParam(required = false) Integer subjectId,
-            @RequestParam(required = false) Integer universityId) {
+            @RequestParam(required = false) Integer universityId,
+            @RequestParam(required = false) Integer mazeId) {
         List<DefaultRestrictionDto> defaultRestrictionDtos = assignmentRestrictionService
-                .getDefault(functionId, subjectId, universityId);
+                .getDefault(functionId, subjectId, universityId, mazeId);
         return ResponseEntity.ok(defaultRestrictionDtos);
     }
 

@@ -8,8 +8,9 @@ import org.apiapplication.dto.restriction.RestrictionTypeDto;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
-import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.assignment.UserAssignment;
+import org.apiapplication.entities.function.Function;
+import org.apiapplication.entities.maze.Maze;
 import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.enums.AssignmentRestrictionType;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
@@ -30,6 +31,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
     private final SubjectRepository subjectRepository;
     private final UniversityRepository universityRepository;
     private final UserAssignmentRepository userAssignmentRepository;
+    private final MazeRepository mazeRepository;
 
     private final SessionService sessionService;
     private final PermissionService permissionService;
@@ -38,6 +40,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                                             FunctionRepository functionRepository,
                                             SubjectRepository subjectRepository,
                                             UniversityRepository universityRepository,
+                                            MazeRepository mazeRepository,
                                             SessionService sessionService,
                                             PermissionService permissionService,
                                             UserAssignmentRepository userAssignmentRepository) {
@@ -46,13 +49,15 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
         this.subjectRepository = subjectRepository;
         this.universityRepository = universityRepository;
         this.userAssignmentRepository = userAssignmentRepository;
+        this.mazeRepository = mazeRepository;
 
         this.sessionService = sessionService;
         this.permissionService = permissionService;
     }
 
     @Override
-    public List<DefaultRestrictionDto> getDefault(Integer functionId, Integer subjectId, Integer universityId) {
+    public List<DefaultRestrictionDto> getDefault(Integer functionId, Integer subjectId,
+                                                  Integer universityId, Integer mazeId) {
         if (functionId != null) {
             Function function = functionRepository.findById(functionId)
                     .orElseThrow(() -> new EntityWithIdNotFoundException(
@@ -65,6 +70,23 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
             }
 
             DefaultAssignmentRestriction restriction = getDefaultRestrictionForFunction(function);
+            if (restriction != null) {
+                return List.of(getDefaultAssignmentRestrictionDto(restriction));
+            } else {
+                return List.of();
+            }
+        } else if (mazeId != null) {
+            Maze maze = mazeRepository.findById(mazeId)
+                    .orElseThrow(() -> new EntityWithIdNotFoundException(
+                            EntityName.MAZE, String.valueOf(mazeId)
+                    ));
+
+            if (!permissionService.userCanAccessMaze(sessionService.getCurrentUser(),
+                    maze)) {
+                throw new PermissionException();
+            }
+
+            DefaultAssignmentRestriction restriction = getDefaultRestrictionForMaze(maze);
             if (restriction != null) {
                 return List.of(getDefaultAssignmentRestrictionDto(restriction));
             } else {
@@ -129,6 +151,26 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                         String.valueOf(userAssignmentId)));
 
         return getAssignmentRestrictionDto(userAssignment);
+    }
+
+    @Override
+    public DefaultAssignmentRestriction getDefaultRestrictionForMaze(Maze maze) {
+        List<DefaultAssignmentRestriction> defaultAssignmentRestrictions =
+                defaultAssignmentRestrictionRepository.findAll();
+
+        Optional<DefaultAssignmentRestriction> defaultRestriction = defaultAssignmentRestrictions.stream()
+                .filter(restriction -> restriction.getMaze() != null &&
+                        Objects.equals(restriction.getMaze().getId(),
+                                maze.getId()))
+                .findFirst();
+
+        if (defaultRestriction.isPresent()) {
+            return defaultRestriction.get();
+        }
+
+        University university = maze.getUniversity();
+
+        return getDefaultRestrictionForUniversity(university);
     }
 
     @Override
@@ -199,6 +241,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
         Function function = null;
         Subject subject = null;
         University university = null;
+        Maze maze = null;
 
         if (dto.functionId() != null) {
             function = functionRepository.findById(dto.functionId())
@@ -207,6 +250,15 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
 
             if (!permissionService.userCanAccessFunction(sessionService.getCurrentUser(),
                     function)) {
+                throw new PermissionException();
+            }
+        } else if (dto.mazeId() != null) {
+            maze = mazeRepository.findById(dto.mazeId())
+                    .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.MAZE,
+                            String.valueOf(dto.mazeId())));
+
+            if (!permissionService.userCanAccessMaze(sessionService.getCurrentUser(),
+                    maze)) {
                 throw new PermissionException();
             }
         } else if (dto.subjectId() != null) {
@@ -229,7 +281,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
             }
         }
 
-        if (university == null && subject == null && function == null) {
+        if (university == null && subject == null && function == null && maze == null) {
             return;
         }
 
@@ -243,7 +295,9 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                                         (dar.getSubject() != null &&
                                                 dar.getSubject().getId().equals(dto.subjectId())) ||
                                         (dar.getFunction() != null &&
-                                                dar.getFunction().getId().equals(dto.functionId())))
+                                                dar.getFunction().getId().equals(dto.functionId())) ||
+                                        (dar.getMaze() != null &&
+                                                dar.getMaze().getId().equals(dto.mazeId())))
                         .findFirst();
 
         if (existingRestriction.isPresent()) {
@@ -253,6 +307,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
             defaultAssignmentRestriction.setFunction(function);
             defaultAssignmentRestriction.setSubject(subject);
             defaultAssignmentRestriction.setUniversity(university);
+            defaultAssignmentRestriction.setMaze(maze);
         }
 
         setAssignmentRestriction(dto, defaultAssignmentRestriction);
@@ -267,6 +322,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
         Function function = null;
         Subject subject = null;
         University university = null;
+        Maze maze = null;
 
         if (dto.userAssignmentId() != null) {
             userAssignment = userAssignmentRepository.findById(dto.userAssignmentId())
@@ -290,6 +346,17 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
             }
 
             userAssignments.addAll(function.getUserAssignments());
+        } else if (dto.mazeId() != null) {
+            maze = mazeRepository.findById(dto.mazeId())
+                    .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.MAZE,
+                            String.valueOf(dto.mazeId())));
+
+            if (!permissionService.userCanAccessMaze(sessionService.getCurrentUser(),
+                    maze)) {
+                throw new PermissionException();
+            }
+
+            userAssignments.addAll(maze.getUserAssignments());
         } else if (dto.subjectId() != null) {
             subject = subjectRepository.findById(dto.subjectId())
                     .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.SUBJECT,
@@ -319,7 +386,8 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                     .forEach(userAssignments::add);
         }
 
-        if (university == null && subject == null && function == null && userAssignment == null) {
+        if (university == null && subject == null && function == null && userAssignment == null
+                && maze == null) {
             return;
         }
 
@@ -351,6 +419,8 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                         defaultAssignmentRestriction.getSubject().getId() : null,
                 defaultAssignmentRestriction.getUniversity() != null ?
                         defaultAssignmentRestriction.getUniversity().getId() : null,
+                defaultAssignmentRestriction.getMaze() != null ?
+                        defaultAssignmentRestriction.getMaze().getId() : null,
                 defaultAssignmentRestriction.getAttemptsRemaining(),
                 defaultAssignmentRestriction.getMinutesForAttempt(),
                 defaultAssignmentRestriction.getDeadline()
@@ -359,7 +429,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
 
     private RestrictionDto getAssignmentRestrictionDto(UserAssignment userAssignment) {
         return new RestrictionDto(userAssignment.getRestrictionType().ordinal(),
-                null, null, null, userAssignment.getId(),
+                null, null, null, userAssignment.getId(), null,
                 userAssignment.getAttemptsRemaining(),
                 userAssignment.getMinutesForAttempt(),
                 userAssignment.getDeadline()

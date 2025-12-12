@@ -6,8 +6,9 @@ import org.apiapplication.dto.permission.PermissionDto;
 import org.apiapplication.dto.permission.UpdatePermissionDto;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
-import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.assignment.UserAssignment;
+import org.apiapplication.entities.function.Function;
+import org.apiapplication.entities.maze.Maze;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.enums.UserRole;
@@ -31,6 +32,7 @@ public class PermissionServiceImpl implements PermissionService {
     private final SubjectRepository subjectRepository;
     private final UserAssignmentRepository userAssignmentRepository;
     private final FunctionRepository functionRepository;
+    private final MazeRepository mazeRepository;
 
     private final SessionService sessionService;
 
@@ -39,7 +41,7 @@ public class PermissionServiceImpl implements PermissionService {
                                  UniversityRepository universityRepository,
                                  SubjectRepository subjectRepository,
                                  UserAssignmentRepository userAssignmentRepository,
-                                 FunctionRepository functionRepository,
+                                 FunctionRepository functionRepository, MazeRepository mazeRepository,
                                  SessionService sessionService) {
         this.userPermissionRepository = userPermissionRepository;
         this.userRepository = userRepository;
@@ -47,6 +49,7 @@ public class PermissionServiceImpl implements PermissionService {
         this.subjectRepository = subjectRepository;
         this.userAssignmentRepository = userAssignmentRepository;
         this.functionRepository = functionRepository;
+        this.mazeRepository = mazeRepository;
 
         this.sessionService = sessionService;
     }
@@ -97,8 +100,9 @@ public class PermissionServiceImpl implements PermissionService {
         }
 
         Function function = userAssignment.getFunction();
+        Maze maze = userAssignment.getMaze();
 
-        return userCanAccessFunction(user, function);
+        return function == null ? userCanAccessMaze(user, maze) : userCanAccessFunction(user, function);
     }
 
     @Override
@@ -117,6 +121,24 @@ public class PermissionServiceImpl implements PermissionService {
         Subject subject = function.getSubject();
 
         return userCanAccessSubject(user, subject);
+    }
+
+    @Override
+    public boolean userCanAccessMaze(User user, Maze maze) {
+        List<UserPermission> userPermissions = user.getUserPermissions();
+
+        Optional<UserPermission> userPermission = userPermissions.stream()
+                .filter(up -> up.getMaze() != null)
+                .filter(up -> up.getMaze().getId().equals(maze.getId()))
+                .findFirst();
+
+        if (userPermission.isPresent()) {
+            return true;
+        }
+
+        University university = maze.getUniversity();
+
+        return userCanAccessUniversity(user, university);
     }
 
     @Override

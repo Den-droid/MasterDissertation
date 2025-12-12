@@ -1,4 +1,4 @@
-package org.apiapplication.entities.assignment;
+package org.apiapplication.entities.function;
 
 import jakarta.persistence.*;
 import lombok.Data;

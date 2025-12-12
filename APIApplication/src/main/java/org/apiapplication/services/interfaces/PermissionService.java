@@ -4,8 +4,9 @@ import org.apiapplication.dto.permission.PermissionDto;
 import org.apiapplication.dto.permission.UpdatePermissionDto;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
-import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.assignment.UserAssignment;
+import org.apiapplication.entities.function.Function;
+import org.apiapplication.entities.maze.Maze;
 import org.apiapplication.entities.user.User;
 
 import java.util.List;
@@ -14,6 +15,8 @@ public interface PermissionService {
     List<PermissionDto> get(Integer userId);
 
     boolean userCanAccessAssignment(User user, UserAssignment userAssignment);
+
+    boolean userCanAccessMaze(User user, Maze maze);
 
     boolean userCanAccessFunction(User user, Function function);
 

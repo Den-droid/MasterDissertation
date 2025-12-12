@@ -23,7 +23,7 @@
         <i class="fa-solid fa-calendar-alt me-2"></i>
         Дедлайн надсилання відповідей:
         <span class="fw-bold">
-          {{assignmentDto.deadline}}
+          {{assignmentDto.deadline | date: 'dd.MM.yyyy hh:mm:ss'}}
         </span>
         }
         @if(assignmentDto && isRestrictionAttemptInNMinutes()){
@@ -31,7 +31,7 @@
         Наступна відповідь може бути надіслана:
         <span class="fw-bold">
           @if(isNextAttemptTimeAfterNow()){
-          {{assignmentDto.nextAttemptTime}}
+          {{assignmentDto.nextAttemptTime | date: 'dd.MM.yyyy hh:mm:ss'}}
           }
           @else {
           зараз

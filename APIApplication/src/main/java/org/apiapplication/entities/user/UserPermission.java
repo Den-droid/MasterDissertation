@@ -4,8 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
-import org.apiapplication.entities.assignment.Function;
 import org.apiapplication.entities.assignment.UserAssignment;
+import org.apiapplication.entities.function.Function;
+import org.apiapplication.entities.maze.Maze;
 
 import java.util.Objects;
 
@@ -37,6 +38,10 @@ public class UserPermission {
     @JoinColumn(name = "user_assignment_id", referencedColumnName = "id")
     private UserAssignment userAssignment;
 
+    @ManyToOne
+    @JoinColumn(name = "maze_id", referencedColumnName = "id")
+    private Maze maze;
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof UserPermission that)) return false;
@@ -44,11 +49,13 @@ public class UserPermission {
                 Objects.equals(getUniversity(), that.getUniversity()) &&
                 Objects.equals(getSubject(), that.getSubject()) &&
                 Objects.equals(getFunction(), that.getFunction()) &&
-                Objects.equals(getUserAssignment(), that.getUserAssignment());
+                Objects.equals(getUserAssignment(), that.getUserAssignment()) &&
+                Objects.equals(getMaze(), that.getMaze());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUser(), getUniversity(), getSubject(), getFunction(), getUserAssignment());
+        return Objects.hash(getUser(), getUniversity(), getSubject(), getFunction(),
+                getUserAssignment(), getMaze());
     }
 }

@@ -1,6 +1,5 @@
 import { AssignmentRestrictionType } from "../constants/assignment-restriction-type";
 import { AssignmentStatus } from "../constants/assignment-status.constant";
-import { FunctionResultType } from "../constants/function-result-type.constant";
 import { FunctionDto } from "./function.model";
 import { MarkDto } from "./mark.model";
 import { UserDto } from "./user.model";
@@ -24,6 +23,7 @@ export class AssignmentDto {
 export class AssignmentResponseDto {
   constructor(
     public result: number,
+    public isWall: boolean,
     public hasCorrectAnswer: boolean,
     public restrictionType: AssignmentRestrictionType,
     public attemptsRemaining: number,
@@ -36,7 +36,6 @@ export class UserAssignmentDto {
     public id: number,
     public hint: string,
     public status: AssignmentStatus,
-    public functionResultType: FunctionResultType,
     public restrictionType: AssignmentRestrictionType,
     public attemptsRemaining: number,
     public deadline: string,
@@ -51,7 +50,6 @@ export class UserAssignmentWithFunctionDto {
     public id: number,
     public hint: string,
     public status: AssignmentStatus,
-    public functionResultType: FunctionResultType,
     public restrictionType: AssignmentRestrictionType,
     public attemptsRemaining: number,
     public deadline: string,
@@ -66,7 +64,7 @@ export class AssignmentFunctionDto {
   public constructor(public functionDto: FunctionDto, public userAssignmentId: number) { }
 }
 
-export class AssignDto {
+export class AssignFunctionDto {
   constructor(public subjectIds: number[]) { }
 }
 
@@ -80,7 +78,7 @@ export class AnswerDto {
 
 export function mapToUserAssignmentWithFunctionDto(userAssignmentDto: UserAssignmentDto) {
   return new UserAssignmentWithFunctionDto(userAssignmentDto.id, userAssignmentDto.hint,
-    userAssignmentDto.status, userAssignmentDto.functionResultType, userAssignmentDto.restrictionType,
+    userAssignmentDto.status, userAssignmentDto.restrictionType,
     userAssignmentDto.attemptsRemaining, userAssignmentDto.deadline, userAssignmentDto.nextAttemptTime,
     userAssignmentDto.mark, userAssignmentDto.user, null
   );

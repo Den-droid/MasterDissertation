@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
+import org.apiapplication.entities.function.Function;
+import org.apiapplication.entities.maze.Maze;
 import org.apiapplication.enums.AssignmentRestrictionType;
 
 import java.time.LocalDateTime;
@@ -28,6 +30,10 @@ public class DefaultAssignmentRestriction {
     @ManyToOne
     @JoinColumn(name = "function_id", referencedColumnName = "id")
     private Function function;
+
+    @ManyToOne
+    @JoinColumn(name = "maze_id", referencedColumnName = "id")
+    private Maze maze;
 
     private AssignmentRestrictionType assignmentRestrictionType;
     private int attemptsRemaining;

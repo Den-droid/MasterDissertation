@@ -2,12 +2,13 @@ package org.apiapplication.entities.assignment;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.apiapplication.entities.function.Function;
+import org.apiapplication.entities.maze.Maze;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.enums.AssignmentRestrictionType;
 import org.apiapplication.enums.AssignmentStatus;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,6 +23,10 @@ public class UserAssignment {
     @ManyToOne
     @JoinColumn(name = "function_id")
     private Function function;
+
+    @ManyToOne
+    @JoinColumn(name = "maze_id")
+    private Maze maze;
 
     @ManyToOne
     @JoinColumn(name = "assignment_id")
@@ -55,17 +60,25 @@ public class UserAssignment {
         this.assignment = assignment;
     }
 
+
+    public UserAssignment(User user, Maze maze, Assignment assignment) {
+        this.user = user;
+        this.maze = maze;
+        this.assignment = assignment;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof UserAssignment that)) return false;
         return Objects.equals(user, that.user) &&
                 Objects.equals(assignment, that.assignment) &&
-                Objects.equals(function, that.function);
+                Objects.equals(function, that.function) &&
+                Objects.equals(maze, that.maze);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user, assignment, function);
+        return Objects.hash(user, assignment, function, maze);
     }
 }

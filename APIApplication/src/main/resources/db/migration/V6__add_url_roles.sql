@@ -195,28 +195,58 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
        ((select id from roles where name = 'TEACHER'),
         (select id from urls where url = '/api/groups/{groupId}/removeSubjects')),
        ((select id from roles where name = 'TEACHER'),
-        (select id from urls where url = '/api/assignments/assignToGroup')),
+        (select id from urls where url = '/api/assignments/assignFunctionToGroup')),
+       ((select id from roles where name = 'TEACHER'),
+        (select id from urls where url = '/api/assignments/assignMazeToGroup')),
 
-       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/assignments')),
        ((select id from roles where name = 'STUDENT'),
-        (select id from urls where url = '/api/assignments/{userAssignmentId}')),
-       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/assignments/assign')),
+        (select id from urls where url = '/api/assignments'))
+        ,
+       ((select id
+         from roles
+         where name = 'STUDENT'),
+        (select id from urls where url = '/api/assignments/{userAssignmentId}'))
+        ,
        ((select id from roles where name = 'STUDENT'),
-        (select id from urls where url = '/api/assignments/{userAssignmentId}/startContinue')),
+        (select id from urls where url = '/api/assignments/assignFunction'))
+        ,
        ((select id from roles where name = 'STUDENT'),
-        (select id from urls where url = '/api/assignments/{userAssignmentId}/finish')),
-       ((select id from roles where name = 'STUDENT'),
-        (select id from urls where url = '/api/assignments/{userAssignmentId}/giveAnswer')),
-       ((select id from roles where name = 'STUDENT'),
-        (select id from urls where url = '/api/assignments/{userAssignmentId}/answers')),
-       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/fields')),
-       ((select id from roles where name = 'STUDENT'),
-        (select id from urls where url = '/api/assignments/{userAssignmentId}/marks')),
-       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/urls')),
-       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/urls/methods')),
-       ((select id from roles where name = 'STUDENT'), (select id
-                                                        from urls
-                                                        where url = '/api/subjects'
-                                                          and method = 0)),
-       ((select id from roles where name = 'STUDENT'),
-        (select id from urls where url = '/api/assignmentRestrictions/restrictionTypes'));
+        (select id from urls where url = '/api/assignments/assignMaze'))
+        ,
+       ((select id
+         from roles
+         where name = 'STUDENT'),
+        (select id from urls where url = '/api/assignments/{userAssignmentId}/startContinue'))
+        ,
+       ((select id
+         from roles
+         where name = 'STUDENT'), (select id from urls where url = '/api/assignments/{userAssignmentId}/finish'))
+        ,
+       ((select id
+         from roles
+         where name = 'STUDENT'), (select id from urls where url = '/api/assignments/{userAssignmentId}/giveAnswer'))
+        ,
+       ((select id
+         from roles
+         where name = 'STUDENT'), (select id from urls where url = '/api/assignments/{userAssignmentId}/answers'))
+        ,
+       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/fields'))
+        ,
+       ((select id
+         from roles
+         where name = 'STUDENT'), (select id from urls where url = '/api/assignments/{userAssignmentId}/marks'))
+        ,
+       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/urls'))
+        ,
+       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/urls/methods'))
+        ,
+       ((select id
+         from roles
+         where name = 'STUDENT'), (select id
+                                   from urls
+                                   where url = '/api/subjects'
+                                     and method = 0))
+        ,
+       ((select id
+         from roles
+         where name = 'STUDENT'), (select id from urls where url = '/api/assignmentRestrictions/restrictionTypes'));

@@ -10,15 +10,19 @@ public interface AssignmentService {
 
     List<UserAssignmentDto> get();
 
-    void assign(AssignDto assignDto);
+    void assignFunction(AssignFunctionDto assignFunctionDto);
 
-    void assign(AssignGroupDto assignGroupDto);
+    void assignFunctionToGroup(AssignGroupDto assignGroupDto);
+
+    void assignMaze();
+
+    void assignMazeToGroup(AssignGroupDto assignGroupDto);
 
     void startContinue(int userAssignmentId);
 
     void finish(int userAssignmentId);
 
-    AssignmentResponseDto answerAssignment(int userAssignmentId, AssignmentAnswerDto assignmentAnswerDto);
+    AssignmentResponseDto answer(int userAssignmentId, AssignmentAnswerDto assignmentAnswerDto);
 
     List<AnswerDto> getAnswersForAssignment(int userAssignmentId);
 }

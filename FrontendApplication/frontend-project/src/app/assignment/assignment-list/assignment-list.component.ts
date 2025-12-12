@@ -6,22 +6,21 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
 import { AssignmentRestrictionType } from '../../shared/constants/assignment-restriction-type';
 import { AssignmentStatus, AssignmentStatusLabel } from '../../shared/constants/assignment-status.constant';
-import { FunctionResultType, FunctionResultTypeLabel } from '../../shared/constants/function-result-type.constant';
 import { RoleName } from '../../shared/constants/roles.constant';
 import { RestrictionModalComponent } from '../../shared/modals/restriction/restriction-modal.component';
-import { AssignDto, AssignmentFunctionDto, mapToUserAssignmentWithFunctionDto, UserAssignmentDto, UserAssignmentWithFunctionDto } from '../../shared/models/assignment.model';
+import { AssignFunctionDto, AssignmentFunctionDto, mapToUserAssignmentWithFunctionDto, UserAssignmentDto, UserAssignmentWithFunctionDto } from '../../shared/models/assignment.model';
 import { MarkDto, MarkModalDto } from '../../shared/models/mark.model';
 import { ModalRestrictionDto, RestrictionDto } from '../../shared/models/restriction.model';
 import { SubjectDto } from '../../shared/models/subject.model';
 import { AssignmentRestrictionService } from '../../shared/services/assignment-restriction.service';
 import { AssignmentService } from '../../shared/services/assignment.service';
+import { FunctionService } from '../../shared/services/function.service';
 import { JWTTokenService } from '../../shared/services/jwt-token.service';
 import { MarkService } from '../../shared/services/mark.service';
 import { SubjectService } from '../../shared/services/subject.service';
 import { restrictionModalHeaders } from '../../shared/translations/restriction.translation';
 import { AssignModalComponent } from '../assign-modal/assign-modal.component';
 import { MarkModalComponent } from '../mark-modal/mark-modal.component';
-import { FunctionService } from '../../shared/services/function.service';
 
 @Component({
   selector: 'app-assignment-list',
@@ -118,8 +117,8 @@ export class AssignmentListComponent {
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: number[]) => {
-        let dto = new AssignDto(value);
-        this.assignmentService.assign(dto).subscribe({
+        let dto = new AssignFunctionDto(value);
+        this.assignmentService.assignFunction(dto).subscribe({
           error: (error: any) => {
             errorSubject.next(error.error.message);
           },
@@ -215,11 +214,6 @@ export class AssignmentListComponent {
   getAssignmentStatusString(assignment: UserAssignmentDto) {
     let key = AssignmentStatus[assignment.status] as keyof typeof AssignmentStatusLabel;
     return AssignmentStatusLabel[key];
-  }
-
-  getFunctionResultTypeString(assignment: UserAssignmentDto) {
-    let key = FunctionResultType[assignment.functionResultType] as keyof typeof FunctionResultTypeLabel;
-    return FunctionResultTypeLabel[key];
   }
 
   updateActiveAssignments() {

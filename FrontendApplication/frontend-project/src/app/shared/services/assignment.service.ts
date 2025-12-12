@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { baseUrl } from "../constants/url.constant";
-import { UserAssignmentDto, AssignmentDto, AssignmentAnswerDto, AssignmentResponseDto, AssignDto, AnswerDto, AssignToGroupDto } from "../models/assignment.model";
+import { UserAssignmentDto, AssignmentDto, AssignmentAnswerDto, AssignmentResponseDto, AssignFunctionDto, AnswerDto, AssignToGroupDto } from "../models/assignment.model";
 
 @Injectable({
   providedIn: 'root'
@@ -21,12 +21,20 @@ export class AssignmentService {
     return this.httpClient.get<AssignmentDto>(`${this.url}/${userAssignmentId}`);
   }
 
-  assign(assignDto: AssignDto): Observable<any> {
-    return this.httpClient.post(`${this.url}/assign`, assignDto);
+  assignFunction(assignDto: AssignFunctionDto): Observable<any> {
+    return this.httpClient.post(`${this.url}/assignFunction`, assignDto);
   }
 
-  assignToGroup(dto: AssignToGroupDto): Observable<any> {
-    return this.httpClient.post(`${this.url}/assignToGroup`, dto);
+  assignFunctionToGroup(dto: AssignToGroupDto): Observable<any> {
+    return this.httpClient.post(`${this.url}/assignFunctionToGroup`, dto);
+  }
+
+  assignMaze(): Observable<any> {
+    return this.httpClient.post(`${this.url}/assignMaze`, null);
+  }
+
+  assignMazeToGroup(dto: AssignToGroupDto): Observable<any> {
+    return this.httpClient.post(`${this.url}/assignMazeToGroup`, dto);
   }
 
   startContinue(userAssignmentId: number): Observable<any> {

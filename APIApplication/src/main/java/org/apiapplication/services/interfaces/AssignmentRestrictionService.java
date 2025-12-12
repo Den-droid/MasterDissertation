@@ -6,15 +6,18 @@ import org.apiapplication.dto.restriction.RestrictionTypeDto;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
-import org.apiapplication.entities.assignment.Function;
+import org.apiapplication.entities.function.Function;
+import org.apiapplication.entities.maze.Maze;
 
 import java.util.List;
 
 public interface AssignmentRestrictionService {
     List<DefaultRestrictionDto> getDefault(Integer functionId, Integer subjectId,
-                                           Integer universityId);
+                                           Integer universityId, Integer mazeId);
 
     RestrictionDto getCurrent(Integer userAssignmentId);
+
+    DefaultAssignmentRestriction getDefaultRestrictionForMaze(Maze maze);
 
     DefaultAssignmentRestriction getDefaultRestrictionForFunction(Function function);
 
