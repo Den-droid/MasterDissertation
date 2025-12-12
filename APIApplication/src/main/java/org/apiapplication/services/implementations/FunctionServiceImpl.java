@@ -11,9 +11,9 @@ import org.apiapplication.dto.subject.SubjectDto;
 import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
+import org.apiapplication.entities.assignment.UserAssignment;
 import org.apiapplication.entities.function.Function;
 import org.apiapplication.entities.function.FunctionMinMaxValue;
-import org.apiapplication.entities.assignment.UserAssignment;
 import org.apiapplication.entities.user.User;
 import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.enums.FunctionResultType;
@@ -72,10 +72,6 @@ public class FunctionServiceImpl implements FunctionService {
     @Override
     public List<AssignmentFunctionDto> getFunctionsByAssignmentIds(List<Integer> assignmentIds) {
         List<UserAssignment> userAssignments = userAssignmentRepository.findAllById(assignmentIds);
-        List<Integer> functionIds = userAssignments.stream()
-                .map(ua -> ua.getFunction().getId())
-                .distinct().toList();
-        List<Function> functions = functionRepository.findAllById(functionIds);
 
         List<AssignmentFunctionDto> assignmentFunctionDtos = new ArrayList<>();
         for (UserAssignment userAssignment : userAssignments) {
@@ -125,7 +121,7 @@ public class FunctionServiceImpl implements FunctionService {
 
         Subject subject = subjectRepository
                 .findById(dto.subjectId())
-                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.FUNCTION,
+                .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.SUBJECT,
                         String.valueOf(dto.subjectId())));
 
         if (!permissionService.userCanAccessSubject(sessionService.getCurrentUser(),

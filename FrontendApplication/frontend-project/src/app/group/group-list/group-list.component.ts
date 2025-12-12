@@ -108,8 +108,33 @@ export class GroupListComponent implements OnInit {
     modalRef.componentInstance.title = groupModals['subjects-header'];
   }
 
-  assignToGroup(id: number) {
+  assignFunctionToGroup(id: number) {
     this.assignmentService.assignFunctionToGroup(new AssignToGroupDto(id)).subscribe({
+      error: (error: any) => {
+        const modalRef = this.modalService.open(InfoModalComponent, {
+          centered: true,
+          backdrop: 'static',
+          keyboard: false
+        });
+
+        modalRef.componentInstance.content = error.error.message;
+        modalRef.componentInstance.title = modalText['failure-header'];
+      },
+      complete: () => {
+        const modalRef = this.modalService.open(InfoModalComponent, {
+          centered: true,
+          backdrop: 'static',
+          keyboard: false
+        });
+
+        modalRef.componentInstance.content = groupModals['assign-to-group-text'];
+        modalRef.componentInstance.title = modalText['success-header'];
+      }
+    });
+  }
+
+  assignMazeToGroup(id: number) {
+    this.assignmentService.assignMazeToGroup(new AssignToGroupDto(id)).subscribe({
       error: (error: any) => {
         const modalRef = this.modalService.open(InfoModalComponent, {
           centered: true,

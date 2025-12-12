@@ -6,9 +6,14 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h5 mb-0">Активні</h2>
     @if(isStudent()){
-    <button class="btn btn-primary" (click)="assign()">
-      <i class="fa-solid fa-plus me-2"></i> Отримати завдання
-    </button>
+    <div class="d-flex justify-content-between" style="width: 40%">
+      <button class="btn btn-primary" (click)="assignMaze()">
+        <i class="fa-solid fa-plus me-2"></i> Отримати лабіринт
+      </button>
+      <button class="btn btn-primary" (click)="assignFunction()">
+        <i class="fa-solid fa-plus me-2"></i> Отримати функцію
+      </button>
+    </div>
     }
   </div>
 

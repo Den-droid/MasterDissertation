@@ -98,7 +98,7 @@ export class AssignmentListComponent {
     })
   }
 
-  assign() {
+  assignFunction() {
     const modalRef = this.modalService.open(AssignModalComponent, {
       centered: true,
       backdrop: 'static',
@@ -129,6 +129,14 @@ export class AssignmentListComponent {
         })
       }
     );
+  }
+
+  assignMaze() {
+    this.assignmentService.assignMaze().subscribe({
+      complete: () => {
+        this.getAssignmentsByUserId();
+      }
+    })
   }
 
   setRestriction(id: number) {
