@@ -38,9 +38,10 @@ public class WebSecurityConfig {
     };
 
     private final String[] studentUrls = {
-            "/api/assignments/getByUserId",
+            "/api/assignments",
             "/api/assignments/*",
-            "/api/assignments/assign",
+            "/api/assignments/assignFunction",
+            "/api/assignments/assignMaze",
             "/api/assignments/*/startContinue",
             "/api/assignments/*/finish",
             "/api/assignments/*/giveAnswer"
@@ -50,7 +51,8 @@ public class WebSecurityConfig {
             "/api/assignments/*/putMark",
             "/api/groups",
             "/api/groups/*",
-            "/api/assignments/assignToGroup"
+            "/api/assignments/assignFunctionToGroup",
+            "/api/assignments/assignMazeToGroup"
     };
 
     private final String[] adminUrls = {
@@ -78,13 +80,11 @@ public class WebSecurityConfig {
     private final String[] userUrls = {
             "/api/users/*/apiKey",
             "/api/urls",
-            "/api/fields",
-            "/api/urls/methods",
-            "/api/assignmentRestrictions/restrictionTypes"
+            "/api/fields"
     };
 
     private final String[] publicUrls = {
-            "/api/universities",
+            "/api/universities"
     };
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,

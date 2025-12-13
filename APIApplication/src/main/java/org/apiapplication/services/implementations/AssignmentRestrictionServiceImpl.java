@@ -2,9 +2,7 @@ package org.apiapplication.services.implementations;
 
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
-import org.apiapplication.dto.restriction.DefaultRestrictionDto;
-import org.apiapplication.dto.restriction.RestrictionDto;
-import org.apiapplication.dto.restriction.RestrictionTypeDto;
+import org.apiapplication.dto.restriction.*;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
@@ -56,8 +54,8 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
     }
 
     @Override
-    public List<DefaultRestrictionDto> getDefault(Integer functionId, Integer subjectId,
-                                                  Integer universityId, Integer mazeId) {
+    public List<ReadableDefaultRestrictionDto> getDefault(Integer functionId, Integer subjectId,
+                                                          Integer universityId, Integer mazeId) {
         if (functionId != null) {
             Function function = functionRepository.findById(functionId)
                     .orElseThrow(() -> new EntityWithIdNotFoundException(
@@ -71,7 +69,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
 
             DefaultAssignmentRestriction restriction = getDefaultRestrictionForFunction(function);
             if (restriction != null) {
-                return List.of(getDefaultAssignmentRestrictionDto(restriction));
+                return List.of(getReadableDefaultAssignmentRestrictionDto(restriction));
             } else {
                 return List.of();
             }
@@ -88,7 +86,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
 
             DefaultAssignmentRestriction restriction = getDefaultRestrictionForMaze(maze);
             if (restriction != null) {
-                return List.of(getDefaultAssignmentRestrictionDto(restriction));
+                return List.of(getReadableDefaultAssignmentRestrictionDto(restriction));
             } else {
                 return List.of();
             }
@@ -105,7 +103,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
 
             DefaultAssignmentRestriction restriction = getDefaultRestrictionForSubject(subject);
             if (restriction != null) {
-                return List.of(getDefaultAssignmentRestrictionDto(restriction));
+                return List.of(getReadableDefaultAssignmentRestrictionDto(restriction));
             } else {
                 return List.of();
             }
@@ -122,7 +120,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
 
             DefaultAssignmentRestriction restriction = getDefaultRestrictionForUniversity(university);
             if (restriction != null) {
-                return List.of(getDefaultAssignmentRestrictionDto(restriction));
+                return List.of(getReadableDefaultAssignmentRestrictionDto(restriction));
             } else {
                 return List.of();
             }
@@ -134,18 +132,20 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                             return p.getUniversity().getDefaultAssignmentRestrictions();
                         } else if (p.getSubject() != null) {
                             return p.getSubject().getDefaultAssignmentRestrictions();
+                        } else if (p.getMaze() != null) {
+                            return p.getMaze().getDefaultAssignmentRestrictions();
                         } else {
                             return p.getFunction().getDefaultAssignmentRestrictions();
                         }
                     })
                     .flatMap(Collection::stream)
-                    .map(this::getDefaultAssignmentRestrictionDto)
+                    .map(this::getReadableDefaultAssignmentRestrictionDto)
                     .toList();
         }
     }
 
     @Override
-    public RestrictionDto getCurrent(Integer userAssignmentId) {
+    public ReadableRestrictionDto getCurrent(Integer userAssignmentId) {
         UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId)
                 .orElseThrow(() -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
                         String.valueOf(userAssignmentId)));
@@ -224,15 +224,13 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                                 university.getId()))
                 .findFirst();
 
-        return defaultRestriction.orElse(null);
+        return defaultRestriction.orElse(getDefaultRestriction());
     }
 
-    @Override
-    public DefaultAssignmentRestriction getDefaultRestriction() {
+    private DefaultAssignmentRestriction getDefaultRestriction() {
         DefaultAssignmentRestriction defaultAssignmentRestriction = new DefaultAssignmentRestriction();
         defaultAssignmentRestriction.setAttemptsRemaining(10);
         defaultAssignmentRestriction.setAssignmentRestrictionType(AssignmentRestrictionType.N_ATTEMPTS);
-
         return defaultAssignmentRestriction;
     }
 
@@ -398,21 +396,12 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
         userAssignmentRepository.saveAll(userAssignments);
     }
 
-    @Override
-    public List<RestrictionTypeDto> getRestrictionTypes() {
-        if (sessionService.getCurrentUser() == null) {
-            throw new PermissionException();
-        }
-
-        return Arrays.stream(AssignmentRestrictionType.values())
-                .map(rt -> new RestrictionTypeDto(rt.ordinal(), rt.name()))
-                .toList();
-    }
-
-    private DefaultRestrictionDto getDefaultAssignmentRestrictionDto(DefaultAssignmentRestriction
-                                                                             defaultAssignmentRestriction) {
-        return new DefaultRestrictionDto(defaultAssignmentRestriction.getId(),
-                defaultAssignmentRestriction.getAssignmentRestrictionType().ordinal(),
+    private ReadableDefaultRestrictionDto getReadableDefaultAssignmentRestrictionDto
+            (DefaultAssignmentRestriction defaultAssignmentRestriction) {
+        return new ReadableDefaultRestrictionDto(defaultAssignmentRestriction.getId(),
+                new RestrictionTypeDto(
+                        defaultAssignmentRestriction.getAssignmentRestrictionType().ordinal(),
+                        defaultAssignmentRestriction.getAssignmentRestrictionType().name()),
                 defaultAssignmentRestriction.getFunction() != null ?
                         defaultAssignmentRestriction.getFunction().getId() : null,
                 defaultAssignmentRestriction.getSubject() != null ?
@@ -427,8 +416,10 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
         );
     }
 
-    private RestrictionDto getAssignmentRestrictionDto(UserAssignment userAssignment) {
-        return new RestrictionDto(userAssignment.getRestrictionType().ordinal(),
+    private ReadableRestrictionDto getAssignmentRestrictionDto(UserAssignment userAssignment) {
+        return new ReadableRestrictionDto(new RestrictionTypeDto(
+                userAssignment.getRestrictionType().ordinal(),
+                userAssignment.getRestrictionType().name()),
                 null, null, null, userAssignment.getId(), null,
                 userAssignment.getAttemptsRemaining(),
                 userAssignment.getMinutesForAttempt(),

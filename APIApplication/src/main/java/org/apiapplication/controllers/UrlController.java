@@ -1,6 +1,5 @@
 package org.apiapplication.controllers;
 
-import org.apiapplication.dto.url.MethodTypeDto;
 import org.apiapplication.dto.url.UrlDto;
 import org.apiapplication.services.interfaces.UrlService;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +22,5 @@ public class UrlController {
                                             @RequestParam(required = false) Integer method) {
         List<UrlDto> urlDto = urlService.get(url, method);
         return ResponseEntity.ok(urlDto);
-    }
-
-    @GetMapping("/methods")
-    public ResponseEntity<List<MethodTypeDto>> getMethods() {
-        List<MethodTypeDto> methodTypeDto = urlService.getMethods();
-        return ResponseEntity.ok(methodTypeDto);
     }
 }

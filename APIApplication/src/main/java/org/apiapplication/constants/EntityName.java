@@ -11,8 +11,7 @@ public class EntityName {
     public static final String FUNCTION = "Функція";
     public static final String URL = "Посилання";
     public static final String RESTRICTION_TYPE = "Обмеження завдання";
-    public static final String DEFAULT_ASSIGNMENT_RESTRICTION = "Обмеження завдання по замовчуванню";
-    public static final String USER_PERMISSION = "Права користувача";
     public static final String GROUP = "Група";
     public static final String MAZE = "Лабіринт";
+    public static final String MAZE_POINT = "Точка лабіринту";
 }

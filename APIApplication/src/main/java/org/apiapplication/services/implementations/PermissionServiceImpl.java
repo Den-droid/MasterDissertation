@@ -190,28 +190,29 @@ public class PermissionServiceImpl implements PermissionService {
         List<UserPermission> userPermissionsToRemove = new ArrayList<>();
 
         user.getUserPermissions().stream()
-                .filter(up -> up.getUniversity() != null)
-                .filter(up -> !dto.universityIds().contains(up.getUniversity().getId())
-                        && up.getUser().getId().equals(user.getId()))
+                .filter(up -> up.getUniversity() != null &&
+                        !dto.universityIds().contains(up.getUniversity().getId()))
                 .forEach(userPermissionsToRemove::add);
 
         user.getUserPermissions().stream()
-                .filter(up -> up.getSubject() != null)
-                .filter(up -> !dto.subjectIds().contains(up.getSubject().getId())
-                        && up.getUser().getId().equals(user.getId()))
+                .filter(up -> up.getSubject() != null &&
+                        !dto.subjectIds().contains(up.getSubject().getId()))
                 .forEach(userPermissionsToRemove::add);
 
         user.getUserPermissions().stream()
-                .filter(up -> up.getFunction() != null)
-                .filter(up -> !dto.functionIds().contains(up.getFunction().getId())
-                        && up.getUser().getId().equals(user.getId()))
+                .filter(up -> up.getFunction() != null &&
+                        !dto.functionIds().contains(up.getFunction().getId()))
                 .forEach(userPermissionsToRemove::add);
 
         user.getUserPermissions().stream()
-                .filter(up -> up.getUserAssignment() != null)
-                .filter(up -> !dto.userAssignmentIds().contains(
-                        up.getUserAssignment().getId())
-                        && up.getUser().getId().equals(user.getId()))
+                .filter(up -> up.getMaze() != null &&
+                        !dto.mazeIds().contains(up.getMaze().getId()))
+                .forEach(userPermissionsToRemove::add);
+
+        user.getUserPermissions().stream()
+                .filter(up -> up.getUserAssignment() != null &&
+                        !dto.userAssignmentIds().contains(
+                                up.getUserAssignment().getId()))
                 .forEach(userPermissionsToRemove::add);
 
         userPermissionRepository.deleteAll(userPermissionsToRemove);
@@ -231,28 +232,29 @@ public class PermissionServiceImpl implements PermissionService {
 
         List<UserPermission> userPermissionsToRemove = new ArrayList<>();
         user.getUserPermissions().stream()
-                .filter(up -> up.getUniversity() != null)
-                .filter(up -> dto.universityIds().contains(up.getUniversity().getId())
-                        && up.getUser().getId().equals(user.getId()))
+                .filter(up -> up.getUniversity() != null &&
+                        dto.universityIds().contains(up.getUniversity().getId()))
                 .forEach(userPermissionsToRemove::add);
 
         user.getUserPermissions().stream()
-                .filter(up -> up.getSubject() != null)
-                .filter(up -> dto.subjectIds().contains(up.getSubject().getId())
-                        && up.getUser().getId().equals(user.getId()))
+                .filter(up -> up.getSubject() != null &&
+                        dto.subjectIds().contains(up.getSubject().getId()))
                 .forEach(userPermissionsToRemove::add);
 
         user.getUserPermissions().stream()
-                .filter(up -> up.getFunction() != null)
-                .filter(up -> dto.functionIds().contains(up.getFunction().getId())
-                        && up.getUser().getId().equals(user.getId()))
+                .filter(up -> up.getFunction() != null &&
+                        dto.functionIds().contains(up.getFunction().getId()))
                 .forEach(userPermissionsToRemove::add);
 
         user.getUserPermissions().stream()
-                .filter(up -> up.getUserAssignment() != null)
-                .filter(up -> dto.userAssignmentIds().contains(
-                        up.getUserAssignment().getId())
-                        && up.getUser().getId().equals(user.getId()))
+                .filter(up -> up.getMaze() != null &&
+                        dto.mazeIds().contains(up.getMaze().getId()))
+                .forEach(userPermissionsToRemove::add);
+
+        user.getUserPermissions().stream()
+                .filter(up -> up.getUserAssignment() != null &&
+                        dto.userAssignmentIds().contains(
+                                up.getUserAssignment().getId()))
                 .forEach(userPermissionsToRemove::add);
 
         userPermissionRepository.deleteAll(userPermissionsToRemove);
@@ -326,6 +328,21 @@ public class PermissionServiceImpl implements PermissionService {
             }
         }
 
+        for (int mazeId : dto.mazeIds()) {
+            Maze maze = mazeRepository.findById(mazeId).orElseThrow(
+                    () -> new EntityWithIdNotFoundException(EntityName.MAZE,
+                            String.valueOf(mazeId))
+            );
+
+            UserPermission userPermission = new UserPermission();
+            userPermission.setUser(user);
+            userPermission.setMaze(maze);
+
+            if (!user.getUserPermissions().contains(userPermission)) {
+                userPermissionsToAdd.add(userPermission);
+            }
+        }
+
         for (int assignmentId : dto.userAssignmentIds()) {
             UserAssignment userAssignment = userAssignmentRepository.findById(assignmentId)
                     .orElseThrow(
@@ -351,6 +368,8 @@ public class PermissionServiceImpl implements PermissionService {
                 userPermission.getSubject() != null ? userPermission.getSubject().getId() : null,
                 userPermission.getFunction() != null ? userPermission.getFunction().getId() : null,
                 userPermission.getUserAssignment() != null ? userPermission.getUserAssignment().getId()
+                        : null,
+                userPermission.getMaze() != null ? userPermission.getMaze().getId()
                         : null);
     }
 }

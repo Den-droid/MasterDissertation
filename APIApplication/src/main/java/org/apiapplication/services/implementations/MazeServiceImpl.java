@@ -3,12 +3,15 @@ package org.apiapplication.services.implementations;
 import jakarta.transaction.Transactional;
 import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.common.IdDto;
-import org.apiapplication.dto.maze.AddMazeDto;
-import org.apiapplication.dto.maze.MazePointDto;
+import org.apiapplication.dto.maze.*;
+import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.maze.Maze;
 import org.apiapplication.entities.maze.MazePoint;
+import org.apiapplication.entities.user.User;
+import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.enums.MazePointType;
+import org.apiapplication.exceptions.entity.EntityCantBeDeletedException;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
 import org.apiapplication.exceptions.entity.EntityWithNameAlreadyFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
@@ -48,6 +51,51 @@ public class MazeServiceImpl implements MazeService {
     }
 
     @Override
+    public MazeDto getById(int mazeId) {
+        if (sessionService.isUserStudent(sessionService.getCurrentUser())) {
+            throw new PermissionException();
+        }
+
+        Maze maze = mazeRepository.findById(mazeId).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.MAZE, String.valueOf(mazeId))
+        );
+
+        if (!permissionService.userCanAccessMaze(sessionService.getCurrentUser(), maze)) {
+            throw new PermissionException();
+        }
+
+        return mapMazeToDto(maze);
+    }
+
+    @Override
+    public List<MazeDto> get(Integer universityId) {
+        User user = sessionService.getCurrentUser();
+        if (sessionService.isUserStudent(user)) {
+            throw new PermissionException();
+        }
+        List<Maze> mazes = getForUser(user);
+
+        if (universityId != null) {
+            University university = universityRepository.findById(universityId).orElseThrow(
+                    () -> new EntityWithIdNotFoundException(EntityName.UNIVERSITY,
+                            String.valueOf(universityId))
+            );
+
+            if (permissionService.userCanAccessUniversity(user, university)) {
+                throw new PermissionException();
+            }
+
+            mazes = mazes.stream()
+                    .filter(m -> m.getUniversity().getId().equals(universityId))
+                    .toList();
+        }
+
+        return mazes.stream()
+                .map(this::mapMazeToDto)
+                .toList();
+    }
+
+    @Override
     public IdDto add(AddMazeDto addMazeDto) {
         Optional<Maze> existingMaze = mazeRepository.findAll().stream()
                 .filter(u -> u.getName().equalsIgnoreCase(addMazeDto.name()))
@@ -71,31 +119,15 @@ public class MazeServiceImpl implements MazeService {
         Maze maze = new Maze();
         maze.setUniversity(university);
         maze.setName(addMazeDto.name());
+        maze.setWidth(addMazeDto.width());
+        maze.setHeight(addMazeDto.height());
 
         List<MazePoint> mazePoints = new ArrayList<>();
 
-        for (int i = 0; i < addMazeDto.width(); i++) {
-            if (i != 0 && i != addMazeDto.width() - 1)
-                continue;
-
-            for (int j = 0; j < addMazeDto.height(); j++) {
-                if (j != 0 && j != addMazeDto.height() - 1)
-                    continue;
-
-                MazePoint mazePoint = new MazePoint();
-                mazePoint.setX(i);
-                mazePoint.setY(j);
-                mazePoint.setMaze(maze);
-                mazePoint.setMazePointType(MazePointType.WALL);
-
-                mazePoints.add(mazePoint);
-            }
-        }
-
-        for (MazePointDto customWall : addMazeDto.customWalls()) {
+        for (MazePointDto wall : addMazeDto.walls()) {
             MazePoint mazePoint = new MazePoint();
-            mazePoint.setX(customWall.x());
-            mazePoint.setY(customWall.y());
+            mazePoint.setX(wall.x());
+            mazePoint.setY(wall.y());
             mazePoint.setMaze(maze);
             mazePoint.setMazePointType(MazePointType.WALL);
 
@@ -125,6 +157,44 @@ public class MazeServiceImpl implements MazeService {
 
     @Override
     public void delete(int id) {
+        Maze maze = mazeRepository.findById(id).orElseThrow(
+                () -> new EntityWithIdNotFoundException(EntityName.MAZE, String.valueOf(id))
+        );
 
+        if (!permissionService.userCanAccessMaze(sessionService.getCurrentUser(), maze)) {
+            throw new PermissionException();
+        }
+
+        if (maze.getUserAssignments().isEmpty())
+            throw new EntityCantBeDeletedException();
+
+        mazeRepository.delete(maze);
+    }
+
+    private MazeDto mapMazeToDto(Maze maze) {
+        UniversityDto universityDto = new UniversityDto(maze.getUniversity().getId(),
+                maze.getUniversity().getName());
+        List<MazePointFullDto> mazePoints = maze.getMazePoints().stream()
+                .map(mp -> new MazePointFullDto(mp.getId(), mp.getX(), mp.getY(),
+                        new MazePointTypeDto(mp.getMazePointType().ordinal(),
+                                mp.getMazePointType().name())))
+                .toList();
+        return new MazeDto(maze.getId(), maze.getWidth(), maze.getHeight(),
+                maze.getName(), universityDto, mazePoints);
+    }
+
+    private List<Maze> getForUser(User user) {
+        List<Maze> mazeList = new ArrayList<>();
+        List<UserPermission> userPermissions = user.getUserPermissions();
+
+        for (UserPermission userPermission : userPermissions) {
+            if (userPermission.getMaze() != null) {
+                mazeList.add(userPermission.getMaze());
+            } else if (userPermission.getUniversity() != null) {
+                mazeList.addAll(userPermission.getUniversity().getMazes());
+            }
+        }
+
+        return mazeList;
     }
 }

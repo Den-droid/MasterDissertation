@@ -13,9 +13,6 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/subjects', 'Отримати список предметів', 0),
        ('/api/universities', 'Отримати список усіх університетів', 0),
        ('/api/urls', 'Отримати список API запитів', 0),
-       ('/api/urls/methods', 'Отримати список підтримуваних методів HTTP', 0),
-       ('/api/assignmentRestrictions/restrictionTypes', 'Отримати типи обмежень ' ||
-                                                        'для завдання', 0),
        ('/api/functions', 'Отримати список функцій', 0),
        ('/api/assignmentRestrictions/setDefaultRestriction', 'Задати обмеження ' ||
                                                              'по замовчуванню для виконання завдання', 2),
@@ -57,7 +54,10 @@ VALUES ('/api/assignments', 'Отримати список завдань кор
        ('/api/assignments/assignMazeToGroup', 'Призначити лабіринт групі', 1),
        ('/api/users/{userId}', 'Отримати дані про користувача', 0),
        ('/api/functions/getByAssignmentIds', 'Отримати функції для завдань', 0),
-       ('/api/users/createAdmin', 'Створити адміністратора', 1);
+       ('/api/users/createAdmin', 'Створити адміністратора', 1),
+       ('/api/mazes', 'Отримати список лабіринтів', 0),
+       ('/api/mazes/{mazeId}', 'Отримати лабіринт по ідентифікатору', 0),
+       ('/api/mazes/{mazeId}', 'Видалити лабіринт', 3);
 
 INSERT INTO fields (name, label, description, type)
 VALUES ('userId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор користувача', 0),
@@ -91,7 +91,9 @@ VALUES ('userId', 'Ідентифікатор', 'Унікальний число
        ('roleId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор ролі', 0),
        ('universityIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор університету', 0),
        ('functionIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор функції', 0),
-       ('userAssignmentIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор завдання користувача', 0);
+       ('userAssignmentIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор завдання користувача', 0),
+       ('mazeId', 'Ідентифікатор', 'Унікальний числовий ідентифікатор лабіринту', 0),
+       ('mazeIds', 'Ідентифікатор', 'Унікальний числовий ідентифікатор лабіринту', 0);
 
 insert into url_fields(url_id, field_id, required, multiple)
 values ((select id from urls where url = '/api/assignments/assignFunctionToGroup'),
@@ -158,6 +160,12 @@ values ((select id from urls where url = '/api/assignments/assignFunctionToGroup
          from urls
          where url = '/api/assignmentRestrictions/setDefaultRestriction'
            and method = 2),
+        (select id from fields where name = 'mazeId'),
+        false, false),
+       ((select id
+         from urls
+         where url = '/api/assignmentRestrictions/setDefaultRestriction'
+           and method = 2),
         (select id from fields where name = 'attemptsRemaining'),
         false, false),
        ((select id
@@ -186,6 +194,9 @@ values ((select id from urls where url = '/api/assignments/assignFunctionToGroup
         false, false),
        ((select id from urls where url = '/api/assignmentRestrictions/setRestriction'),
         (select id from fields where name = 'userAssignmentId'),
+        false, false),
+       ((select id from urls where url = '/api/assignmentRestrictions/setRestriction'),
+        (select id from fields where name = 'mazeId'),
         false, false),
        ((select id from urls where url = '/api/assignmentRestrictions/setRestriction'),
         (select id from fields where name = 'attemptsRemaining'),
@@ -227,6 +238,9 @@ values ((select id from urls where url = '/api/users/createAdmin'),
         (select id from fields where name = 'universityIds'),
         false, true),
        ((select id from urls where url = '/api/permissions' and method = 1),
+        (select id from fields where name = 'mazeIds'),
+        false, true),
+       ((select id from urls where url = '/api/permissions' and method = 1),
         (select id from fields where name = 'subjectIds'),
         false, true),
        ((select id from urls where url = '/api/permissions' and method = 1),
@@ -243,6 +257,9 @@ values ((select id from urls where url = '/api/users/createAdmin'),
         (select id from fields where name = 'universityIds'),
         false, true),
        ((select id from urls where url = '/api/permissions' and method = 2),
+        (select id from fields where name = 'mazeIds'),
+        false, true),
+       ((select id from urls where url = '/api/permissions' and method = 2),
         (select id from fields where name = 'subjectIds'),
         false, true),
        ((select id from urls where url = '/api/permissions' and method = 2),
@@ -257,6 +274,9 @@ values ((select id from urls where url = '/api/users/createAdmin'),
         true, false),
        ((select id from urls where url = '/api/permissions' and method = 3),
         (select id from fields where name = 'universityIds'),
+        false, true),
+       ((select id from urls where url = '/api/permissions' and method = 3),
+        (select id from fields where name = 'mazeIds'),
         false, true),
        ((select id from urls where url = '/api/permissions' and method = 3),
         (select id from fields where name = 'subjectIds'),
@@ -326,6 +346,9 @@ values ((select id from urls where url = '/api/universities' and method = 1),
        ((select id from urls where url = '/api/assignmentRestrictions/defaultRestrictions'),
         (select id from fields where name = 'universityId'),
         false, false),
+       ((select id from urls where url = '/api/assignmentRestrictions/defaultRestrictions'),
+        (select id from fields where name = 'mazeId'),
+        false, false),
        ((select id from urls where url = '/api/permissions' and method = 0),
         (select id from fields where name = 'userId'),
         false, false),
@@ -359,3 +382,14 @@ values ((select id from urls where url = '/api/universities' and method = 1),
        ((select id from urls where url = '/api/groups/{groupId}' and method = 2),
         (select id from fields where name = 'userIds'),
         false, true);
+
+insert into url_fields(url_id, field_id, required, multiple)
+values ((select id from urls where url = '/api/mazes' and method = 0),
+        (select id from fields where name = 'universityId'),
+        false, false),
+       ((select id from urls where url = '/api/mazes/{mazeId}' and method = 0),
+        (select id from fields where name = 'mazeId'),
+        true, false),
+       ((select id from urls where url = '/api/mazes/{mazeId}' and method = 3),
+        (select id from fields where name = 'mazeId'),
+        true, false);

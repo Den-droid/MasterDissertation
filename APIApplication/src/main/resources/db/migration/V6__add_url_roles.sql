@@ -24,9 +24,6 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
                                                       where url = '/api/universities'
                                                         and method = 1)),
        ((select id from roles where name = 'ADMIN'), (select id from urls where url = '/api/urls')),
-       ((select id from roles where name = 'ADMIN'), (select id from urls where url = '/api/urls/methods')),
-       ((select id from roles where name = 'ADMIN'),
-        (select id from urls where url = '/api/assignmentRestrictions/restrictionTypes')),
        ((select id from roles where name = 'ADMIN'), (select id
                                                       from urls
                                                       where url = '/api/functions'
@@ -104,6 +101,11 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
        ((select id from roles where name = 'ADMIN'),
         (select id from urls where url = '/api/functions/getByAssignmentIds')),
        ((select id from roles where name = 'ADMIN'), (select id from urls where url = '/api/users/createAdmin')),
+       ((select id from roles where name = 'ADMIN'), (select id from urls where url = '/api/mazes' and method = 0)),
+       ((select id from roles where name = 'ADMIN'),
+        (select id from urls where url = '/api/mazes/{mazeId}' and method = 0)),
+       ((select id from roles where name = 'ADMIN'),
+        (select id from urls where url = '/api/mazes/{mazeId}' and method = 3)),
 
        ((select id from roles where name = 'TEACHER'), (select id from urls where url = '/api/assignments')),
        ((select id from roles where name = 'TEACHER'),
@@ -124,9 +126,6 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
                                                         where url = '/api/subjects'
                                                           and method = 1)),
        ((select id from roles where name = 'TEACHER'), (select id from urls where url = '/api/urls')),
-       ((select id from roles where name = 'TEACHER'), (select id from urls where url = '/api/urls/methods')),
-       ((select id from roles where name = 'TEACHER'),
-        (select id from urls where url = '/api/assignmentRestrictions/restrictionTypes')),
        ((select id from roles where name = 'TEACHER'), (select id
                                                         from urls
                                                         where url = '/api/functions'
@@ -198,6 +197,11 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
         (select id from urls where url = '/api/assignments/assignFunctionToGroup')),
        ((select id from roles where name = 'TEACHER'),
         (select id from urls where url = '/api/assignments/assignMazeToGroup')),
+       ((select id from roles where name = 'TEACHER'), (select id from urls where url = '/api/mazes' and method = 0)),
+       ((select id from roles where name = 'TEACHER'),
+        (select id from urls where url = '/api/mazes/{mazeId}' and method = 0)),
+       ((select id from roles where name = 'TEACHER'),
+        (select id from urls where url = '/api/mazes/{mazeId}' and method = 3)),
 
        ((select id from roles where name = 'STUDENT'),
         (select id from urls where url = '/api/assignments'))
@@ -238,15 +242,9 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
         ,
        ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/urls'))
         ,
-       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/urls/methods'))
-        ,
        ((select id
          from roles
          where name = 'STUDENT'), (select id
                                    from urls
                                    where url = '/api/subjects'
-                                     and method = 0))
-        ,
-       ((select id
-         from roles
-         where name = 'STUDENT'), (select id from urls where url = '/api/assignmentRestrictions/restrictionTypes'));
+                                     and method = 0));

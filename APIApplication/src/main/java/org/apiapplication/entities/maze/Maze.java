@@ -3,6 +3,7 @@ package org.apiapplication.entities.maze;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.apiapplication.entities.University;
+import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
 import org.apiapplication.entities.assignment.UserAssignment;
 
 import java.util.List;
@@ -17,6 +18,8 @@ public class Maze {
     private Integer id;
 
     private String name;
+    private int width;
+    private int height;
 
     @ManyToOne
     @JoinColumn(name = "university_id", referencedColumnName = "id")
@@ -27,6 +30,9 @@ public class Maze {
 
     @OneToMany(mappedBy = "maze")
     private List<MazePoint> mazePoints;
+
+    @OneToMany(mappedBy = "maze")
+    private List<DefaultAssignmentRestriction> defaultAssignmentRestrictions;
 
     @Override
     public boolean equals(Object o) {

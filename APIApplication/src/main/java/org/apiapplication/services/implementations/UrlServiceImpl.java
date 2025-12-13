@@ -64,25 +64,14 @@ public class UrlServiceImpl implements UrlService {
                 return List.of(getUrlDtoFromUrl(neededUrl));
             } else {
                 throw new UrlWithNameNotFoundException(url,
-                        getMethods().stream().filter(m -> m.method() == method)
-                                .findFirst().get().label());
+                        Arrays.stream(MethodType.values()).filter(m -> m.ordinal() == method)
+                                .findFirst().get().name());
             }
         }
     }
 
-    @Override
-    public List<MethodTypeDto> getMethods() {
-        if (sessionService.getCurrentUser() == null) {
-            throw new PermissionException();
-        }
-
-        return Arrays.stream(MethodType.values())
-                .map(mt -> new MethodTypeDto(mt.ordinal(), mt.name()))
-                .toList();
-    }
-
     private UrlDto getUrlDtoFromUrl(Url url) {
         return new UrlDto(url.getId(), url.getUrl(),
-                url.getDescription(), url.getMethod().ordinal());
+                url.getDescription(), new MethodTypeDto(url.getMethod().ordinal(), url.getMethod().name()));
     }
 }

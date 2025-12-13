@@ -5,6 +5,7 @@ import org.apiapplication.constants.EntityName;
 import org.apiapplication.dto.answer.AnswerDto;
 import org.apiapplication.dto.assignment.*;
 import org.apiapplication.dto.mark.MarkDto;
+import org.apiapplication.dto.restriction.RestrictionTypeDto;
 import org.apiapplication.dto.university.UniversityDto;
 import org.apiapplication.dto.user.UserDto;
 import org.apiapplication.entities.Group;
@@ -20,6 +21,7 @@ import org.apiapplication.entities.user.UserPermission;
 import org.apiapplication.enums.*;
 import org.apiapplication.exceptions.assignment.*;
 import org.apiapplication.exceptions.entity.EntityWithIdNotFoundException;
+import org.apiapplication.exceptions.entity.EntityWithNameNotFoundException;
 import org.apiapplication.exceptions.permission.PermissionException;
 import org.apiapplication.repositories.*;
 import org.apiapplication.services.interfaces.AssignmentRestrictionService;
@@ -80,8 +82,8 @@ public class AssignmentServiceImpl implements AssignmentService {
         return new AssignmentDto(
                 userAssignment.getAssignment().getText(),
                 userAssignment.getFunction().getVariablesCount(),
-                userAssignment.getStatus().ordinal(),
-                userAssignment.getRestrictionType().ordinal(),
+                getAssignmentStatusDto(userAssignment.getStatus()),
+                getRestrictionTypeDto(userAssignment.getRestrictionType()),
                 userAssignment.getAttemptsRemaining(),
                 userAssignment.getDeadline(),
                 userAssignment.getLastAttemptTime() != null ?
@@ -116,8 +118,8 @@ public class AssignmentServiceImpl implements AssignmentService {
 
                     return new UserAssignmentDto(userAssignment.getId(),
                             assignment.getText(),
-                            userAssignment.getStatus().ordinal(),
-                            userAssignment.getRestrictionType().ordinal(),
+                            getAssignmentStatusDto(userAssignment.getStatus()),
+                            getRestrictionTypeDto(userAssignment.getRestrictionType()),
                             userAssignment.getAttemptsRemaining(),
                             userAssignment.getDeadline(),
                             userAssignment.getLastAttemptTime() != null ?
@@ -348,13 +350,16 @@ public class AssignmentServiceImpl implements AssignmentService {
         currentAnswer.setUserAssignment(userAssignment);
         currentAnswer.setWall(false);
 
+        Maze maze = userAssignment.getMaze();
         MazePoint currentUserLocation = new MazePoint();
 
         if (lastAnswer == null) {
-            MazePoint startPoint = userAssignment.getMaze().getMazePoints()
+            MazePoint startPoint = maze.getMazePoints()
                     .stream()
                     .filter(mp -> mp.getMazePointType().equals(MazePointType.START))
-                    .findFirst().orElseThrow(() -> new RuntimeException("Maze point not found"));
+                    .findFirst().orElseThrow(() -> new EntityWithNameNotFoundException(
+                            EntityName.MAZE_POINT, "Старт"
+                    ));
 
             currentUserLocation.setX(startPoint.getX());
             currentUserLocation.setY(startPoint.getY());
@@ -379,17 +384,24 @@ public class AssignmentServiceImpl implements AssignmentService {
             case DOWN -> currentUserLocation.setY(currentUserLocation.getY() - 1);
         }
 
-        MazePoint finalPoint = userAssignment.getMaze().getMazePoints()
+        MazePoint finalPoint = maze.getMazePoints()
                 .stream()
                 .filter(mp -> mp.getMazePointType().equals(MazePointType.END))
-                .findFirst().orElseThrow(() -> new RuntimeException("Maze point not found"));
+                .findFirst().orElseThrow(() -> new EntityWithNameNotFoundException(
+                        EntityName.MAZE_POINT, "Кінець"
+                ));
 
         if (currentUserLocation.getX() == finalPoint.getX()
                 && currentUserLocation.getY() == finalPoint.getY()) {
             currentAnswer.setCorrect(true);
             userAssignment.setHasCorrectAnswer(true);
+        } else if (currentUserLocation.getX() == maze.getWidth() ||
+                currentUserLocation.getX() == -1 ||
+                currentUserLocation.getY() == maze.getHeight() ||
+                currentUserLocation.getY() == -1) {
+            currentAnswer.setWall(true);
         } else {
-            List<MazePoint> mazeWalls = userAssignment.getMaze().getMazePoints()
+            List<MazePoint> mazeWalls = maze.getMazePoints()
                     .stream()
                     .filter(mp -> mp.getMazePointType().equals(MazePointType.WALL))
                     .toList();
@@ -414,7 +426,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         return new AssignmentResponseDto(0, currentAnswer.isWall(),
                 currentAnswer.isCorrect(),
-                userAssignment.getRestrictionType().ordinal(),
+                getRestrictionTypeDto(userAssignment.getRestrictionType()),
                 userAssignment.getAttemptsRemaining(),
                 userAssignment.getDeadline(),
                 LocalDateTime.now().plusMinutes(userAssignment.getMinutesForAttempt())
@@ -467,7 +479,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         answerRepository.save(answer);
 
         return new AssignmentResponseDto(result, false, answer.isCorrect(),
-                userAssignment.getRestrictionType().ordinal(),
+                getRestrictionTypeDto(userAssignment.getRestrictionType()),
                 userAssignment.getAttemptsRemaining(),
                 userAssignment.getDeadline(),
                 LocalDateTime.now().plusMinutes(userAssignment.getMinutesForAttempt())
@@ -597,10 +609,6 @@ public class AssignmentServiceImpl implements AssignmentService {
                         assignmentRestrictionService
                                 .getDefaultRestrictionForFunction(userAssignment.getFunction());
 
-        if (defaultAssignmentRestriction == null) {
-            defaultAssignmentRestriction = assignmentRestrictionService.getDefaultRestriction();
-        }
-
         if (defaultAssignmentRestriction.getAssignmentRestrictionType()
                 .equals(AssignmentRestrictionType.N_ATTEMPTS)) {
             userAssignment.setRestrictionType(AssignmentRestrictionType.N_ATTEMPTS);
@@ -613,5 +621,13 @@ public class AssignmentServiceImpl implements AssignmentService {
             userAssignment.setRestrictionType(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
             userAssignment.setMinutesForAttempt(defaultAssignmentRestriction.getMinutesForAttempt());
         }
+    }
+
+    private AssignmentStatusDto getAssignmentStatusDto(AssignmentStatus assignmentStatus) {
+        return new AssignmentStatusDto(assignmentStatus.ordinal(), assignmentStatus.name());
+    }
+
+    private RestrictionTypeDto getRestrictionTypeDto(AssignmentRestrictionType restrictionType) {
+        return new RestrictionTypeDto(restrictionType.ordinal(), restrictionType.name());
     }
 }
