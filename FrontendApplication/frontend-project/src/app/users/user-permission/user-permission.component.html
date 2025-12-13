@@ -70,7 +70,7 @@
                                 [checked]="isAssignmentSelected(assignment.id)"
                                 (change)="toggleAssignment(assignment.id)" />
                             <span>{{ getStudentFullName(assignment.user) + ' ('
-                                + getFunctionResultTypeString(assignment) + ')' }}</span>
+                                + getAssignmentTypeString(assignment) + ')' }}</span>
                         </label>
                         }
                     </div>

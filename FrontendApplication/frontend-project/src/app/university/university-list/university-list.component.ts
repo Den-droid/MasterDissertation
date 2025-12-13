@@ -169,7 +169,7 @@ export class UniversityListComponent implements OnInit {
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
-        let dto = new DefaultRestrictionDto(null, value.restrictionType, id, null, null,
+        let dto = new DefaultRestrictionDto(null, value.restrictionType, id, null, null, null,
           value.attemptsRemaining, value.minutesForAttempt, value.deadline);
         this.restrictionService.setDefaultRestriction(dto).subscribe({
           complete: () => {
@@ -192,7 +192,7 @@ export class UniversityListComponent implements OnInit {
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
-        let dto = new RestrictionDto(value.restrictionType, id, null, null, null,
+        let dto = new RestrictionDto(value.restrictionType, id, null, null, null, null,
           value.attemptsRemaining, value.minutesForAttempt, value.deadline);
         this.restrictionService.setRestriction(dto).subscribe({
           complete: () => {

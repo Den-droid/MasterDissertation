@@ -4,7 +4,8 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from "@angul
 import { ActivatedRoute, Router } from "@angular/router";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { debounceTime, Subject } from "rxjs";
-import { FunctionResultType, FunctionResultTypeLabel } from "../../shared/constants/function-result-type.constant";
+import { AssignmentType, AssignmentTypeLabel } from "../../shared/constants/assignment-type";
+import { RoleLabel, RoleName } from "../../shared/constants/roles.constant";
 import { InfoModalComponent } from "../../shared/modals/info/info-modal.component";
 import { AssignmentFunctionDto, UserAssignmentDto, UserAssignmentWithFunctionDto } from "../../shared/models/assignment.model";
 import { FunctionDto } from "../../shared/models/function.model";
@@ -17,11 +18,10 @@ import { FunctionService } from "../../shared/services/function.service";
 import { PermissionService } from "../../shared/services/permission.service";
 import { SubjectService } from "../../shared/services/subject.service";
 import { UniversityService } from "../../shared/services/university.service";
+import { UserService } from "../../shared/services/user.service";
 import { modalText } from "../../shared/translations/common.translation";
 import { userPermissionsLabels, userPermissionsModalText, userValidation } from "../../shared/translations/permission.translation";
 import { usersPageTitles } from "../../shared/translations/user.translation";
-import { UserService } from "../../shared/services/user.service";
-import { RoleLabel, RoleName } from "../../shared/constants/roles.constant";
 
 @Component({
     selector: 'app-user-permission',
@@ -150,7 +150,7 @@ export class UserPermissionComponent implements OnInit {
             debounceTime(500)
         ).subscribe(value => {
             this.filteredAssignments = this.assignments.filter(a =>
-                (this.getStudentFullName(a.user) + ' (' + this.getFunctionResultTypeString(a) + ')')
+                (this.getStudentFullName(a.user) + ' (' + this.getAssignmentTypeString(a) + ')')
                     .toLowerCase().includes(value.toLowerCase())
             ).filter(a => (a.func != null ?
                 this.selectedFunctions.includes(a.func.id) : false) || this.selectedFunctions.length === 0
@@ -215,7 +215,7 @@ export class UserPermissionComponent implements OnInit {
                             return functionDto ? functionDto : null;
                         };
                         this.assignments = dto.map(ua => new UserAssignmentWithFunctionDto(
-                            ua.id, ua.hint, ua.status, ua.functionResultType, ua.restrictionType, ua.attemptsRemaining,
+                            ua.id, ua.hint, ua.status, ua.assignmentType, ua.restrictionType, ua.attemptsRemaining,
                             ua.deadline, ua.nextAttemptTime, ua.mark, ua.user, getFunction(ua))
                         );
                         this.filteredAssignments = [...this.assignments];
@@ -255,9 +255,9 @@ export class UserPermissionComponent implements OnInit {
         return student.firstName + " " + student.lastName;
     }
 
-    getFunctionResultTypeString(assignment: UserAssignmentWithFunctionDto) {
-        let key = FunctionResultType[assignment.functionResultType] as keyof typeof FunctionResultTypeLabel;
-        return FunctionResultTypeLabel[key];
+    getAssignmentTypeString(assignment: UserAssignmentWithFunctionDto) {
+        let key = AssignmentType[assignment.assignmentType.type] as keyof typeof AssignmentTypeLabel;
+        return AssignmentTypeLabel[key];
     }
 
     onUniversitiesSearchChange(value: string) {
@@ -308,7 +308,7 @@ export class UserPermissionComponent implements OnInit {
         );
 
         this.filteredAssignments = this.assignments.filter(a =>
-            (this.getStudentFullName(a.user) + ' (' + this.getFunctionResultTypeString(a) + ')')
+            (this.getStudentFullName(a.user) + ' (' + this.getAssignmentTypeString(a) + ')')
                 .toLowerCase().includes(this.form.value.assignmentSearch.toLowerCase())
         );
 
@@ -337,7 +337,7 @@ export class UserPermissionComponent implements OnInit {
         );
 
         this.filteredAssignments = this.assignments.filter(a =>
-            (this.getStudentFullName(a.user) + ' (' + this.getFunctionResultTypeString(a) + ')')
+            (this.getStudentFullName(a.user) + ' (' + this.getAssignmentTypeString(a) + ')')
                 .toLowerCase().includes(this.form.value.assignmentSearch.toLowerCase())
         );
 
@@ -359,7 +359,7 @@ export class UserPermissionComponent implements OnInit {
         }
 
         this.filteredAssignments = this.assignments.filter(a =>
-            (this.getStudentFullName(a.user) + ' (' + this.getFunctionResultTypeString(a) + ')')
+            (this.getStudentFullName(a.user) + ' (' + this.getAssignmentTypeString(a) + ')')
                 .toLowerCase().includes(this.form.value.assignmentSearch.toLowerCase())
         );
 
@@ -404,7 +404,7 @@ export class UserPermissionComponent implements OnInit {
         }
 
         return new UpdatePermissionsDto(this.userId, universitiesToSend, subjectsToSend,
-            functionsToSend, this.selectedAssignments);
+            functionsToSend, this.selectedAssignments, []);
     }
 
     revertChanges() {

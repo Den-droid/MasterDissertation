@@ -7,7 +7,7 @@ import org.apiapplication.dto.user.UserDto;
 import java.time.LocalDateTime;
 
 public record UserAssignmentDto(int id, String hint, AssignmentStatusDto assignmentStatus,
-                                RestrictionTypeDto restrictionType,
+                                RestrictionTypeDto restrictionType, AssignmentTypeDto assignmentType,
                                 int attemptsRemaining, LocalDateTime deadline,
                                 LocalDateTime nextAttemptTime,
                                 MarkDto mark, UserDto user) {

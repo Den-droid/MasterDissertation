@@ -120,6 +120,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                             assignment.getText(),
                             getAssignmentStatusDto(userAssignment.getStatus()),
                             getRestrictionTypeDto(userAssignment.getRestrictionType()),
+                            getAssignmentTypeDto(userAssignment.getAssignment().getAssignmentType()),
                             userAssignment.getAttemptsRemaining(),
                             userAssignment.getDeadline(),
                             userAssignment.getLastAttemptTime() != null ?
@@ -629,5 +630,9 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     private RestrictionTypeDto getRestrictionTypeDto(AssignmentRestrictionType restrictionType) {
         return new RestrictionTypeDto(restrictionType.ordinal(), restrictionType.name());
+    }
+
+    private AssignmentTypeDto getAssignmentTypeDto(AssignmentType assignmentType) {
+        return new AssignmentTypeDto(assignmentType.ordinal(), assignmentType.name());
     }
 }

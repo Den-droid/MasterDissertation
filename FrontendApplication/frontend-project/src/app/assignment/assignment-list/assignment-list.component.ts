@@ -160,7 +160,7 @@ export class AssignmentListComponent {
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
-        let dto = new RestrictionDto(value.restrictionType, null, null, null, id,
+        let dto = new RestrictionDto(value.restrictionType, null, null, null, id, null,
           value.attemptsRemaining, value.minutesForAttempt, value.deadline);
         this.restrictionService.setRestriction(dto).subscribe({
           complete: () => {
@@ -212,36 +212,36 @@ export class AssignmentListComponent {
   }
 
   isAssignedStatus(assignment: UserAssignmentDto) {
-    return assignment.status === AssignmentStatus.ASSIGNED;
+    return assignment.status.status == AssignmentStatus.ASSIGNED;
   }
 
   isInProgressStatus(assignment: UserAssignmentDto) {
-    return assignment.status === AssignmentStatus.ACTIVE
+    return assignment.status.status == AssignmentStatus.ACTIVE
   }
 
   getAssignmentStatusString(assignment: UserAssignmentDto) {
-    let key = AssignmentStatus[assignment.status] as keyof typeof AssignmentStatusLabel;
+    let key = AssignmentStatus[assignment.status.status] as keyof typeof AssignmentStatusLabel;
     return AssignmentStatusLabel[key];
   }
 
   updateActiveAssignments() {
-    this.activeAssignments = this.assignments.filter(a => a.status !== AssignmentStatus.FINISHED);
+    this.activeAssignments = this.assignments.filter(a => a.status.status != AssignmentStatus.FINISHED);
   }
 
   updateFinishedAssignments() {
-    this.finishedAssignments = this.assignments.filter(a => a.status === AssignmentStatus.FINISHED);
+    this.finishedAssignments = this.assignments.filter(a => a.status.status == AssignmentStatus.FINISHED);
   }
 
   isRestrictionNAttempts(assignment: UserAssignmentDto) {
-    return assignment.restrictionType === AssignmentRestrictionType.N_ATTEMPTS
+    return assignment.restrictionType.type == AssignmentRestrictionType.N_ATTEMPTS
   }
 
   isRestrictionDeadline(assignment: UserAssignmentDto) {
-    return assignment.restrictionType === AssignmentRestrictionType.DEADLINE
+    return assignment.restrictionType.type == AssignmentRestrictionType.DEADLINE
   }
 
   isRestrictionAttemptInNMinutes(assignment: UserAssignmentDto) {
-    return assignment.restrictionType === AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES
+    return assignment.restrictionType.type == AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES
   }
 
   isNextAttemptTimeAfterNow(assignment: UserAssignmentDto) {

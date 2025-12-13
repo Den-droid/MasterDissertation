@@ -212,7 +212,7 @@ export class FunctionListComponent implements OnInit {
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
-        let dto = new DefaultRestrictionDto(null, value.restrictionType, null, null, id,
+        let dto = new DefaultRestrictionDto(null, value.restrictionType, null, null, id, null,
           value.attemptsRemaining, value.minutesForAttempt, value.deadline);
         this.restrictionService.setDefaultRestriction(dto).subscribe({
           complete: () => {
@@ -235,7 +235,7 @@ export class FunctionListComponent implements OnInit {
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
-        let dto = new RestrictionDto(value.restrictionType, null, null, id, null,
+        let dto = new RestrictionDto(value.restrictionType, null, null, id, null, null,
           value.attemptsRemaining, value.minutesForAttempt, value.deadline);
         this.restrictionService.setRestriction(dto).subscribe({
           complete: () => {

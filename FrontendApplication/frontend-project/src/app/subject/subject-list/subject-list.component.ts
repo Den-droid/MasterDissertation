@@ -198,7 +198,7 @@ export class SubjectListComponent implements OnInit {
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
-        let dto = new DefaultRestrictionDto(null, value.restrictionType, null, id, null,
+        let dto = new DefaultRestrictionDto(null, value.restrictionType, null, id, null, null,
           value.attemptsRemaining, value.minutesForAttempt, value.deadline);
         this.restrictionService.setDefaultRestriction(dto).subscribe({
           complete: () => {
@@ -221,7 +221,7 @@ export class SubjectListComponent implements OnInit {
 
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
-        let dto = new RestrictionDto(value.restrictionType, null, id, null, null,
+        let dto = new RestrictionDto(value.restrictionType, null, id, null, null, null,
           value.attemptsRemaining, value.minutesForAttempt, value.deadline);
         this.restrictionService.setRestriction(dto).subscribe({
           complete: () => {

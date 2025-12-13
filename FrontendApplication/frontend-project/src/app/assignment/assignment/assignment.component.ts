@@ -69,7 +69,7 @@ export class AssignmentComponent {
           this.variables.push(this.fb.control('', [Validators.required, Validators.pattern(/^-?\d+(\.\d+)?$/)]));
         }
 
-        if (this.assignmentDto.status === AssignmentStatus.FINISHED) {
+        if (this.assignmentDto.status.status == AssignmentStatus.FINISHED) {
           this.isAnswersMode = true;
         } else {
           if (this.isRestrictionAttemptInNMinutes()) {
@@ -93,7 +93,7 @@ export class AssignmentComponent {
       next: (answerDtos: AnswerDto[]) => {
         this.previousAnswersDto = answerDtos;
         if (this.previousAnswersDto.length > 0) {
-          this.assignmentResponseDto = new AssignmentResponseDto(this.previousAnswersDto[0].result,
+          this.assignmentResponseDto = new AssignmentResponseDto(this.previousAnswersDto[0].result, false,
             this.previousAnswersDto[0].isCorrect, this.assignmentDto.restrictionType,
             this.assignmentDto.attemptsRemaining, this.assignmentDto.deadline, this.assignmentDto.nextAttemptTime);
         }
@@ -178,15 +178,15 @@ export class AssignmentComponent {
   }
 
   isRestrictionNAttempts() {
-    return this.assignmentDto.restrictionType === AssignmentRestrictionType.N_ATTEMPTS
+    return this.assignmentDto.restrictionType.type == AssignmentRestrictionType.N_ATTEMPTS
   }
 
   isRestrictionDeadline() {
-    return this.assignmentDto.restrictionType === AssignmentRestrictionType.DEADLINE
+    return this.assignmentDto.restrictionType.type == AssignmentRestrictionType.DEADLINE
   }
 
   isRestrictionAttemptInNMinutes() {
-    return this.assignmentDto.restrictionType === AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES
+    return this.assignmentDto.restrictionType.type == AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES
   }
 
   isNoAttemptsLeft() {
