@@ -76,7 +76,7 @@ export class AssignmentListComponent {
   }
 
   getAssignmentsFunctions() {
-    let ids = this.assignments.map(a => a.id);
+    let ids = [...this.assignments.map(a => a.id)];
     this.functionService.getByAssignmentIds(ids).subscribe({
       next: (dto: AssignmentFunctionDto[]) => {
         let getFunction = (userAssignment: UserAssignmentDto) => {

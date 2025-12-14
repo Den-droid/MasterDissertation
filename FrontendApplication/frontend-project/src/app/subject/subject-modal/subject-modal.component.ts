@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
-import { subjectLabels } from '../../shared/translations/subject.translation';
 import { ActionType } from '../../shared/constants/action-type';
 import { AddSubjectDto, SubjectDto, UpdateSubjectDto } from '../../shared/models/subject.model';
 import { UniversityDto } from '../../shared/models/university.model';
+import { validationMessages } from '../../shared/translations/common.translation';
 import { universityLabels } from '../../shared/translations/university.translation';
 
 @Component({
@@ -37,7 +37,7 @@ export class SubjectModalComponent {
 
   @Output() saveAttempt = new EventEmitter();
 
-  subjectRequiredMessage = subjectLabels['name-required'];
+  subjectRequiredMessage = validationMessages['name-required'];
   universityRequiredMessage = universityLabels['selection-required'];
   errorMessage!: string;
 

@@ -23,8 +23,16 @@ export class FunctionService {
         return this.httpClient.get<FunctionDto>(`${this.url}/${id}`);
     }
 
-    getByAssignmentIds(userAssignmentIds: number[]): Observable<AssignmentFunctionDto[]> {
-        const params = new HttpParams().appendAll({ userAssignmentIds })
+    getByAssignmentIds(userAssignmentIds: number[]) {
+        let params = new HttpParams();
+
+        if (userAssignmentIds.length > 0) {
+            userAssignmentIds.forEach(id => {
+                params = params.append('userAssignmentIds', id.toString());
+            });
+        } else {
+            params = params.append('userAssignmentIds', '');
+        }
         return this.httpClient.get<AssignmentFunctionDto[]>(`${this.url}/getByAssignmentIds`, { params });
     }
 

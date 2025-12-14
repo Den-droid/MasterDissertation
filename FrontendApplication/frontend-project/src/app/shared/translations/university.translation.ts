@@ -1,6 +1,5 @@
 export const universityLabels = {
     "selection-required": "Університет є обов'язковим",
-    "name-required": "Назва є обов'язковою"
 }
 
 export const universityPageTitles = {

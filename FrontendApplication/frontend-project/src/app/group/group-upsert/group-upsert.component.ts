@@ -12,6 +12,7 @@ import { AddGroupDto, GroupDto, GroupStudentDto, GroupSubjectDto, UpdateGroupDto
 import { IdDto } from "../../shared/models/common.model";
 import { UserService } from "../../shared/services/user.service";
 import { SubjectService } from "../../shared/services/subject.service";
+import { validationMessages } from "../../shared/translations/common.translation";
 
 @Component({
     selector: 'app-group-upsert',
@@ -38,7 +39,7 @@ export class GroupUpsertComponent implements OnInit {
     showError: boolean = false;
     errorMessage = '';
 
-    groupNameRequiredMessage = groupLabels["name-required"];
+    groupNameRequiredMessage = validationMessages["name-required"];
     atLeastOneStudentMessage = groupLabels["at-least-one-student"];
     atLeastOneSubjectMessage = groupLabels["at-least-one-subject"];
 

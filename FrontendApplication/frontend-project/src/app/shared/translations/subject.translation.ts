@@ -1,8 +1,3 @@
-export const subjectLabels = {
-    "selection-required": "Університет є обов'язковим",
-    "name-required": "Назва є обов'язковою"
-}
-
 export const subjectPageTitles = {
     "subjects": "Предмети"
 }

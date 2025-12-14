@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { universityLabels } from '../../shared/translations/university.translation';
 import { Subject } from 'rxjs';
+import { validationMessages } from '../../shared/translations/common.translation';
 
 @Component({
   selector: 'app-university-modal',
@@ -22,7 +22,7 @@ export class UniversityModalComponent {
 
   @Output() saveAttempt = new EventEmitter<string>();
 
-  requiredMessage = universityLabels['name-required'];
+  requiredMessage = validationMessages['name-required'];
   errorMessage!: string;
 
   form!: FormGroup;

@@ -130,7 +130,7 @@ a.sidebar-link:hover {
   display: none;
 }
 
-#sidebar:not(.expand) .sidebar-item:hover .has-dropdown + .sidebar-dropdown {
+#sidebar:not(.expand) .sidebar-item:hover .has-dropdown+.sidebar-dropdown {
   display: block;
   max-height: 15em;
   width: 100%;
@@ -178,4 +178,23 @@ td {
 
 .border-content {
   border: 2px solid lightblue;
+}
+
+.maze-start-point-cell {
+  background-color: green !important;
+}
+
+.maze-end-point-cell {
+  background-color: red !important;
+}
+
+.maze-wall-cell {
+  background-color: grey !important;
+}
+
+.maze-cell {
+  border: solid 2px black;
+  width: 3rem;
+  height: 3rem;
+  background-color: khaki;
 }

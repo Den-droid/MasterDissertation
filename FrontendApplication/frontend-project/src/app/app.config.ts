@@ -17,6 +17,7 @@ import { AssignmentsComponent } from './assignment/assignments.component';
 import { SubjectComponent } from './subject/subject.component';
 import { GroupComponent } from './group/group.component';
 import { teacherGuard } from './shared/guards/teacher.guard';
+import { MazeComponent } from './maze/maze.component';
 
 const routes: Routes = [
   {
@@ -77,6 +78,11 @@ const routes: Routes = [
     path: "groups", component: GroupComponent,
     loadChildren: () => import('./group/group.module').then(m => m.GroupModule),
     canActivate: [teacherGuard]
+  },
+  {
+    path: "mazes", component: MazeComponent,
+    loadChildren: () => import('./maze/maze.module').then(m => m.MazeModule),
+    canActivate: [adminTeacherGuard]
   },
   { path: '**', redirectTo: '/error/404', pathMatch: 'full' }
 ]

@@ -1,0 +1,111 @@
+<div class="main-content">
+    <div class="card p-4 shadow-sm">
+        <h2 class="text-center mb-4">
+            {{pageTitle}}
+        </h2>
+
+        <form [formGroup]="form">
+            <div class="mb-3">
+                <label for="name" class="form-label">Назва</label>
+                <input type="text" id="name" class="form-control" formControlName="name" />
+                @if (f['name'].errors?.['required'] && (f['name'].touched || f['name'].dirty)) {
+                <div class="text-danger mt-1">{{ nameRequiredMessage }}</div>
+                }
+            </div>
+
+            <div class="mb-3">
+                <label for="university" class="form-label">Університет</label>
+                <select id="university" class="form-select" formControlName="university">
+                    @for(university of universities; track university) {
+                    <option [value]="university.id">{{university.name}}</option>
+                    }
+                </select>
+                @if (f['university'].errors?.['required'] && (f['university'].touched || f['university'].dirty)) {
+                <div class="text-danger mt-1">{{universityRequiredMessage}}</div>
+                }
+            </div>
+
+            <div class="row g-1 mb-3">
+                <div class="col-md-3">
+                    <label for="width" class="form-label">Ширина</label>
+                    <select id="width" class="form-select" formControlName="width">
+                        @for(width of createRange(20); track width) {
+                        <option [value]="width">{{width}}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 ms-3">
+                    <label for="height" class="form-label">Висота</label>
+                    <select id="height" class="form-select" formControlName="height">
+                        @for(height of createRange(20); track height) {
+                        <option [value]="height">{{height}}</option>
+                        }
+                    </select>
+                </div>
+                <button type="button" class="btn btn-warning ms-3 col-md-3" (click)="generateTemplate()">
+                    Згенерувати лабіринт
+                </button>
+            </div>
+            @if((f['width'].value < 1 || f['height'].value < 1) && saveButtonClicked && (((f['width'].touched || f['width'].dirty) &&
+                (f['height'].touched || f['height'].dirty)) || generateButtonClicked)){ <div class="text-danger mb-3">
+                {{widthHeightRequiredMessage}}
+    </div>
+    }
+
+    @if(generateButtonClicked && this.walls.length > 0){
+    <div class="mb-3 d-flex justify-content-center">
+        <table>
+            @for(column of createRange(height); track column){
+            <tr>
+                @for(row of createRange(width); track row){
+                <td (click)="clickCell(column - 1, row - 1)" class="maze-cell" [ngClass]="{
+                            'maze-start-point-cell': isStartCell(column - 1, row - 1),
+                            'maze-end-point-cell': isEndCell(column - 1, row - 1),
+                            'maze-wall-cell': isWallCell(column - 1, row - 1)
+                        }"></td>
+                }
+            </tr>
+            }
+        </table>
+    </div>
+    }
+
+    <div class="row g-1 mb-3">
+        <button type="button" class="btn btn-warning col-md-3" (click)="toggleAddStartPointMode()"
+            [disabled]="isAddStartPointButtonDisabled()">
+            Режим додавання точки старту
+        </button>
+        <button type="button" class="btn btn-warning ms-3 col-md-3" (click)="toggleEndStartPointMode()"
+            [disabled]="isAddEndPointButtonDisabled()">
+            Режим додавання точки кінця
+        </button>
+        <button type="button" class="btn btn-danger ms-3 col-md-3" (click)="clearSelection()"
+            [disabled]="isClearSelectionButtonDisabled()">
+            Стерти всі вибрані точки
+        </button>
+    </div>
+
+    @if(showError){
+    <div class="text-danger mb-3">
+        {{errorMessage}}
+    </div>
+    }
+
+    @if(showServerError){
+    <div class="alert alert-danger mb-3">
+        {{serverErrorMessage}}
+    </div>
+    }
+
+    <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+            <i class="fa-solid fa-arrow-left me-1"></i> Назад
+        </button>
+
+        <button type="button" class="btn btn-primary" (click)="save()">
+            Зберегти
+        </button>
+    </div>
+    </form>
+</div>
+</div>
