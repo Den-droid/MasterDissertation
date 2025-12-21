@@ -1,5 +1,3 @@
-import { MethodType } from "../constants/method-type.constant";
-
 export class UrlDto {
   constructor(
     public id: number,

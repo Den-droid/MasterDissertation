@@ -161,6 +161,7 @@ export class UniversityListComponent implements OnInit {
       next: (dto: ReadableDefaultRestrictionDto[]) => {
         if (dto.length > 0)
           if (dto[0].universityId == null) {
+            modalRef.componentInstance.isInputRestrictionTypeDifferent = true;
             modalRef.componentInstance.inputRestritionTypeLevel = DefaultRestrictionLevel.DEFAULT;
           }
         modalRef.componentInstance.inputValue = new ModalRestrictionDto(dto[0].restrictionType.type,

@@ -117,7 +117,7 @@ export class GroupListComponent implements OnInit {
           keyboard: false
         });
 
-        modalRef.componentInstance.content = error.error.message;
+        modalRef.componentInstance.content = [error.error.message];
         modalRef.componentInstance.title = modalText['failure-header'];
       },
       complete: () => {
@@ -127,7 +127,7 @@ export class GroupListComponent implements OnInit {
           keyboard: false
         });
 
-        modalRef.componentInstance.content = groupModals['assign-to-group-text'];
+        modalRef.componentInstance.content = [groupModals['assign-to-group-text']];
         modalRef.componentInstance.title = modalText['success-header'];
       }
     });
@@ -142,7 +142,7 @@ export class GroupListComponent implements OnInit {
           keyboard: false
         });
 
-        modalRef.componentInstance.content = error.error.message;
+        modalRef.componentInstance.content = [error.error.message];
         modalRef.componentInstance.title = modalText['failure-header'];
       },
       complete: () => {
@@ -152,7 +152,7 @@ export class GroupListComponent implements OnInit {
           keyboard: false
         });
 
-        modalRef.componentInstance.content = groupModals['assign-to-group-text'];
+        modalRef.componentInstance.content = [groupModals['assign-to-group-text']];
         modalRef.componentInstance.title = modalText['success-header'];
       }
     });

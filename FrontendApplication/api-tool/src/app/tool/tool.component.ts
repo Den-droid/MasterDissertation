@@ -1,20 +1,20 @@
+import { JsonPipe } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { debounceTime } from 'rxjs';
+import { FieldType, mapFieldTypeToLabel } from '../shared/constants/field-type.constant';
+import { mapMethodTypeToLabel, MethodType } from '../shared/constants/method-type.constant';
+import { FieldDto } from '../shared/models/field.model';
+import { MethodTypeDto, UrlDto } from '../shared/models/url.model';
+import { ApiService } from '../shared/services/api.service';
+import { AuthService } from '../shared/services/auth.service';
 import { FieldService } from '../shared/services/field.service';
 import { UrlService } from '../shared/services/url.service';
-import { ApiService } from '../shared/services/api.service';
-import { MethodTypeDto, UrlDto } from '../shared/models/url.model';
-import { FieldDto } from '../shared/models/field.model';
-import { FieldType, mapFieldTypeToLabel } from '../shared/constants/field-type.constant';
+import { toolErrorLabels } from '../shared/translations/tool.translation';
 import { datetimeValidator } from '../shared/validators/datetime.validator';
 import { decimalValidator, integerValidator } from '../shared/validators/number.validator';
-import { mapMethodTypeToLabel, MethodType } from '../shared/constants/method-type.constant';
-import { debounceTime } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
-import { JsonPipe } from '@angular/common';
-import { toolErrorLabels } from '../shared/translations/tool.translation';
-import { AuthService } from '../shared/services/auth.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tool',

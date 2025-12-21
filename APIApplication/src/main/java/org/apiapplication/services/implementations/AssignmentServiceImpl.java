@@ -112,9 +112,16 @@ public class AssignmentServiceImpl implements AssignmentService {
                     }
 
                     Assignment assignment = userAssignment.getAssignment();
+                    String hint = assignment.getText();
+
+                    if (assignment.getAssignmentType().equals(AssignmentType.MAZE)) {
+                        Maze maze = userAssignment.getMaze();
+                        int width = maze.getWidth(), height = maze.getHeight();
+                        hint += String.format(". Розмір лабіринту: %d x %d", width, height);
+                    }
 
                     return new UserAssignmentDto(userAssignment.getId(),
-                            assignment.getText(),
+                            hint,
                             getAssignmentStatusDto(userAssignment.getStatus()),
                             getRestrictionTypeDto(userAssignment.getRestrictionType()),
                             getAssignmentTypeDto(userAssignment.getAssignment().getAssignmentType()),
@@ -583,9 +590,9 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     private void checkRestrictionsAfterAnswer(UserAssignment userAssignment) {
-        if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.N_ATTEMPTS) &&
-                userAssignment.getAttemptsRemaining() == 0) {
-            throw new AttemptsNotLeftException();
+        if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.N_ATTEMPTS)) {
+            if (userAssignment.getAttemptsRemaining() == 0)
+                throw new AttemptsNotLeftException();
         } else {
             if (userAssignment.getDeadline().isBefore(LocalDateTime.now()))
                 throw new AttemptAfterDeadlineException(userAssignment.getDeadline());
