@@ -41,8 +41,7 @@ public class UserAssignment {
     private boolean hasCorrectAnswer;
 
     private int attemptsRemaining;
-    private LocalDateTime lastAttemptTime;
-    private int minutesForAttempt;
+    private int minutesToDo;
     private LocalDateTime deadline;
 
     @OneToMany(mappedBy = "userAssignment")

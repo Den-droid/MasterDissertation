@@ -49,6 +49,7 @@ public class UrlServiceImpl implements UrlService {
             Url neededUrl = null;
 
             urls = urls.stream()
+                    .filter(u -> u.getRoles().contains(role))
                     .sorted((u1, u2) -> Comparator.comparing(Url::getUrl).compare(u1, u2))
                     .toList();
 
@@ -68,6 +69,13 @@ public class UrlServiceImpl implements UrlService {
                                 .findFirst().get().name());
             }
         }
+    }
+
+    @Override
+    public List<MethodTypeDto> getMethods() {
+        return Arrays.stream(MethodType.values())
+                .map(mt -> new MethodTypeDto(mt.ordinal(), mt.name()))
+                .toList();
     }
 
     private UrlDto getUrlDtoFromUrl(Url url) {

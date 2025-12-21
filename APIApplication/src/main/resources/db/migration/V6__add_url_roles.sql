@@ -4,7 +4,6 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
         (select id from urls where url = '/api/assignments/{userAssignmentId}')),
        ((select id from roles where name = 'ADMIN'),
         (select id from urls where url = '/api/assignments/{userAssignmentId}/answers')),
-       ((select id from roles where name = 'ADMIN'), (select id from urls where url = '/api/fields')),
        ((select id from roles where name = 'ADMIN'),
         (select id from urls where url = '/api/assignments/{userAssignmentId}/marks')),
        ((select id from roles where name = 'ADMIN'), (select id
@@ -23,7 +22,6 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
                                                       from urls
                                                       where url = '/api/universities'
                                                         and method = 1)),
-       ((select id from roles where name = 'ADMIN'), (select id from urls where url = '/api/urls')),
        ((select id from roles where name = 'ADMIN'), (select id
                                                       from urls
                                                       where url = '/api/functions'
@@ -112,7 +110,6 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
         (select id from urls where url = '/api/assignments/{userAssignmentId}')),
        ((select id from roles where name = 'TEACHER'),
         (select id from urls where url = '/api/assignments/{userAssignmentId}/answers')),
-       ((select id from roles where name = 'TEACHER'), (select id from urls where url = '/api/fields')),
        ((select id from roles where name = 'TEACHER'),
         (select id from urls where url = '/api/assignments/{userAssignmentId}/putMark')),
        ((select id from roles where name = 'TEACHER'),
@@ -125,7 +122,6 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
                                                         from urls
                                                         where url = '/api/subjects'
                                                           and method = 1)),
-       ((select id from roles where name = 'TEACHER'), (select id from urls where url = '/api/urls')),
        ((select id from roles where name = 'TEACHER'), (select id
                                                         from urls
                                                         where url = '/api/functions'
@@ -220,7 +216,7 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
        ((select id
          from roles
          where name = 'STUDENT'),
-        (select id from urls where url = '/api/assignments/{userAssignmentId}/startContinue'))
+        (select id from urls where url = '/api/assignments/{userAssignmentId}/start'))
         ,
        ((select id
          from roles
@@ -234,13 +230,9 @@ values ((select id from roles where name = 'ADMIN'), (select id from urls where 
          from roles
          where name = 'STUDENT'), (select id from urls where url = '/api/assignments/{userAssignmentId}/answers'))
         ,
-       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/fields'))
-        ,
        ((select id
          from roles
          where name = 'STUDENT'), (select id from urls where url = '/api/assignments/{userAssignmentId}/marks'))
-        ,
-       ((select id from roles where name = 'STUDENT'), (select id from urls where url = '/api/urls'))
         ,
        ((select id
          from roles

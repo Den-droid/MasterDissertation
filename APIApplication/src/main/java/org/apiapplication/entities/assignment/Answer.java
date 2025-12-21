@@ -19,5 +19,5 @@ public class Answer {
     private int answerNumber;
     private boolean isCorrect;
     private boolean isWall;
-    private double result;
+    private String result;
 }

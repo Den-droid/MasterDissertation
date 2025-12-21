@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { baseUrl } from "../constants/url.constant";
 import { Observable } from "rxjs";
-import { DefaultRestrictionDto, RestrictionDto, RestrictionTypeDto } from "../models/restriction.model";
+import { DefaultRestrictionDto, ReadableDefaultRestrictionDto, ReadableRestrictionDto, RestrictionDto, RestrictionTypeDto } from "../models/restriction.model";
 
 @Injectable({
     providedIn: 'root'
@@ -17,28 +17,28 @@ export class AssignmentRestrictionService {
         return this.httpClient.get<RestrictionTypeDto[]>(`${this.url}/restrictionTypes`);
     }
 
-    getCurrent(userAssignmentId: number): Observable<RestrictionDto> {
+    getCurrent(userAssignmentId: number): Observable<ReadableRestrictionDto> {
         let params = new HttpParams()
             .set('userAssignmentId', userAssignmentId)
-        return this.httpClient.get<RestrictionDto>(`${this.url}`, { params });
+        return this.httpClient.get<ReadableRestrictionDto>(`${this.url}`, { params });
     }
 
-    getDefaultForUniversity(universityId: number): Observable<DefaultRestrictionDto[]> {
+    getDefaultForUniversity(universityId: number): Observable<ReadableDefaultRestrictionDto[]> {
         let params = new HttpParams()
             .set('universityId', universityId)
-        return this.httpClient.get<DefaultRestrictionDto[]>(`${this.url}/defaultRestrictions`, { params });
+        return this.httpClient.get<ReadableDefaultRestrictionDto[]>(`${this.url}/defaultRestrictions`, { params });
     }
 
-    getDefaultForSubject(subjectId: number): Observable<DefaultRestrictionDto[]> {
+    getDefaultForSubject(subjectId: number): Observable<ReadableDefaultRestrictionDto[]> {
         let params = new HttpParams()
             .set('subjectId', subjectId)
-        return this.httpClient.get<DefaultRestrictionDto[]>(`${this.url}/defaultRestrictions`, { params });
+        return this.httpClient.get<ReadableDefaultRestrictionDto[]>(`${this.url}/defaultRestrictions`, { params });
     }
 
-    getDefaultForFunction(functionId: number): Observable<DefaultRestrictionDto[]> {
+    getDefaultForFunction(functionId: number): Observable<ReadableDefaultRestrictionDto[]> {
         let params = new HttpParams()
             .set('functionId', functionId)
-        return this.httpClient.get<DefaultRestrictionDto[]>(`${this.url}/defaultRestrictions`, { params });
+        return this.httpClient.get<ReadableDefaultRestrictionDto[]>(`${this.url}/defaultRestrictions`, { params });
     }
 
     setDefaultRestriction(defaultRestrictionDto: DefaultRestrictionDto): Observable<any> {

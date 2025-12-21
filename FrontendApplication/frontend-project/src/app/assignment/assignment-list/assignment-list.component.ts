@@ -10,7 +10,7 @@ import { RoleName } from '../../shared/constants/roles.constant';
 import { RestrictionModalComponent } from '../../shared/modals/restriction/restriction-modal.component';
 import { AssignFunctionDto, AssignmentFunctionDto, mapToUserAssignmentWithFunctionDto, UserAssignmentDto, UserAssignmentWithFunctionDto } from '../../shared/models/assignment.model';
 import { MarkDto, MarkModalDto } from '../../shared/models/mark.model';
-import { ModalRestrictionDto, RestrictionDto } from '../../shared/models/restriction.model';
+import { ModalRestrictionDto, ReadableRestrictionDto, RestrictionDto } from '../../shared/models/restriction.model';
 import { SubjectDto } from '../../shared/models/subject.model';
 import { AssignmentRestrictionService } from '../../shared/services/assignment-restriction.service';
 import { AssignmentService } from '../../shared/services/assignment.service';
@@ -60,6 +60,8 @@ export class AssignmentListComponent {
   getAssignmentsByUserId() {
     this.assignmentService.get().subscribe({
       next: (userAssignmentDtos: UserAssignmentDto[]) => {
+        console.log(userAssignmentDtos)
+
         this.assignments = [];
         for (const userAssignmentDto of userAssignmentDtos) {
           let userAssignment = mapToUserAssignmentWithFunctionDto(userAssignmentDto);
@@ -147,9 +149,9 @@ export class AssignmentListComponent {
     });
 
     this.restrictionService.getCurrent(id).subscribe({
-      next: (dto: RestrictionDto) => {
-        modalRef.componentInstance.inputValue = new ModalRestrictionDto(dto.restrictionType,
-          dto.attemptsRemaining, dto.minutesForAttempt, dto.deadline);
+      next: (dto: ReadableRestrictionDto) => {
+        modalRef.componentInstance.inputValue = new ModalRestrictionDto(dto.restrictionType.type,
+          dto.attemptsRemaining, dto.minutesToDo, dto.deadline);
       }
     })
 
@@ -161,7 +163,7 @@ export class AssignmentListComponent {
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
         let dto = new RestrictionDto(value.restrictionType, null, null, null, id, null,
-          value.attemptsRemaining, value.minutesForAttempt, value.deadline);
+          value.attemptsRemaining, value.minutesToDo, value.deadline);
         this.restrictionService.setRestriction(dto).subscribe({
           complete: () => {
             modalRef.close();
@@ -240,12 +242,8 @@ export class AssignmentListComponent {
     return assignment.restrictionType.type == AssignmentRestrictionType.DEADLINE
   }
 
-  isRestrictionAttemptInNMinutes(assignment: UserAssignmentDto) {
-    return assignment.restrictionType.type == AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES
-  }
-
-  isNextAttemptTimeAfterNow(assignment: UserAssignmentDto) {
-    return new Date(assignment.nextAttemptTime).getTime() >= new Date().getTime()
+  isRestrictionNMinutes(assignment: UserAssignmentDto) {
+    return assignment.restrictionType.type == AssignmentRestrictionType.N_MINUTES
   }
 
   isAdmin() {

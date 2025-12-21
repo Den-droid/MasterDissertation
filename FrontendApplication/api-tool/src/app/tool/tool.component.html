@@ -23,7 +23,7 @@
       <div class="d-flex gap-2 align-items-center mb-2">
         <select class="form-select" style="width: 10%;" formControlName="method">
           @for(method of methods; track method){
-          <option [label]="method.label" [value]="method.method"></option>
+          <option [label]="method.name" [value]="method.method"></option>
           }
         </select>
         <input type="text" class="form-control flex-grow-1" placeholder="Введіть запит" formControlName="url" />
@@ -135,7 +135,7 @@
     <ul class="list-group list-group-flush">
       @for(possibleUrl of filteredPossibleUrls; track possibleUrl){
       <li class="list-group-item">
-        <strong>{{getMethodTypeLabel(possibleUrl.method)}} {{possibleUrl.url}}</strong>
+        <strong>{{getMethodTypeLabel(possibleUrl.method.method)}} {{possibleUrl.url}}</strong>
         <div style="font-size: 0.9rem; color: #555;">{{possibleUrl.description}}</div>
       </li>
       }

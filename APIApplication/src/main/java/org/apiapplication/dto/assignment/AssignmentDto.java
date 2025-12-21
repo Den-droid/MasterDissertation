@@ -6,6 +6,5 @@ import java.time.LocalDateTime;
 
 public record AssignmentDto(String hint, int variablesCount, AssignmentStatusDto assignmentStatus,
                             RestrictionTypeDto restrictionType,
-                            int attemptsRemaining, LocalDateTime deadline,
-                            LocalDateTime nextAttemptTime) {
+                            int attemptsRemaining, LocalDateTime deadline, int minutesToDo) {
 }

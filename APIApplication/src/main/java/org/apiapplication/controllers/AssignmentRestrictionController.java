@@ -1,9 +1,6 @@
 package org.apiapplication.controllers;
 
-import org.apiapplication.dto.restriction.DefaultRestrictionDto;
-import org.apiapplication.dto.restriction.ReadableDefaultRestrictionDto;
-import org.apiapplication.dto.restriction.ReadableRestrictionDto;
-import org.apiapplication.dto.restriction.RestrictionDto;
+import org.apiapplication.dto.restriction.*;
 import org.apiapplication.services.interfaces.AssignmentRestrictionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,5 +48,11 @@ public class AssignmentRestrictionController {
     public ResponseEntity<?> setRestriction(@RequestBody RestrictionDto restrictionDto) {
         assignmentRestrictionService.setRestriction(restrictionDto);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/restrictionTypes")
+    public ResponseEntity<List<RestrictionTypeDto>> getRestrictionTypes() {
+        List<RestrictionTypeDto> restrictionTypes = assignmentRestrictionService.getRestrictionTypes();
+        return ResponseEntity.ok(restrictionTypes);
     }
 }

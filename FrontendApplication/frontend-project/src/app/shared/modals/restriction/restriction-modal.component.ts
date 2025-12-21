@@ -1,15 +1,14 @@
-import { Component, EventEmitter, input, Input, Output } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Subject } from 'rxjs';
-import { ModalRestrictionDto, RestrictionTypeDto } from '../../models/restriction.model';
 import { AssignmentRestrictionType, AssignmentRestrictionTypeLabel } from '../../constants/assignment-restriction-type';
-import { integerValidator } from '../../validators/number.validator';
-import { datetimeValidator } from '../../validators/datetime.validator';
+import { DefaultRestrictionLevel, DefaultRestrictionLevelLabel } from '../../constants/default-restriction-level.constant';
+import { ModalRestrictionDto, RestrictionTypeDto } from '../../models/restriction.model';
 import { AssignmentRestrictionService } from '../../services/assignment-restriction.service';
 import { validationMessages } from '../../translations/common.translation';
 import { restrictionValidation } from '../../translations/restriction.translation';
-import { DefaultRestrictionLevel, DefaultRestrictionLevelLabel } from '../../constants/default-restriction-level.constant';
+import { datetimeValidator } from '../../validators/datetime.validator';
+import { integerValidator } from '../../validators/number.validator';
 
 @Component({
   selector: 'app-restriction-modal',
@@ -34,11 +33,11 @@ export class RestrictionModalComponent {
             [Validators.required, integerValidator()]));
           this.form.get('attemptsRemaining')?.setValue(val.attemptsRemaining);
         }
-        else if (val.restrictionType == AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES) {
-          this.form.get('restrictionType')?.setValue(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
-          this.form.addControl('minutesForAttempt', new FormControl(0,
+        else if (val.restrictionType == AssignmentRestrictionType.N_MINUTES) {
+          this.form.get('restrictionType')?.setValue(AssignmentRestrictionType.N_MINUTES);
+          this.form.addControl('minutesToDo', new FormControl(0,
             [Validators.required, integerValidator()]));
-          this.form.get('minutesForAttempt')?.setValue(val.minutesForAttempt);
+          this.form.get('minutesToDo')?.setValue(val.minutesToDo);
         }
         else {
           this.form.get('restrictionType')?.setValue(AssignmentRestrictionType.DEADLINE);
@@ -76,8 +75,8 @@ export class RestrictionModalComponent {
     this.form.get('restrictionType')?.valueChanges.subscribe(value => {
       if (this.form.get('attemptsRemaining'))
         this.form.removeControl('attemptsRemaining');
-      else if (this.form.get('minutesForAttempt'))
-        this.form.removeControl('minutesForAttempt');
+      else if (this.form.get('minutesToDo'))
+        this.form.removeControl('minutesToDo');
       else if (this.form.get('deadline'))
         this.form.removeControl('deadline');
 
@@ -85,8 +84,8 @@ export class RestrictionModalComponent {
         this.form.addControl('attemptsRemaining', new FormControl('',
           [Validators.required, integerValidator()]));
       }
-      else if (value == AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES) {
-        this.form.addControl('minutesForAttempt', new FormControl('',
+      else if (value == AssignmentRestrictionType.N_MINUTES) {
+        this.form.addControl('minutesToDo', new FormControl('',
           [Validators.required, integerValidator()]));
       }
       else {
@@ -124,8 +123,8 @@ export class RestrictionModalComponent {
       this.saveAttempt.emit(new ModalRestrictionDto(restrictionTypeNumber, Number.parseInt(this.form.value.attemptsRemaining),
         null, null));
     }
-    else if (restrictionTypeNumber == AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES) {
-      this.saveAttempt.emit(new ModalRestrictionDto(restrictionTypeNumber, null, Number.parseInt(this.form.value.minutesForAttempt),
+    else if (restrictionTypeNumber == AssignmentRestrictionType.N_MINUTES) {
+      this.saveAttempt.emit(new ModalRestrictionDto(restrictionTypeNumber, null, Number.parseInt(this.form.value.minutesToDo),
         null));
     }
     else if (restrictionTypeNumber == AssignmentRestrictionType.DEADLINE) {
@@ -151,8 +150,8 @@ export class RestrictionModalComponent {
     return this.form.value.restrictionType == AssignmentRestrictionType.N_ATTEMPTS
   }
 
-  isMinutesForAttempt() {
-    return this.form.value.restrictionType == AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES
+  isMinutesToDo() {
+    return this.form.value.restrictionType == AssignmentRestrictionType.N_MINUTES
   }
 
   isDeadline() {
@@ -163,8 +162,8 @@ export class RestrictionModalComponent {
     return this.defaultRestrictionAnotherLevel.restrictionType == AssignmentRestrictionType.N_ATTEMPTS
   }
 
-  isAnotherLevelRestrictionMinutesForAttempt() {
-    return this.defaultRestrictionAnotherLevel.restrictionType == AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES
+  isAnotherLevelRestrictionMinutesToDo() {
+    return this.defaultRestrictionAnotherLevel.restrictionType == AssignmentRestrictionType.N_MINUTES
   }
 
   isAnotherLevelRestrictionDeadline() {

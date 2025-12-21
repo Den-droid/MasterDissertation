@@ -216,7 +216,7 @@ export class UserPermissionComponent implements OnInit {
                         };
                         this.assignments = dto.map(ua => new UserAssignmentWithFunctionDto(
                             ua.id, ua.hint, ua.status, ua.assignmentType, ua.restrictionType, ua.attemptsRemaining,
-                            ua.deadline, ua.nextAttemptTime, ua.mark, ua.user, getFunction(ua))
+                            ua.deadline, ua.minutesToDo, ua.mark, ua.user, getFunction(ua))
                         );
                         this.filteredAssignments = [...this.assignments];
                     }

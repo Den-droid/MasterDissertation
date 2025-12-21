@@ -18,7 +18,7 @@ public interface AssignmentService {
 
     void assignMazeToGroup(AssignGroupDto assignGroupDto);
 
-    void startContinue(int userAssignmentId);
+    void start(int userAssignmentId);
 
     void finish(int userAssignmentId);
 

@@ -19,23 +19,11 @@
           {{assignmentDto.attemptsRemaining}}
         </span>
         }
-        @if(assignmentDto && isRestrictionDeadline()){
+        @if(assignmentDto && (isRestrictionDeadline() || isRestrictionNMinutes())){
         <i class="fa-solid fa-calendar-alt me-2"></i>
         Дедлайн надсилання відповідей:
         <span class="fw-bold">
           {{assignmentDto.deadline | date: 'dd.MM.yyyy hh:mm:ss'}}
-        </span>
-        }
-        @if(assignmentDto && isRestrictionAttemptInNMinutes()){
-        <i class="fa-solid fa-redo me-2"></i>
-        Наступна відповідь може бути надіслана:
-        <span class="fw-bold">
-          @if(isNextAttemptTimeAfterNow()){
-          {{assignmentDto.nextAttemptTime | date: 'dd.MM.yyyy hh:mm:ss'}}
-          }
-          @else {
-          зараз
-          }
         </span>
         }
       </p>

@@ -1,9 +1,6 @@
 package org.apiapplication.services.interfaces;
 
-import org.apiapplication.dto.restriction.DefaultRestrictionDto;
-import org.apiapplication.dto.restriction.ReadableDefaultRestrictionDto;
-import org.apiapplication.dto.restriction.ReadableRestrictionDto;
-import org.apiapplication.dto.restriction.RestrictionDto;
+import org.apiapplication.dto.restriction.*;
 import org.apiapplication.entities.Subject;
 import org.apiapplication.entities.University;
 import org.apiapplication.entities.assignment.DefaultAssignmentRestriction;
@@ -29,4 +26,6 @@ public interface AssignmentRestrictionService {
     void setDefaultRestriction(DefaultRestrictionDto restrictionDto);
 
     void setRestriction(RestrictionDto restrictionDto);
+
+    List<RestrictionTypeDto> getRestrictionTypes();
 }

@@ -12,7 +12,8 @@ import { modalText } from '../../shared/translations/common.translation';
 import { RestrictionModalComponent } from '../../shared/modals/restriction/restriction-modal.component';
 import { restrictionModalHeaders } from '../../shared/translations/restriction.translation';
 import { AssignmentRestrictionService } from '../../shared/services/assignment-restriction.service';
-import { RestrictionDto, ModalRestrictionDto, DefaultRestrictionDto } from '../../shared/models/restriction.model';
+import { RestrictionDto, ModalRestrictionDto, DefaultRestrictionDto, ReadableDefaultRestrictionDto } from '../../shared/models/restriction.model';
+import { DefaultRestrictionLevel } from '../../shared/constants/default-restriction-level.constant';
 
 @Component({
   selector: 'app-university-list',
@@ -157,10 +158,13 @@ export class UniversityListComponent implements OnInit {
     });
 
     this.restrictionService.getDefaultForUniversity(id).subscribe({
-      next: (dto: DefaultRestrictionDto[]) => {
+      next: (dto: ReadableDefaultRestrictionDto[]) => {
         if (dto.length > 0)
-          modalRef.componentInstance.inputValue = new ModalRestrictionDto(dto[0].restrictionType,
-            dto[0].attemptsRemaining, dto[0].minutesForAttempt, dto[0].deadline);
+          if (dto[0].universityId == null) {
+            modalRef.componentInstance.inputRestritionTypeLevel = DefaultRestrictionLevel.DEFAULT;
+          }
+        modalRef.componentInstance.inputValue = new ModalRestrictionDto(dto[0].restrictionType.type,
+          dto[0].attemptsRemaining, dto[0].minutesToDo, dto[0].deadline);
       }
     }
     )
@@ -170,7 +174,7 @@ export class UniversityListComponent implements OnInit {
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
         let dto = new DefaultRestrictionDto(null, value.restrictionType, id, null, null, null,
-          value.attemptsRemaining, value.minutesForAttempt, value.deadline);
+          value.attemptsRemaining, value.minutesToDo, value.deadline);
         this.restrictionService.setDefaultRestriction(dto).subscribe({
           complete: () => {
             modalRef.close();
@@ -193,7 +197,7 @@ export class UniversityListComponent implements OnInit {
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
         let dto = new RestrictionDto(value.restrictionType, id, null, null, null, null,
-          value.attemptsRemaining, value.minutesForAttempt, value.deadline);
+          value.attemptsRemaining, value.minutesToDo, value.deadline);
         this.restrictionService.setRestriction(dto).subscribe({
           complete: () => {
             modalRef.close();

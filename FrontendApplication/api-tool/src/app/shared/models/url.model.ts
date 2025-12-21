@@ -5,13 +5,13 @@ export class UrlDto {
     public id: number,
     public url: string,
     public description: string,
-    public method: MethodType
+    public method: MethodTypeDto
   ) { }
 }
 
 export class MethodTypeDto {
   constructor(
     public method: number,
-    public label: string
+    public name: string
   ) { }
 }

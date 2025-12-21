@@ -86,10 +86,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                 getRestrictionTypeDto(userAssignment.getRestrictionType()),
                 userAssignment.getAttemptsRemaining(),
                 userAssignment.getDeadline(),
-                userAssignment.getLastAttemptTime() != null ?
-                        userAssignment.getLastAttemptTime()
-                                .plusMinutes(userAssignment.getMinutesForAttempt())
-                        : LocalDateTime.now()
+                userAssignment.getMinutesToDo()
         );
     }
 
@@ -123,10 +120,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                             getAssignmentTypeDto(userAssignment.getAssignment().getAssignmentType()),
                             userAssignment.getAttemptsRemaining(),
                             userAssignment.getDeadline(),
-                            userAssignment.getLastAttemptTime() != null ?
-                                    userAssignment.getLastAttemptTime()
-                                            .plusMinutes(userAssignment.getMinutesForAttempt())
-                                    : LocalDateTime.now(),
+                            userAssignment.getMinutesToDo(),
                             mark != null ? new MarkDto(mark.getId(), mark.getMark(), mark.getComment())
                                     : null,
                             getUserDto(userAssignment.getUser())
@@ -269,6 +263,9 @@ public class AssignmentServiceImpl implements AssignmentService {
             List<UserAssignment> currentUserAssignments = user.getUserAssignments();
             possibleUserAssignments.removeAll(currentUserAssignments);
 
+            if (possibleUserAssignments.isEmpty())
+                throw new NoAvailableAssignmentsException();
+
             Random random = new Random();
             int possibleFunctionsCount = possibleUserAssignments.size();
             int possibleFunctionIndex = random.nextInt(possibleFunctionsCount);
@@ -289,7 +286,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public void startContinue(int userAssignmentId) {
+    public void start(int userAssignmentId) {
         UserAssignment userAssignment = userAssignmentRepository.findById(userAssignmentId).orElseThrow(
                 () -> new EntityWithIdNotFoundException(EntityName.USER_ASSIGNMENT,
                         String.valueOf(userAssignmentId))
@@ -302,6 +299,11 @@ public class AssignmentServiceImpl implements AssignmentService {
         }
 
         userAssignment.setStatus(AssignmentStatus.ACTIVE);
+
+        if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.N_MINUTES)) {
+            userAssignment.setDeadline(LocalDateTime.now().plusMinutes(userAssignment.getMinutesToDo()));
+        }
+
         userAssignmentRepository.save(userAssignment);
     }
 
@@ -365,7 +367,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             currentUserLocation.setX(startPoint.getX());
             currentUserLocation.setY(startPoint.getY());
         } else {
-            Map<String, Double> lastAnswerString = AnswerParser.parseAnswer(lastAnswer.getAnswer());
+            Map<String, Double> lastAnswerString = AnswerParser.parseAnswer(lastAnswer.getResult());
             currentUserLocation.setX(lastAnswerString.get("x").intValue());
             currentUserLocation.setY(lastAnswerString.get("y").intValue());
         }
@@ -374,10 +376,21 @@ public class AssignmentServiceImpl implements AssignmentService {
         try {
             userNextMoveInt = Integer.parseInt(assignmentAnswerDto.answer());
         } catch (RuntimeException e) {
+            userNextMoveInt = Arrays.stream(Direction.values())
+                    .filter(d -> d.name().equalsIgnoreCase(assignmentAnswerDto.answer()))
+                    .findFirst()
+                    .orElseThrow(AnswerFormatIncorrectException::new)
+                    .ordinal();
+        }
+
+        Direction userNextMove;
+
+        try {
+            userNextMove = Direction.values()[userNextMoveInt];
+        } catch (ArrayIndexOutOfBoundsException e) {
             throw new AnswerFormatIncorrectException();
         }
 
-        Direction userNextMove = Direction.values()[userNextMoveInt];
         switch (userNextMove) {
             case LEFT -> currentUserLocation.setX(currentUserLocation.getX() - 1);
             case RIGHT -> currentUserLocation.setX(currentUserLocation.getX() + 1);
@@ -416,21 +429,30 @@ public class AssignmentServiceImpl implements AssignmentService {
             }
         }
 
-        currentAnswer.setAnswer(currentUserLocation.toString());
-        currentAnswer.setResult(0);
+        if (currentAnswer.isWall()) {
+            switch (userNextMove) {
+                case LEFT -> currentUserLocation.setX(currentUserLocation.getX() + 1);
+                case RIGHT -> currentUserLocation.setX(currentUserLocation.getX() - 1);
+                case UP -> currentUserLocation.setY(currentUserLocation.getY() - 1);
+                case DOWN -> currentUserLocation.setY(currentUserLocation.getY() + 1);
+            }
+        }
 
-        List<Answer> answers = userAssignment.getAnswers();
-        currentAnswer.setAnswerNumber(answers.size() + 1);
+        updateRestrictionAfterAnswer(userAssignment);
+
+        currentAnswer.setAnswer(assignmentAnswerDto.answer());
+        currentAnswer.setResult(currentUserLocation.toString());
+        currentAnswer.setAnswerNumber(lastAnswer != null ? lastAnswer.getAnswerNumber() + 1 : 1);
 
         userAssignmentRepository.save(userAssignment);
         answerRepository.save(currentAnswer);
 
-        return new AssignmentResponseDto(0, currentAnswer.isWall(),
+        return new AssignmentResponseDto(currentAnswer.getResult(), currentAnswer.isWall(),
                 currentAnswer.isCorrect(),
                 getRestrictionTypeDto(userAssignment.getRestrictionType()),
                 userAssignment.getAttemptsRemaining(),
                 userAssignment.getDeadline(),
-                LocalDateTime.now().plusMinutes(userAssignment.getMinutesForAttempt())
+                userAssignment.getMinutesToDo()
         );
     }
 
@@ -471,7 +493,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         answer.setUserAssignment(userAssignment);
         answer.setAnswer(dto.answer());
-        answer.setResult(result);
+        answer.setResult(String.valueOf(result));
 
         List<Answer> answers = userAssignment.getAnswers();
         answer.setAnswerNumber(answers.size() + 1);
@@ -479,11 +501,11 @@ public class AssignmentServiceImpl implements AssignmentService {
         userAssignmentRepository.save(userAssignment);
         answerRepository.save(answer);
 
-        return new AssignmentResponseDto(result, false, answer.isCorrect(),
+        return new AssignmentResponseDto(answer.getResult(), false, answer.isCorrect(),
                 getRestrictionTypeDto(userAssignment.getRestrictionType()),
                 userAssignment.getAttemptsRemaining(),
                 userAssignment.getDeadline(),
-                LocalDateTime.now().plusMinutes(userAssignment.getMinutesForAttempt())
+                userAssignment.getMinutesToDo()
         );
     }
 
@@ -564,16 +586,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.N_ATTEMPTS) &&
                 userAssignment.getAttemptsRemaining() == 0) {
             throw new AttemptsNotLeftException();
-        } else if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.DEADLINE) &&
-                userAssignment.getDeadline().isBefore(LocalDateTime.now())) {
-            throw new AttemptAfterDeadlineException(userAssignment.getDeadline());
-        } else if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES) &&
-                (userAssignment.getLastAttemptTime() != null &&
-                        userAssignment.getLastAttemptTime().plusMinutes(userAssignment.getMinutesForAttempt())
-                                .isAfter(LocalDateTime.now()))
-        ) {
-            throw new AttemptLimitReachedException(userAssignment.getLastAttemptTime()
-                    .plusMinutes(userAssignment.getMinutesForAttempt()));
+        } else {
+            if (userAssignment.getDeadline().isBefore(LocalDateTime.now()))
+                throw new AttemptAfterDeadlineException(userAssignment.getDeadline());
         }
     }
 
@@ -594,9 +609,6 @@ public class AssignmentServiceImpl implements AssignmentService {
     private void updateRestrictionAfterAnswer(UserAssignment userAssignment) {
         if (userAssignment.getRestrictionType().equals(AssignmentRestrictionType.N_ATTEMPTS))
             userAssignment.setAttemptsRemaining(userAssignment.getAttemptsRemaining() - 1);
-        else if (userAssignment.getRestrictionType()
-                .equals(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES))
-            userAssignment.setLastAttemptTime(LocalDateTime.now());
     }
 
     private void updateRestrictionOnUserAssignmentCreation(
@@ -619,8 +631,8 @@ public class AssignmentServiceImpl implements AssignmentService {
             userAssignment.setRestrictionType(AssignmentRestrictionType.DEADLINE);
             userAssignment.setDeadline(defaultAssignmentRestriction.getDeadline());
         } else {
-            userAssignment.setRestrictionType(AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
-            userAssignment.setMinutesForAttempt(defaultAssignmentRestriction.getMinutesForAttempt());
+            userAssignment.setRestrictionType(AssignmentRestrictionType.N_MINUTES);
+            userAssignment.setMinutesToDo(defaultAssignmentRestriction.getMinutesToDo());
         }
     }
 

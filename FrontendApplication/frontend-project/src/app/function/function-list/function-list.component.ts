@@ -16,7 +16,7 @@ import { FunctionModalComponent } from '../function-modal/function-modal.compone
 import { functionModal } from '../../shared/translations/function.translation';
 import { JoinPipe } from "../../shared/pipes/join.pipe";
 import { RestrictionModalComponent } from '../../shared/modals/restriction/restriction-modal.component';
-import { DefaultRestrictionDto, ModalRestrictionDto, RestrictionDto } from '../../shared/models/restriction.model';
+import { DefaultRestrictionDto, ModalRestrictionDto, ReadableDefaultRestrictionDto, RestrictionDto } from '../../shared/models/restriction.model';
 import { AssignmentRestrictionService } from '../../shared/services/assignment-restriction.service';
 import { restrictionModalHeaders } from '../../shared/translations/restriction.translation';
 import { DefaultRestrictionLevel } from '../../shared/constants/default-restriction-level.constant';
@@ -191,18 +191,20 @@ export class FunctionListComponent implements OnInit {
     });
 
     this.restrictionService.getDefaultForFunction(id).subscribe({
-      next: (dto: DefaultRestrictionDto[]) => {
+      next: (dto: ReadableDefaultRestrictionDto[]) => {
         if (dto.length > 0) {
           if (dto[0].functionId == null) {
             modalRef.componentInstance.isInputRestrictionTypeDifferent = true;
             if (dto[0].universityId != null) {
               modalRef.componentInstance.inputRestritionTypeLevel = DefaultRestrictionLevel.UNIVERSITY;
-            } else {
+            } else if (dto[0].subjectId != null) {
               modalRef.componentInstance.inputRestritionTypeLevel = DefaultRestrictionLevel.SUBJECT;
+            } else {
+              modalRef.componentInstance.inputRestritionTypeLevel = DefaultRestrictionLevel.DEFAULT;
             }
           }
-          modalRef.componentInstance.inputValue = new ModalRestrictionDto(dto[0].restrictionType,
-            dto[0].attemptsRemaining, dto[0].minutesForAttempt, dto[0].deadline);
+          modalRef.componentInstance.inputValue = new ModalRestrictionDto(dto[0].restrictionType.type,
+            dto[0].attemptsRemaining, dto[0].minutesToDo, dto[0].deadline);
         }
       }
     }
@@ -213,7 +215,7 @@ export class FunctionListComponent implements OnInit {
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
         let dto = new DefaultRestrictionDto(null, value.restrictionType, null, null, id, null,
-          value.attemptsRemaining, value.minutesForAttempt, value.deadline);
+          value.attemptsRemaining, value.minutesToDo, value.deadline);
         this.restrictionService.setDefaultRestriction(dto).subscribe({
           complete: () => {
             modalRef.close();
@@ -236,7 +238,7 @@ export class FunctionListComponent implements OnInit {
     modalRef.componentInstance.saveAttempt.subscribe(
       (value: ModalRestrictionDto) => {
         let dto = new RestrictionDto(value.restrictionType, null, null, id, null, null,
-          value.attemptsRemaining, value.minutesForAttempt, value.deadline);
+          value.attemptsRemaining, value.minutesToDo, value.deadline);
         this.restrictionService.setRestriction(dto).subscribe({
           complete: () => {
             modalRef.close();

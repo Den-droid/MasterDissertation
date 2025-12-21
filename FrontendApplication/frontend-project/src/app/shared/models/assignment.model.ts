@@ -17,18 +17,18 @@ export class AssignmentDto {
     public restrictionType: RestrictionTypeDto,
     public attemptsRemaining: number,
     public deadline: string,
-    public nextAttemptTime: string
+    public minutesToDo: number
   ) { }
 }
 export class AssignmentResponseDto {
   constructor(
-    public result: number,
+    public result: string,
     public isWall: boolean,
     public hasCorrectAnswer: boolean,
     public restrictionType: RestrictionTypeDto,
     public attemptsRemaining: number,
     public deadline: string,
-    public nextAttemptTime: string
+    public minutesToDo: number
   ) { }
 }
 export class UserAssignmentDto {
@@ -40,7 +40,7 @@ export class UserAssignmentDto {
     public assignmentType: AssignmentTypeDto,
     public attemptsRemaining: number,
     public deadline: string,
-    public nextAttemptTime: string,
+    public minutesToDo: number,
     public mark: MarkDto,
     public user: UserDto
   ) { }
@@ -55,7 +55,7 @@ export class UserAssignmentWithFunctionDto {
     public assignmentType: AssignmentTypeDto,
     public attemptsRemaining: number,
     public deadline: string,
-    public nextAttemptTime: string,
+    public minutesToDo: number,
     public mark: MarkDto,
     public user: UserDto,
     public func: FunctionDto | null
@@ -83,13 +83,13 @@ export class AssignToGroupDto {
 }
 
 export class AnswerDto {
-  constructor(public numberOfAnswer: number, public answer: string, public result: number, public isCorrect: boolean) { }
+  constructor(public numberOfAnswer: number, public answer: string, public result: string, public isCorrect: boolean) { }
 }
 
 export function mapToUserAssignmentWithFunctionDto(userAssignmentDto: UserAssignmentDto) {
   return new UserAssignmentWithFunctionDto(userAssignmentDto.id, userAssignmentDto.hint,
     userAssignmentDto.status, userAssignmentDto.restrictionType, userAssignmentDto.assignmentType,
-    userAssignmentDto.attemptsRemaining, userAssignmentDto.deadline, userAssignmentDto.nextAttemptTime,
+    userAssignmentDto.attemptsRemaining, userAssignmentDto.deadline, userAssignmentDto.minutesToDo,
     userAssignmentDto.mark, userAssignmentDto.user, null
   );
 }

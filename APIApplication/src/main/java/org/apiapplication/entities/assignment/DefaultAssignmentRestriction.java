@@ -37,7 +37,7 @@ public class DefaultAssignmentRestriction {
 
     private AssignmentRestrictionType assignmentRestrictionType;
     private int attemptsRemaining;
-    private int minutesForAttempt;
+    private int minutesToDo;
     private LocalDateTime deadline;
 
     @Override

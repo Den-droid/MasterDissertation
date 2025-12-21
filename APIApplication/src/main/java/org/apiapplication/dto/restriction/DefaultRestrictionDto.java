@@ -5,5 +5,5 @@ import java.time.LocalDateTime;
 public record DefaultRestrictionDto(Integer id, int restrictionType, Integer functionId,
                                     Integer subjectId, Integer universityId, Integer mazeId,
                                     Integer attemptsRemaining,
-                                    Integer minutesForAttempt, LocalDateTime deadline) {
+                                    Integer minutesToDo, LocalDateTime deadline) {
 }

@@ -63,15 +63,15 @@ public class AssignmentController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{userAssignmentId}/startContinue")
-    public ResponseEntity<?> startContinue(@PathVariable String userAssignmentId) {
+    @PutMapping("/{userAssignmentId}/start")
+    public ResponseEntity<?> start(@PathVariable String userAssignmentId) {
         int userAssignmentIdInt;
         try {
             userAssignmentIdInt = Integer.parseInt(userAssignmentId);
         } catch (NumberFormatException e) {
             throw new EntityWithIdNotFoundException(EntityName.ASSIGNMENT, userAssignmentId);
         }
-        assignmentService.startContinue(userAssignmentIdInt);
+        assignmentService.start(userAssignmentIdInt);
         return ResponseEntity.ok().build();
     }
 

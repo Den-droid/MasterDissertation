@@ -42,7 +42,7 @@ public class WebSecurityConfig {
             "/api/assignments/*",
             "/api/assignments/assignFunction",
             "/api/assignments/assignMaze",
-            "/api/assignments/*/startContinue",
+            "/api/assignments/*/start",
             "/api/assignments/*/finish",
             "/api/assignments/*/giveAnswer"
     };
@@ -78,9 +78,7 @@ public class WebSecurityConfig {
     };
 
     private final String[] userUrls = {
-            "/api/users/*/apiKey",
-            "/api/urls",
-            "/api/fields"
+            "/api/users/*/apiKey"
     };
 
     private final String[] publicUrls = {

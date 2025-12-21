@@ -396,6 +396,13 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
         userAssignmentRepository.saveAll(userAssignments);
     }
 
+    @Override
+    public List<RestrictionTypeDto> getRestrictionTypes() {
+        return Arrays.stream(AssignmentRestrictionType.values())
+                .map(rt -> new RestrictionTypeDto(rt.ordinal(), rt.name()))
+                .toList();
+    }
+
     private ReadableDefaultRestrictionDto getReadableDefaultAssignmentRestrictionDto
             (DefaultAssignmentRestriction defaultAssignmentRestriction) {
         return new ReadableDefaultRestrictionDto(defaultAssignmentRestriction.getId(),
@@ -411,7 +418,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                 defaultAssignmentRestriction.getMaze() != null ?
                         defaultAssignmentRestriction.getMaze().getId() : null,
                 defaultAssignmentRestriction.getAttemptsRemaining(),
-                defaultAssignmentRestriction.getMinutesForAttempt(),
+                defaultAssignmentRestriction.getMinutesToDo(),
                 defaultAssignmentRestriction.getDeadline()
         );
     }
@@ -422,7 +429,7 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                 userAssignment.getRestrictionType().name()),
                 null, null, null, userAssignment.getId(), null,
                 userAssignment.getAttemptsRemaining(),
-                userAssignment.getMinutesForAttempt(),
+                userAssignment.getMinutesToDo(),
                 userAssignment.getDeadline()
         );
     }
@@ -450,10 +457,10 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                 userAssignment.setDeadline(dto.deadline());
         } else {
             userAssignment.setRestrictionType(
-                    AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
-            if (dto.minutesForAttempt() != null)
-                userAssignment.setMinutesForAttempt(
-                        dto.minutesForAttempt());
+                    AssignmentRestrictionType.N_MINUTES);
+            if (dto.minutesToDo() != null)
+                userAssignment.setMinutesToDo(
+                        dto.minutesToDo());
         }
     }
 
@@ -481,10 +488,10 @@ public class AssignmentRestrictionServiceImpl implements AssignmentRestrictionSe
                 defaultAssignmentRestriction.setDeadline(dto.deadline());
         } else {
             defaultAssignmentRestriction.setAssignmentRestrictionType(
-                    AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES);
-            if (dto.minutesForAttempt() != null)
-                defaultAssignmentRestriction.setMinutesForAttempt(
-                        dto.minutesForAttempt());
+                    AssignmentRestrictionType.N_MINUTES);
+            if (dto.minutesToDo() != null)
+                defaultAssignmentRestriction.setMinutesToDo(
+                        dto.minutesToDo());
         }
     }
 }

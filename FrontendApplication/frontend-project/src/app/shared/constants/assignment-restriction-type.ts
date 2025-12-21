@@ -1,9 +1,9 @@
 export enum AssignmentRestrictionType {
-  N_ATTEMPTS, ATTEMPT_PER_N_MINUTES, DEADLINE
+  N_ATTEMPTS, N_MINUTES, DEADLINE
 }
 
 export enum AssignmentRestrictionTypeLabel {
   N_ATTEMPTS = 'Кількість спроб', 
-  ATTEMPT_PER_N_MINUTES = 'Кількість хвилин на 1 спробу', 
+  N_MINUTES = 'Кількість хвилин', 
   DEADLINE = 'Дедлайн'
 }

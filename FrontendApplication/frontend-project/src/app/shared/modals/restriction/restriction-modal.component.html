@@ -12,8 +12,8 @@
             <p>
                 @if(isAnotherLevelRestrictionAttemptsRemaining()){
                 Кількість спроб: <span>{{defaultRestrictionAnotherLevel.attemptsRemaining}}</span>
-                } @else if (isAnotherLevelRestrictionMinutesForAttempt()) {
-                Кількість хвилин на спробу: <span>{{defaultRestrictionAnotherLevel.minutesForAttempt}}</span>
+                } @else if (isAnotherLevelRestrictionMinutesToDo()) {
+                Кількість хвилин на виконання завдання: <span>{{defaultRestrictionAnotherLevel.minutesToDo}}</span>
                 } @else if (isAnotherLevelRestrictionDeadline()) {
                 Дедлайн: <span>{{defaultRestrictionAnotherLevel.deadline}}</span>
                 }
@@ -44,15 +44,15 @@
         <div class="text-danger mt-1">{{ integerRequired }}</div>
         }
         }
-        @else if (isMinutesForAttempt()) {
-        <label for="minutesForAttempt" class="form-label">Введіть кількість хвилин на спробу:</label>
-        <input type="text" id="minutesForAttempt" class="form-control" formControlName="minutesForAttempt" />
-        @if (f['minutesForAttempt'].errors?.['required'] && (f['minutesForAttempt'].touched ||
-        f['minutesForAttempt'].dirty)) {
+        @else if (isMinutesToDo()) {
+        <label for="minutesToDo" class="form-label">Введіть кількість хвилин на виконання завдання:</label>
+        <input type="text" id="minutesToDo" class="form-control" formControlName="minutesToDo" />
+        @if (f['minutesToDo'].errors?.['required'] && (f['minutesToDo'].touched ||
+        f['minutesToDo'].dirty)) {
         <div class="text-danger mt-1">{{ minutesRequired }}</div>
         }
-        @if (f['minutesForAttempt'].errors?.['isInteger'] && (f['minutesForAttempt'].touched ||
-        f['minutesForAttempt'].dirty)) {
+        @if (f['minutesToDo'].errors?.['isInteger'] && (f['minutesToDo'].touched ||
+        f['minutesToDo'].dirty)) {
         <div class="text-danger mt-1">{{ integerRequired }}</div>
         }
         }

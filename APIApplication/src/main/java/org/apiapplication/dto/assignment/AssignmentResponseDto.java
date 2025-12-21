@@ -4,9 +4,9 @@ import org.apiapplication.dto.restriction.RestrictionTypeDto;
 
 import java.time.LocalDateTime;
 
-public record AssignmentResponseDto(double result, boolean isWall,
+public record AssignmentResponseDto(String result, boolean isWall,
                                     boolean hasCorrectAnswer,
                                     RestrictionTypeDto restrictionType,
                                     int attemptsRemaining, LocalDateTime deadline,
-                                    LocalDateTime nextAttemptTime) {
+                                    int minutesToDo) {
 }

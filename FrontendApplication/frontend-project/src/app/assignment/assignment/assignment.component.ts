@@ -2,15 +2,13 @@ import { CommonModule, Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AssignmentRestrictionType } from '../../shared/constants/assignment-restriction-type';
+import { AssignmentStatus } from '../../shared/constants/assignment-status.constant';
+import { joinVariables } from '../../shared/helpers/variables-join.helper';
+import { AnswerDto, AssignmentAnswerDto, AssignmentDto, AssignmentResponseDto } from '../../shared/models/assignment.model';
 import { AssignmentService } from '../../shared/services/assignment.service';
 import { JWTTokenService } from '../../shared/services/jwt-token.service';
-import { AnswerDto, AssignmentAnswerDto, AssignmentDto, AssignmentResponseDto } from '../../shared/models/assignment.model';
 import { assignmentLabels } from '../../shared/translations/assignment.translation';
-import { joinVariables } from '../../shared/helpers/variables-join.helper';
-import { AssignmentStatus } from '../../shared/constants/assignment-status.constant';
-import { AssignmentRestrictionType } from '../../shared/constants/assignment-restriction-type';
-import { Subscription } from 'rxjs/internal/Subscription';
-import { interval } from 'rxjs';
 
 @Component({
   selector: 'app-assignment',
@@ -32,9 +30,6 @@ export class AssignmentComponent {
   variablesErrorRequired = assignmentLabels['variable-empty'];
   variablesErrorNotNumber = assignmentLabels['variable-not-number'];
   isAnswersMode = false;
-
-  nextAttemptTimer!: Subscription;
-  canAttempt: boolean = false;
 
   ngOnInit() {
     this.form = this.fb.group({
@@ -71,15 +66,6 @@ export class AssignmentComponent {
 
         if (this.assignmentDto.status.status == AssignmentStatus.FINISHED) {
           this.isAnswersMode = true;
-        } else {
-          if (this.isRestrictionAttemptInNMinutes()) {
-            this.nextAttemptTimer = interval(1000).subscribe(() => {
-              this.canAttempt = !this.isNextAttemptTimeAfterNow();
-
-              if (this.canAttempt)
-                this.nextAttemptTimer.unsubscribe();
-            })
-          }
         }
       },
       error: (error: any) => {
@@ -95,7 +81,7 @@ export class AssignmentComponent {
         if (this.previousAnswersDto.length > 0) {
           this.assignmentResponseDto = new AssignmentResponseDto(this.previousAnswersDto[0].result, false,
             this.previousAnswersDto[0].isCorrect, this.assignmentDto.restrictionType,
-            this.assignmentDto.attemptsRemaining, this.assignmentDto.deadline, this.assignmentDto.nextAttemptTime);
+            this.assignmentDto.attemptsRemaining, this.assignmentDto.deadline, this.assignmentDto.minutesToDo);
         }
       }
     })
@@ -121,19 +107,10 @@ export class AssignmentComponent {
           this.assignmentResponseDto = assignmentResponseDto;
           this.assignmentDto.attemptsRemaining = this.assignmentResponseDto.attemptsRemaining;
           this.assignmentDto.deadline = this.assignmentResponseDto.deadline;
-          this.assignmentDto.nextAttemptTime = this.assignmentResponseDto.nextAttemptTime;
+          this.assignmentDto.minutesToDo = this.assignmentResponseDto.minutesToDo;
           this.assignmentDto.restrictionType = this.assignmentResponseDto.restrictionType;
 
           this.getPreviousAnswers();
-
-          if (this.isRestrictionAttemptInNMinutes()) {
-            this.nextAttemptTimer = interval(1000).subscribe(() => {
-              this.canAttempt = !this.isNextAttemptTimeAfterNow();
-
-              if (this.canAttempt)
-                this.nextAttemptTimer.unsubscribe();
-            })
-          }
         }
       })
   }
@@ -155,9 +132,8 @@ export class AssignmentComponent {
   disableInputsAndButtons() {
     return (this.assignmentResponseDto && this.assignmentResponseDto.hasCorrectAnswer)
       || (this.assignmentDto && this.isRestrictionNAttempts() && this.isNoAttemptsLeft())
-      || (this.assignmentDto && this.isRestrictionDeadline() && this.isDeadlineBeforeNow())
-      || (this.assignmentDto && this.isRestrictionAttemptInNMinutes() && !this.canAttempt
-      );
+      || (this.assignmentDto && (this.isRestrictionDeadline() || this.isRestrictionNMinutes())
+        && this.isDeadlineBeforeNow());
   }
 
   showAnswerNotCorrect() {
@@ -185,17 +161,12 @@ export class AssignmentComponent {
     return this.assignmentDto.restrictionType.type == AssignmentRestrictionType.DEADLINE
   }
 
-  isRestrictionAttemptInNMinutes() {
-    return this.assignmentDto.restrictionType.type == AssignmentRestrictionType.ATTEMPT_PER_N_MINUTES
+  isRestrictionNMinutes() {
+    return this.assignmentDto.restrictionType.type == AssignmentRestrictionType.N_MINUTES
   }
 
   isNoAttemptsLeft() {
     return this.assignmentDto.attemptsRemaining === 0;
-  }
-
-  isNextAttemptTimeAfterNow() {
-    return new Date(this.assignmentDto.nextAttemptTime).getTime() >=
-      new Date().getTime()
   }
 
   isDeadlineBeforeNow() {
